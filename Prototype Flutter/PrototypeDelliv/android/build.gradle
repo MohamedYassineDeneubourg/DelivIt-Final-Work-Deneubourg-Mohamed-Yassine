@@ -1,0 +1,55 @@
+buildscript {
+    ext.kotlin_version = '1.2.71'
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+            classpath 'com.google.gms:google-services:4.3.2'  // Google Services plugin
+
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:deprecation"
+        }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+        }
+    }
+
+
+      project.configurations.all {
+	resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'androidx.core' &&
+	       !details.requested.name.contains('androidx')) {
+		details.useVersion "1.0.1"
+            }else if (details.requested.group == 'androidx.fragment' &&
+	       !details.requested.name.contains('androidx')) {
+		details.useVersion "1.0.0"
+            }
+	}
+    }   
+}
+
+
+}
