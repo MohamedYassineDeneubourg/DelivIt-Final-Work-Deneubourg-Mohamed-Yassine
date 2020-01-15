@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>628507006503-sghmt2njiuf25led52m0vhqrqn71jobu.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.628507006503-sghmt2njiuf25led52m0vhqrqn71jobu</string>
+	<key>API_KEY</key>
+	<string>AIzaSyClMZejD8fhB-xp0t6cHHdlvoz8YTub6RY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>628507006503</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.todoYassine</string>
+	<key>PROJECT_ID</key>
+	<string>maw-prototype</string>
+	<key>STORAGE_BUCKET</key>
+	<string>maw-prototype.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:628507006503:ios:c8c16970be7538e3266002</string>
+	<key>DATABASE_URL</key>
+	<string>https://maw-prototype.firebaseio.com</string>
+</dict>
+</plist>
