@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "671351544477-9imb9vm9cgidf1i1eh21b01r6b8gasp6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.delivit",
+            "certificate_hash": "d1eb3ab7a88478604cd9b9634453a15cead93efc"
+          }
+        },
+        {
           "client_id": "671351544477-fi5cbteaf46rggqu6o0sb9tfupivkdv0.apps.googleusercontent.com",
           "client_type": 3
         }
