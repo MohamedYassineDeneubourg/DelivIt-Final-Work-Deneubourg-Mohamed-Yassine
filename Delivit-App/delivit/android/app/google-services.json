@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "671351544477",
+    "firebase_url": "https://delivit.firebaseio.com",
+    "project_id": "delivit",
+    "storage_bucket": "delivit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671351544477:android:6a2b996856a913a5851274",
+        "android_client_info": {
+          "package_name": "com.example.delivit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "671351544477-fi5cbteaf46rggqu6o0sb9tfupivkdv0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT21vaahFCzcTuCKXs_Vu3U0_-CNsMA8s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "671351544477-fi5cbteaf46rggqu6o0sb9tfupivkdv0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "671351544477-shtenp028ard6s6usaads2ned986d8fq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.delivit"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

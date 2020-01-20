@@ -10,6 +10,8 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="delivit"
         android:icon="@mipmap/ic_launcher">
+
+        
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -29,5 +31,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        
     </application>
 </manifest>

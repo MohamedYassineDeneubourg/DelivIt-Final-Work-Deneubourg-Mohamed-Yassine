@@ -2,6 +2,9 @@ name: delivit
 description: Delivery app - community based - final work deneubourg mohamed yassine
 version: 1.0.0+1
 
+module:
+  androidX: true
+  
 environment:
   sdk: ">=2.1.0 <3.0.0"
 
