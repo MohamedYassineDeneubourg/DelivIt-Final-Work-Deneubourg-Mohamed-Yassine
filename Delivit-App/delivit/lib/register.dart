@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/keuze.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:toast/toast.dart';
 
 import 'colors.dart';
 
@@ -16,6 +18,8 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   _RegisterState({Key key, @required this.phoneNumber});
 
   String _voornaam,
@@ -26,6 +30,7 @@ class _RegisterState extends State<Register> {
       smsOTP,
       verificationId;
   String errorMessage = '';
+  bool smsValid = false;
   String phoneNumber;
   FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -56,6 +61,9 @@ class _RegisterState extends State<Register> {
             print('${exceptio.message}');
           });
     } catch (e) {
+      final errorToast =
+          SnackBar(content: Text('Er is iets mis gegaan.. U kan herbeginnen.'));
+      _scaffoldKey.currentState.showSnackBar(errorToast);
       handleError(e);
     }
   }
@@ -114,19 +122,6 @@ class _RegisterState extends State<Register> {
         });
   }
 
-  signIn() async {
-    try {
-      print("yeah!");
-      PhoneAuthProvider.getCredential(
-        verificationId: verificationId,
-        smsCode: smsOTP,
-      );
-    } catch (e) {
-      print("nonono!");
-      handleError(e);
-    }
-  }
-
   handleError(PlatformException error) {
     print(error);
     switch (error.code) {
@@ -166,7 +161,6 @@ class _RegisterState extends State<Register> {
     if (valideerEnSave()) {
       try {
         print("Creating User...");
-
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: _email, password: _wachtwoord);
 
@@ -174,43 +168,68 @@ class _RegisterState extends State<Register> {
           verificationId: verificationId,
           smsCode: smsOTP,
         );
-        print("Link phone number..");
         final FirebaseUser currentUser = await _auth.currentUser();
-        currentUser.linkWithCredential(credential);
-        // currentUser.updateEmail(_email);
-        print("Creating user in DATABASE...");
         try {
-          await Firestore.instance
-              .collection("Users")
-              .document(phoneNumber)
-              .setData({
-            'Naam': _naam,
-            "Voornaam": _voornaam,
-            "Email": _email,
-            "PhoneNumber": phoneNumber,
-            "Position": {
-              'latitude': 50.8465573,
-              'longitude': 4.351697,
-            },
-            "GeldEuro": 0.0,
-            'isOnline': true,
-          });
-
-          print("User fully created!");
-        } catch (e) {
-          //handleError(e);
+          await currentUser.linkWithCredential(credential);
           setState(() {
-            errorMessage = "Probeer opnieuw, foute code..";
+            smsValid = true;
           });
-          print('Error:$e');
+        } on PlatformException catch (e) {
+          handleError(e);
+          print(e);
+        } catch (e) {
+          handleError(e);
+          print('error: $e');
         }
-        /*    Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Home(
-                      title: "TodoApp - $_naam",
-                    )),
-            (Route<dynamic> route) => false);*/
+
+        print("IS SMS VALID ? $smsValid");
+        if (smsValid) {
+          // currentUser.updateEmail(_email);
+          print("Creating user in DATABASE...");
+          try {
+            await Firestore.instance
+                .collection("Users")
+                .document(phoneNumber)
+                .setData({
+              'Naam': _naam,
+              "Voornaam": _voornaam,
+              "Email": _email,
+              "PhoneNumber": phoneNumber,
+              "Position": {
+                'latitude': 50.8465573,
+                'longitude': 4.351697,
+              },
+              "GeldEuro": 0.0,
+              'isOnline': true,
+            });
+
+            print("User fully created!");
+          } on PlatformException catch (e) {
+            print(e);
+            final errorToast = SnackBar(
+                content: Text('Er is iets mis gegaan.. U kan herbeginnen.'));
+            _scaffoldKey.currentState.showSnackBar(errorToast);
+          } catch (e) {
+            //handleError(e);
+            setState(() {
+              errorMessage = "Probeer opnieuw, foute code..";
+            });
+            print('Error:$e');
+          }
+          Navigator.pop(context);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => Keuze()),
+              (Route<dynamic> route) => false);
+        } else {
+          Toast.show("Er is iets mis gegaan.. U kan herbeginnen.", context,
+              duration: Toast.LENGTH_SHORT,
+              gravity: Toast.TOP,
+              backgroundColor: Colors.red);
+          if (currentUser != null) {
+            currentUser.delete();
+          }
+        }
         // print('Ingelogd met : ${gebruiker.user.uid}');
       } catch (e) {
         print('error: $e');
@@ -228,6 +247,7 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+        key: _scaffoldKey,
         resizeToAvoidBottomPadding: false,
         body: Stack(children: <Widget>[
           ColorFiltered(

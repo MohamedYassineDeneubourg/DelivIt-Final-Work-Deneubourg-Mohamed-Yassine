@@ -1,4 +1,5 @@
 import 'package:delivit/colors.dart';
+import 'package:delivit/keuze.dart';
 import 'package:delivit/register.dart';
 
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
           900: Colors.grey.shade900
         }),
       ),
-      //home: MyHomePage(title: 'Delivit'),
+      //home: Keuze(),
       home: DelivitHomePage(title: "DelivIt"),
     );
   }
