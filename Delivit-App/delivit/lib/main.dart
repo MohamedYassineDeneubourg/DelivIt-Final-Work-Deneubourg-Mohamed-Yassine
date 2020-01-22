@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/register.dart';
@@ -110,6 +111,27 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
     });
   }
 
+   numerExists(phoneNumber) async {
+     print(phoneNumber);
+    final query = await Firestore.instance
+        .collection("Users")
+        .where('PhoneNumber', isEqualTo: phoneNumber)
+        .getDocuments();
+    print(query.documents.length);
+
+    if (query.documents.length == 0) {
+    //  print('Nummer Bestaat niet!');
+      return null;
+    }
+    //print('Nummer Bestaat !');
+    List<DocumentSnapshot> documents = query.documents;
+    documents.forEach((object) {
+      print(object.data['Email']);
+      return object.data['Email'];
+    });
+    //return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -184,14 +206,21 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                             onPressed: () {
                               if (phoneIsoCode == "BE") {
                                 if (phoneNo.length > 3) {
-                                  Navigator.pushAndRemoveUntil(
+                                  /*  Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => Register(
                                           phoneNumber: phoneNo,
                                         ),
                                       ),
-                                      (Route<dynamic> route) => false);
+                                      (Route<dynamic> route) => false); */
+                                  if(numerExists(phoneNo) is String){
+                                    print("bruh!");
+                                    print(numerExists(phoneNo).toString());
+                                  }else if(numerExists(phoneNo) != String){
+                                    print("bestaat niet! br");
+                                  }
+                                  
                                 }
                                 print("+32" + phoneNumber);
                               }

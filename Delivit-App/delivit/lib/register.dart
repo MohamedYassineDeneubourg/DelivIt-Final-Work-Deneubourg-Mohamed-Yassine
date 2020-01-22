@@ -291,7 +291,7 @@ class _RegisterState extends State<Register> {
         return true;
       }
       print(signUpError);
-      print('returnshit');
+      print('returnit');
       return bestaat;
       
     }
