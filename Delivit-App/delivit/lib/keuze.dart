@@ -47,7 +47,8 @@ class _KeuzeState extends State<Keuze> {
                             borderRadius:
                                 new BorderRadius.all(Radius.circular(10.0))),
                         child: Padding(
-                            padding: EdgeInsets.all(20),
+                            padding: EdgeInsets.only(
+                                bottom: 20, top: 20, right: 15, left: 15),
                             child: Column(
                               children: <Widget>[
                                 Text("Kies een functie",
@@ -57,20 +58,66 @@ class _KeuzeState extends State<Keuze> {
                                         fontSize: 30),
                                     textAlign: TextAlign.center),
                                 Text(
-                                  "Deze kan je later in je instellingen wijzigen",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16),
-                                ),
+                                    "Dit kan je later in je instellingen wijzigen",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                    textAlign: TextAlign.center),
                               ],
                             )))),
                 // EINDE box met titel
-                RaisedButton(
-                  onPressed: () {
-                    final errorToast =
-                        SnackBar(content: Text('Er is iets mis gegaan.. U kan herbeginnen.'));
-                    _scaffoldKey.currentState.showSnackBar(errorToast);
-                  },
-                )
+                Padding(
+                    padding: EdgeInsets.only(top: 50, right: 20.0, left: 20.0),
+                    child: ButtonTheme(
+                        minWidth: size.width * 0.90,
+                        height: 100.0,
+                        padding: EdgeInsets.all(0),
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(10.0)),
+                          child: Stack(alignment: Alignment.center, children: <
+                              Widget>[
+                            ColorFiltered(
+                                colorFilter: ColorFilter.mode(
+                                    Geel.withOpacity(0.5), BlendMode.srcOver),
+                                child: ClipRRect(
+                                  child: Image.asset(
+                                    'assets/images/backgroundLogin.jpg',
+                                    width: size.width,
+                                    height: size.height / 3.5,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                )),
+                            Center(
+                                child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                    child: Center(
+                                        child: Text("Kies een functie",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w900,
+                                                fontSize: 30),
+                                            textAlign: TextAlign.center))),
+                                Center(
+                                  child: Text(
+                                      "Deze kan je later in je instellingen wijzigen",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                      textAlign: TextAlign.center),
+                                )
+                              ],
+                            ))
+                          ]),
+                          onPressed: () {
+                            // Perform some action
+                          },
+                        ))),
               ]))
         ]));
   }

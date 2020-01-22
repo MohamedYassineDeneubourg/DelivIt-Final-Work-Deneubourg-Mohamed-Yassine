@@ -29,8 +29,8 @@ class MyApp extends StatelessWidget {
           900: Colors.grey.shade900
         }),
       ),
-      //home: Keuze(),
-      home: DelivitHomePage(title: "DelivIt"),
+      home: Keuze(),
+      //home: DelivitHomePage(title: "DelivIt"),
     );
   }
 }
