@@ -7,13 +7,42 @@ import 'package:flutter/material.dart';
 
 import 'package:international_phone_input/international_phone_input.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(Main());
 
-class MyApp extends StatelessWidget {
+class Main extends StatefulWidget {
+  @override
+  _MainState createState() => _MainState();
+}
+
+class _MainState extends State<Main> {
+  String connectedUserMail;
+
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    if (user != null) {
+      setState(() {
+        connectedUserMail = user.email;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    getCurrentUser();
+    super.initState();
+  }
+
+  redirectGebruiker() {
+    if (connectedUserMail != null) {
+      return Keuze();
+    } else {
+      return DelivitHomePage();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Delivit',
       theme: ThemeData(
         fontFamily: "Montserrat",
@@ -30,8 +59,8 @@ class MyApp extends StatelessWidget {
           900: Colors.grey.shade900
         }),
       ),
-      home: Keuze(),
-      //home: DelivitHomePage(title: "DelivIt"),
+      debugShowCheckedModeBanner: false,
+      home: redirectGebruiker(),
     );
   }
 }

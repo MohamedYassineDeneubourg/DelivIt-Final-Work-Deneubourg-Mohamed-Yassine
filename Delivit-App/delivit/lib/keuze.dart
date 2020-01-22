@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:icon_shadow/icon_shadow.dart';
 
@@ -258,7 +259,10 @@ class _KeuzeState extends State<Keuze> {
         ]));
   }
 
-  void aankoperGekozen() {}
+  Future<void> aankoperGekozen() async {
+      FirebaseAuth.instance.signOut();
+
+  }
 
   void bezorgerGekozen() {}
 }

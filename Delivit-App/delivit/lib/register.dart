@@ -35,91 +35,106 @@ class _RegisterState extends State<Register> {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> verifyPhone() async {
-    final PhoneCodeSent smsOTPSent = (String verId, [int forceCodeResend]) {
-      print(verId);
-      this.verificationId = verId;
-      smsOTPDialog(context).then((value) {
-        print(value);
-        print('Verify phone');
-      });
-    };
-    try {
-      print(this.phoneNumber);
-      await _auth.verifyPhoneNumber(
-          phoneNumber: this.phoneNumber,
-          codeAutoRetrievalTimeout: (String verId) {
-            this.verificationId = verId;
-          },
-          codeSent: smsOTPSent,
-          timeout: const Duration(seconds: 20),
-          verificationCompleted: (AuthCredential phoneAuthCredential) {
-            print("OK!");
-            print(phoneAuthCredential);
-          },
-          verificationFailed: (AuthException exceptio) {
-            print("FAILLLL!");
-            print('${exceptio.message}');
-          });
-    } catch (e) {
-      final errorToast =
-          SnackBar(content: Text('Er is iets mis gegaan.. U kan herbeginnen.'));
-      _scaffoldKey.currentState.showSnackBar(errorToast);
-      handleError(e);
+    if (valideerEnSave()) {
+      final PhoneCodeSent smsOTPSent = (String verId, [int forceCodeResend]) {
+        print(verId);
+        this.verificationId = verId;
+        smsOTPDialog(context).then((value) {
+          print(value);
+          print('Verify phone');
+        });
+      };
+      try {
+        print(this.phoneNumber);
+        await _auth.verifyPhoneNumber(
+            phoneNumber: this.phoneNumber,
+            codeAutoRetrievalTimeout: (String verId) {
+              this.verificationId = verId;
+            },
+            codeSent: smsOTPSent,
+            timeout: const Duration(seconds: 20),
+            verificationCompleted: (AuthCredential phoneAuthCredential) {
+              print("OK!");
+              print(phoneAuthCredential);
+            },
+            verificationFailed: (AuthException exceptio) {
+              print("FAILLLL!");
+              print('${exceptio.message}');
+            });
+      } catch (e) {
+        final errorToast = SnackBar(
+            content: Text('Er is iets mis gegaan.. U kan herbeginnen.'));
+        _scaffoldKey.currentState.showSnackBar(errorToast);
+        handleError(e);
+      }
+    } else {
+      Toast.show("Er is iets mis gegaan.. U kan herbeginnen.", context,
+          duration: Toast.LENGTH_SHORT,
+          gravity: Toast.TOP,
+          backgroundColor: Colors.red);
     }
   }
 
   Future<bool> smsOTPDialog(BuildContext context) {
-    return showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return new AlertDialog(
-            title: Text('VOEG JE SMS-CODE',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            content: Container(
-              height: 85,
-              child: Column(children: [
-                TextField(
-                  maxLength: 6,
+    if (valideerEnSave()) {
+      return showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return new AlertDialog(
+              title: Text('VOEG JE SMS-CODE',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 25),
-                  onChanged: (value) {
-                    this.smsOTP = value;
-                  },
-                ),
-                (errorMessage != ''
-                    ? Flexible(
-                        child: Text(
-                        errorMessage,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold),
-                      ))
-                    : Container())
-              ]),
-            ),
-            contentPadding: EdgeInsets.all(20),
-            actions: <Widget>[
-              ButtonTheme(
-                  minWidth: 400.0,
-                  child: RaisedButton(
-                    color: Geel,
-                    child: Text(
-                      "BEVESTIG CODE",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    onPressed: () {
-                      print("bevestiged code!");
-                      valideerEnAuth();
-                      //  signIn();
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              content: Container(
+                height: 85,
+                child: Column(children: [
+                  TextField(
+                    maxLength: 6,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 25),
+                    onChanged: (value) {
+                      this.smsOTP = value;
                     },
-                  ))
-            ],
-          );
-        });
+                  ),
+                  (errorMessage != ''
+                      ? Flexible(
+                          child: Text(
+                          errorMessage,
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold),
+                        ))
+                      : Container())
+                ]),
+              ),
+              contentPadding: EdgeInsets.all(20),
+              actions: <Widget>[
+                ButtonTheme(
+                    minWidth: 400.0,
+                    child: RaisedButton(
+                      color: Geel,
+                      child: Text(
+                        "BEVESTIG CODE",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () {
+                        print("bevestiged code!");
+                        valideerEnAuth();
+                        //  signIn();
+                      },
+                    ))
+              ],
+            );
+          });
+    } else {
+      Toast.show("Wachtwoord is niet hetzelfde, probeer opnieuw", context,
+          duration: Toast.LENGTH_SHORT,
+          gravity: Toast.TOP,
+          backgroundColor: Colors.red);
+      return null;
+    }
   }
 
   handleError(PlatformException error) {
@@ -130,7 +145,8 @@ class _RegisterState extends State<Register> {
         setState(() {
           errorMessage = 'De code is niet correct..';
         });
-        Navigator.of(context).pop();
+        print('popdaar!');
+        // Navigator.of(context).pop();
         smsOTPDialog(context).then((value) {
           print('sign in');
         });
@@ -146,11 +162,20 @@ class _RegisterState extends State<Register> {
 
   bool valideerEnSave() {
     final form = _formKey.currentState;
-    if (_wachtwoord == _herhaalWachtwoord) {
-      if (form.validate()) {
-        form.save();
-        print('Form is valid: Email: $_email & Password: $_wachtwoord');
+
+    print(_wachtwoord);
+    print(_herhaalWachtwoord);
+    if (form.validate()) {
+      form.save();
+      print('Form is valid: Email: $_email & Password: $_wachtwoord');
+      if (_wachtwoord == _herhaalWachtwoord) {
         return true;
+      } else {
+        Toast.show("Wachtwoord is niet hetzelfde, probeer opnieuw", context,
+            duration: Toast.LENGTH_SHORT,
+            gravity: Toast.TOP,
+            backgroundColor: Colors.red);
+        return false;
       }
     }
     return false;
@@ -217,6 +242,7 @@ class _RegisterState extends State<Register> {
             print('Error:$e');
           }
           Navigator.pop(context);
+          print("popHier!");
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => Keuze()),
@@ -241,6 +267,39 @@ class _RegisterState extends State<Register> {
     Navigator.pop(context);
   }
 
+  bool checkIfEmailExists(emailValue) {
+    print("Check...");
+    bool bestaat = false;
+    try {
+      _auth.signInWithEmailAndPassword(
+          email: emailValue, password: 'password');
+    } catch (signUpError) {
+      print("errorSignup!");
+      FocusScope.of(context).requestFocus(new FocusNode());
+      if (signUpError is PlatformException) {
+        if (signUpError.code == 'ERROR_WRONG_PASSWORD') {
+          print('E-mail bestaat al!');
+          bestaat = true;
+          return true;
+        }
+        if(signUpError.code == 'ERROR_USER_NOT_FOUND'){
+          bestaat = false;
+          return false;
+        }
+        
+        print("Een ander error  !");
+        return true;
+      }
+      print(signUpError);
+      print('returnshit');
+      return bestaat;
+      
+    }
+    print("fale");
+    return true;
+
+  }
+
   final _formKey = new GlobalKey<FormState>();
 
   @override
@@ -252,162 +311,259 @@ class _RegisterState extends State<Register> {
         body: Stack(children: <Widget>[
           ColorFiltered(
               colorFilter: ColorFilter.mode(
-                  Colors.white.withOpacity(0.9), BlendMode.srcOver),
+                  Colors.white.withOpacity(0.5), BlendMode.srcOver),
               child: Image.asset(
                 'assets/images/backgroundLogin.jpg',
                 width: size.width,
                 height: size.height,
                 fit: BoxFit.cover,
               )),
-          Center(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+          Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
+              Widget>[
+            //Box met titel BEGIN
+            Padding(
+                padding: EdgeInsets.only(top: 75),
+                child: Container(
+                    width: size.width * 0.90,
+                    decoration: new BoxDecoration(
+                        color: Geel,
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 1.0,
+                            color: GrijsMidden,
+                            offset: Offset(0.3, 0.3),
+                          ),
+                        ],
+                        borderRadius:
+                            new BorderRadius.all(Radius.circular(10.0))),
+                    child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Column(
+                          children: <Widget>[
+                            Text("Vul uw gegevens in",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 30),
+                                textAlign: TextAlign.center),
+                            Text(
+                              "Deze zullen beschermd worden",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ],
+                        )))),
+            // EINDE box met titel
+            //BEGIN TEXTVELDEN
+
+            Form(
+                key: _formKey,
+                child: Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                //Box met titel BEGIN
-                Padding(
-                    padding: EdgeInsets.only(top: 75),
-                    child: Container(
-                        width: size.width * 0.90,
-                        decoration: new BoxDecoration(
-                            color: Geel,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 1.0,
-                                color: GrijsMidden,
-                                offset: Offset(0.3, 0.3),
-                              ),
-                            ],
-                            borderRadius:
-                                new BorderRadius.all(Radius.circular(10.0))),
-                        child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Column(
-                              children: <Widget>[
-                                Text("Vul uw gegevens in",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 30),
-                                    textAlign: TextAlign.center),
-                                Text(
-                                  "Deze zullen beschermd worden",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16),
-                                ),
-                              ],
-                            )))),
-                // EINDE box met titel
-                //BEGIN TEXTVELDEN
-                Center(
-                  child: Padding(
-                      padding:
-                          EdgeInsets.only(top: 50, right: 10.0, left: 10.0),
-                      child: Form(
-                          key: _formKey,
+                    Expanded(
+                      child: Padding(
+                          padding: EdgeInsets.only(right: 20, left: 20),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: <Widget>[
-                              Padding(
-                                  padding: EdgeInsets.only(bottom: 10.0),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        border: new OutlineInputBorder(
-                                            borderSide:
-                                                new BorderSide(color: Geel)),
-                                        labelText: 'Naam',
-                                        hintText: 'E.g Deneubourg'),
-                                    validator: (value) => value.isEmpty
-                                        ? "Naam moet ingevuld zijn"
-                                        : null,
-                                    onSaved: (value) => _naam = value,
-                                  )),
-                              Padding(
-                                  padding: EdgeInsets.only(bottom: 10.0),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        border: new OutlineInputBorder(
-                                            borderSide:
-                                                new BorderSide(color: Geel)),
-                                        labelText: 'Voornaam',
-                                        hintText: 'E.g Yassine'),
-                                    validator: (value) => value.isEmpty
-                                        ? "Voornaam moet ingevuld zijn"
-                                        : null,
-                                    onSaved: (value) => _voornaam = value,
-                                  )),
-                              Padding(
-                                  padding: EdgeInsets.only(bottom: 10.0),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        border: new OutlineInputBorder(
-                                            borderSide:
-                                                new BorderSide(color: Geel)),
-                                        labelText: 'Uw e-mail adress',
-                                        hintText: 'E.g m.yassine@hotmail.be'),
-                                    validator: (value) => value.isEmpty
-                                        ? "E-mail moet ingevuld zijn"
-                                        : null,
-                                    onSaved: (value) => _email = value,
-                                  )),
-                              Padding(
-                                  padding: EdgeInsets.only(bottom: 10.0),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        border: new OutlineInputBorder(
-                                            borderSide:
-                                                new BorderSide(color: Geel)),
-                                        labelText: 'Uw wachtwoord',
-                                        hintText: '***'),
-                                    obscureText: true,
-                                    validator: (value) => value.isEmpty
-                                        ? "Wachtwoord moet ingevuld zijn"
-                                        : null,
-                                    onSaved: (value) => _wachtwoord = value,
-                                  )),
-                              Padding(
-                                  padding: EdgeInsets.only(bottom: 10.0),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        border: new OutlineInputBorder(
-                                            borderSide:
-                                                new BorderSide(color: Geel)),
-                                        labelText: 'Herhaal je wachtwoord',
-                                        hintText: '***'),
-                                    obscureText: true,
-                                    validator: (value) => value.isEmpty
-                                        ? "Wachtwoord moet ingevuld zijn"
-                                        : null,
-                                    onSaved: (value) =>
-                                        _herhaalWachtwoord = value,
-                                  )),
-                              Padding(
-                                  padding: EdgeInsets.only(top: 10.0),
-                                  child: RaisedButton(
-                                    child: new Text('SCHRIJF JE IN',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold)),
-                                    color: Geel,
-                                    onPressed: () {
-                                      verifyPhone();
-                                    },
-                                  )),
-                            ],
-                          ))),
-                )
-                //EINDE TEXTVELDEN
-              ]))
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Padding(
+                                    padding:
+                                        EdgeInsets.only(top: 0, bottom: 20.0),
+                                    child: TextFormField(
+                                      //  autofocus: true,
+                                      decoration: InputDecoration(
+                                          errorStyle: TextStyle(
+                                              fontWeight: FontWeight.w700),
+                                          prefixIcon: Icon(
+                                            Icons.person,
+                                            color: Geel,
+                                          ),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Geel, width: 6),
+                                          ),
+                                          border: new UnderlineInputBorder(),
+                                          errorBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.red, width: 6),
+                                          ),
+                                          labelText: 'Naam',
+                                          hintText: 'E.g Deneubourg'),
+                                      validator: (value) => value.isEmpty
+                                          ? "Naam moet ingevuld zijn"
+                                          : null,
+
+                                      onSaved: (value) => _naam = value,
+                                    )),
+                                Padding(
+                                    padding: EdgeInsets.only(bottom: 20.0),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                          errorStyle: TextStyle(
+                                              fontWeight: FontWeight.w700),
+                                          prefixIcon: Icon(
+                                            Icons.person_outline,
+                                            color: Geel,
+                                          ),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Geel, width: 6),
+                                          ),
+                                          border: new UnderlineInputBorder(),
+                                          errorBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.red, width: 6),
+                                          ),
+                                          labelText: 'Voornaam',
+                                          hintText: 'E.g Yassine'),
+                                      validator: (value) => value.isEmpty
+                                          ? "Voornaam moet ingevuld zijn"
+                                          : null,
+                                      onSaved: (value) => _voornaam = value,
+                                    )),
+                                Padding(
+                                    padding: EdgeInsets.only(bottom: 20.0),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                          errorStyle: TextStyle(
+                                              fontWeight: FontWeight.w700),
+                                          prefixIcon: Icon(
+                                            Icons.alternate_email,
+                                            color: Geel,
+                                          ),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Geel, width: 6),
+                                          ),
+                                          border: new UnderlineInputBorder(),
+                                          errorBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.red, width: 6),
+                                          ),
+                                          labelText: 'Uw e-mail adress',
+                                          hintText: 'E.g m.yassine@hotmail.be'),
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          return "E-mail adres moet ingevuld zijn.";
+                                        }
+
+                                        if (!RegExp(
+                                                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                            .hasMatch(value)) {
+                                          return "Geen correcte e-mail adres.";
+                                        }
+
+                                        if(checkIfEmailExists(value)){
+                                          return "E-mailadres is al gebruikt.";
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) => _email = value,
+                                    )),
+                                Padding(
+                                    padding: EdgeInsets.only(bottom: 20.0),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                          errorStyle: TextStyle(
+                                              fontWeight: FontWeight.w700),
+                                          prefixIcon: Icon(
+                                            Icons.no_encryption,
+                                            color: Geel,
+                                          ),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Geel, width: 6),
+                                          ),
+                                          border: new UnderlineInputBorder(),
+                                          errorBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.red, width: 6),
+                                          ),
+                                          labelText: 'Uw wachtwoord',
+                                          hintText: '***'),
+                                      obscureText: true,
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          return "Wachtwoord moet ingevuld zijn";
+                                        }
+                                        if (value.length < 6) {
+                                          return "Wachtwoord moet minstens 6 karakters hebben.";
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (value) => _wachtwoord = value,
+                                      onSaved: (value) => _wachtwoord = value,
+                                    )),
+                                Padding(
+                                    padding: EdgeInsets.only(bottom: 20.0),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                          errorStyle: TextStyle(
+                                              fontWeight: FontWeight.w700),
+                                          prefixIcon: Icon(
+                                            Icons.no_encryption,
+                                            color: Geel,
+                                          ),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Geel, width: 6),
+                                          ),
+                                          border: new UnderlineInputBorder(),
+                                          errorBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.red, width: 6),
+                                          ),
+                                          labelText: 'Herhaal je wachtwoord',
+                                          hintText: '***'),
+                                      obscureText: true,
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          return "Wachtwoord moet ingevuld zijn";
+                                        }
+                                        if (value != _wachtwoord) {
+                                          return "Wachtwoord zijn niet identiek!";
+                                        }
+                                        if (value.length < 6) {
+                                          return "Wachtwoord moet minstens 6 karakters hebben.";
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) =>
+                                          _herhaalWachtwoord = value,
+                                    )),
+                              ])),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 60, right: 20, left: 20),
+                        child: RaisedButton(
+                          child: new Text('SCHRIJF JE IN',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
+                          color: Geel,
+                          onPressed: () {
+                            verifyPhone();
+                          },
+                        ))
+                  ],
+                ))),
+
+            //EINDE TEXTVELDEN
+          ])
         ]));
   }
 }
