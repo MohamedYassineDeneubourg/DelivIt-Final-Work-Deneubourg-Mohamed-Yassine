@@ -1,6 +1,7 @@
 import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/register.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 
@@ -50,6 +51,24 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
   String confirmedNumber;
   Color buttonColor = GrijsDark;
   String phoneNo;
+
+  String connectedUserMail;
+
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    if (user != null) {
+      setState(() {
+        connectedUserMail = user.email;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    getCurrentUser();
+    super.initState();
+  }
+
   void onPhoneNumberChange(
       String number, String internationalizedPhoneNumber, String isoCode) {
     buttonColor = Geel;
@@ -136,11 +155,12 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                             onPressed: () {
                               if (phoneIsoCode == "BE") {
                                 if (phoneNo.length > 3) {
-                                
                                   Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => Register(phoneNumber: phoneNo,),
+                                        builder: (context) => Register(
+                                          phoneNumber: phoneNo,
+                                        ),
                                       ),
                                       (Route<dynamic> route) => false);
                                 }
