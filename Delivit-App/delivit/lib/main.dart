@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:circular_splash_transition/circular_splash_transition.dart';
+import 'package:circular_reveal_animation/circular_reveal_animation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
@@ -80,15 +80,17 @@ class DelivitHomePage extends StatefulWidget {
   _DelivitHomePageState createState() => _DelivitHomePageState();
 }
 
-class _DelivitHomePageState extends State<DelivitHomePage> {
+class _DelivitHomePageState extends State<DelivitHomePage>
+    with SingleTickerProviderStateMixin {
   String phoneNumber;
   String phoneIsoCode;
   String confirmedNumber;
   Color buttonColor = GrijsDark;
   String phoneNo;
-  bool isLoading = true;
+  bool isLoading = false;
   String connectedUserMail;
-
+  Animation<double> animation;
+  AnimationController animationController;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
@@ -109,6 +111,15 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
   void initState() {
     getCurrentUser();
     super.initState();
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000),
+    );
+    animation = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeIn,
+    );
+    animationController.forward();
   }
 
   void onValidPhoneNumber(
@@ -163,16 +174,14 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
         isLoading = false;
       });
 
-      /* Navigator.push(
+      Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Login(
               email: emailVoorLogin,
             ),
           ));
-*/
 
-      push(emailVoorLogin);
       return object.data['Email'];
     });
     //return null;
@@ -180,31 +189,18 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
-  }
-
-  CircularSplashController _controller = CircularSplashController(
-    color: Geel, //optional, default is White.
-    duration: Duration(milliseconds: 300), //optional.
-  );
-
-  Future<Object> push(value) async {
-    Object object = await _controller.push(
-        context,
-        Login(
-          email: value,
-        ));
-    print(object);
-    return object;
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        body: CircularSplash(
-      controller: _controller,
+        body: CircularRevealAnimation(
+      animation: animation,
+      centerAlignment: Alignment.bottomCenter,
+      minRadius: 12,
+      // @required
       child: isLoading
           ? loadingScreen
           : Stack(
