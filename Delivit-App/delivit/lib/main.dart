@@ -1,6 +1,11 @@
+import 'dart:ui';
+
+import 'package:circular_splash_transition/circular_splash_transition.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
+import 'package:delivit/loadingScreen.dart';
+import 'package:delivit/login.dart';
 import 'package:delivit/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -44,25 +49,25 @@ class _MainState extends State<Main> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Delivit',
-      theme: ThemeData(
-        fontFamily: "Montserrat",
-        primarySwatch: MaterialColor(Geel.value, {
-          50: Colors.grey.shade50,
-          100: Colors.grey.shade100,
-          200: Colors.grey.shade200,
-          300: Colors.grey.shade300,
-          400: Colors.grey.shade400,
-          500: Colors.grey.shade500,
-          600: Colors.grey.shade600,
-          700: Colors.grey.shade700,
-          800: Colors.grey.shade800,
-          900: Colors.grey.shade900
-        }),
-      ),
-      debugShowCheckedModeBanner: false,
-      home: redirectGebruiker(),
-    );
+        title: 'Delivit',
+        theme: ThemeData(
+          fontFamily: "Montserrat",
+          primarySwatch: MaterialColor(Geel.value, {
+            50: Colors.grey.shade50,
+            100: Colors.grey.shade100,
+            200: Colors.grey.shade200,
+            300: Colors.grey.shade300,
+            400: Colors.grey.shade400,
+            500: Colors.grey.shade500,
+            600: Colors.grey.shade600,
+            700: Colors.grey.shade700,
+            800: Colors.grey.shade800,
+            900: Colors.grey.shade900
+          }),
+        ),
+        debugShowCheckedModeBanner: false,
+        home: redirectGebruiker());
+    //home: Login());
   }
 }
 
@@ -81,14 +86,21 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
   String confirmedNumber;
   Color buttonColor = GrijsDark;
   String phoneNo;
-
+  bool isLoading = true;
   String connectedUserMail;
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    print(user);
     if (user != null) {
       setState(() {
         connectedUserMail = user.email;
+      });
+    } else {
+      Future.delayed(const Duration(seconds: 1), () {
+        setState(() {
+          isLoading = false;
+        });
       });
     }
   }
@@ -97,6 +109,13 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
   void initState() {
     getCurrentUser();
     super.initState();
+  }
+
+  void onValidPhoneNumber(
+      String number, String internationalizedPhoneNumber, String isoCode) {
+    setState(() {
+      confirmedNumber = internationalizedPhoneNumber;
+    });
   }
 
   void onPhoneNumberChange(
@@ -111,8 +130,8 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
     });
   }
 
-   numerExists(phoneNumber) async {
-     print(phoneNumber);
+  numerExists(phoneNumber) async {
+    print(phoneNumber);
     final query = await Firestore.instance
         .collection("Users")
         .where('PhoneNumber', isEqualTo: phoneNumber)
@@ -120,118 +139,161 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
     print(query.documents.length);
 
     if (query.documents.length == 0) {
-    //  print('Nummer Bestaat niet!');
+      print('Nummer Bestaat niet!');
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Register(
+              phoneNumber: phoneNo,
+            ),
+          ));
+
       return null;
     }
     //print('Nummer Bestaat !');
     List<DocumentSnapshot> documents = query.documents;
     documents.forEach((object) {
+      print("Nummer bestaat wel");
       print(object.data['Email']);
+      String emailVoorLogin = object.data['Email'];
+      setState(() {
+        isLoading = false;
+      });
+
+      /* Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Login(
+              email: emailVoorLogin,
+            ),
+          ));
+*/
+
+      push(emailVoorLogin);
       return object.data['Email'];
     });
     //return null;
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  CircularSplashController _controller = CircularSplashController(
+    color: Geel, //optional, default is White.
+    duration: Duration(milliseconds: 300), //optional.
+  );
+
+  Future<Object> push(value) async {
+    Object object = await _controller.push(
+        context,
+        Login(
+          email: value,
+        ));
+    print(object);
+    return object;
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Image.asset(
-            'assets/images/backgroundLogin.jpg',
-            width: size.width,
-            height: size.height * 0.85,
-            fit: BoxFit.cover,
-          ),
-          Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+        body: CircularSplash(
+      controller: _controller,
+      child: isLoading
+          ? loadingScreen
+          : Stack(
               children: <Widget>[
-                Image(
-                  image: AssetImage("assets/images/logo.png"),
-                  width: size.width * 0.80,
+                Image.asset(
+                  'assets/images/backgroundLogin.jpg',
+                  width: size.width,
+                  height: size.height * 0.85,
+                  fit: BoxFit.cover,
                 ),
-                Text("Thuis, wat en wanneer je wilt",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.black,
-                            offset: Offset(3.0, 3.0),
-                          ),
-                        ])),
+                Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Image(
+                        image: AssetImage("assets/images/logo.png"),
+                        width: size.width * 0.80,
+                      ),
+                      Text("Thuis, wat en wanneer je wilt",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 10.0,
+                                  color: Colors.black,
+                                  offset: Offset(3.0, 3.0),
+                                ),
+                              ])),
+                    ],
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        bottom: size.height * 0.06, right: 20, left: 30),
+                    child: Container(
+                        decoration: new BoxDecoration(
+                            border: Border.all(color: GrijsLicht),
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 1.0,
+                                color: GrijsMidden,
+                                offset: Offset(0.3, 0.3),
+                              ),
+                            ],
+                            borderRadius:
+                                new BorderRadius.all(Radius.circular(10.0))),
+                        child: Padding(
+                            padding: EdgeInsets.only(right: 10, left: 10),
+                            child: Row(
+                              children: <Widget>[
+                                Expanded(
+                                  child: InternationalPhoneInput(
+                                      hintText: "Bv. 486 65 53 74",
+                                      errorText: "Foute gsm-nummer..",
+                                      onPhoneNumberChange: onPhoneNumberChange,
+                                      initialPhoneNumber: phoneNumber,
+                                      initialSelection: "BE"),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.send,
+                                    color: buttonColor,
+                                  ),
+                                  onPressed: () {
+                                    if (phoneIsoCode == "BE") {
+                                      if (phoneNo.length > 8) {
+                                        Future.delayed(
+                                            const Duration(milliseconds: 500),
+                                            () {
+                                          numerExists(phoneNo);
+                                        });
+                                      }
+
+                                      print("------");
+                                    }
+                                  },
+                                )
+                              ],
+                            ))),
+                  ),
+                )
               ],
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(
-                  bottom: size.height * 0.06, right: 20, left: 30),
-              child: Container(
-                  decoration: new BoxDecoration(
-                      border: Border.all(color: GrijsLicht),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 1.0,
-                          color: GrijsMidden,
-                          offset: Offset(0.3, 0.3),
-                        ),
-                      ],
-                      borderRadius:
-                          new BorderRadius.all(Radius.circular(10.0))),
-                  child: Padding(
-                      padding: EdgeInsets.only(right: 10, left: 10),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: InternationalPhoneInput(
-                                hintText: "Bv. 486 65 53 74",
-                                errorText: "Foute gsm-nummer..",
-                                onPhoneNumberChange: onPhoneNumberChange,
-                                initialPhoneNumber: phoneNumber,
-                                initialSelection: "BE"),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.send,
-                              color: buttonColor,
-                            ),
-                            onPressed: () {
-                              if (phoneIsoCode == "BE") {
-                                if (phoneNo.length > 3) {
-                                  /*  Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Register(
-                                          phoneNumber: phoneNo,
-                                        ),
-                                      ),
-                                      (Route<dynamic> route) => false); */
-                                  if(numerExists(phoneNo) is String){
-                                    print("bruh!");
-                                    print(numerExists(phoneNo).toString());
-                                  }else if(numerExists(phoneNo) != String){
-                                    print("bestaat niet! br");
-                                  }
-                                  
-                                }
-                                print("+32" + phoneNumber);
-                              }
-                            },
-                          )
-                        ],
-                      ))),
-            ),
-          )
-        ],
-      ),
-    );
+    ));
   }
 }

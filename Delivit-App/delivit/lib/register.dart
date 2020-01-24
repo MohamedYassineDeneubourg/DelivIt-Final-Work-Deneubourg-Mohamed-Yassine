@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/keuze.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -263,41 +264,36 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  void gaNaarLogin() {
-    Navigator.pop(context);
-  }
 
-  bool checkIfEmailExists(emailValue) {
+
+   checkIfEmailExists(emailValue) async{
     print("Check...");
     bool bestaat = false;
     try {
-      _auth.signInWithEmailAndPassword(
-          email: emailValue, password: 'password');
+      _auth.signInWithEmailAndPassword(email: emailValue, password: 'password');
     } catch (signUpError) {
       print("errorSignup!");
-      FocusScope.of(context).requestFocus(new FocusNode());
+
       if (signUpError is PlatformException) {
         if (signUpError.code == 'ERROR_WRONG_PASSWORD') {
           print('E-mail bestaat al!');
           bestaat = true;
           return true;
         }
-        if(signUpError.code == 'ERROR_USER_NOT_FOUND'){
+        if (signUpError.code == 'ERROR_USER_NOT_FOUND') {
           bestaat = false;
           return false;
         }
-        
+
         print("Een ander error  !");
         return true;
       }
       print(signUpError);
       print('returnit');
       return bestaat;
-      
     }
     print("fale");
-    return true;
-
+    return false;
   }
 
   final _formKey = new GlobalKey<FormState>();
@@ -306,6 +302,10 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+        drawer: IconButton(
+          icon: Icon(Icons.email),
+          onPressed: null,
+        ),
         key: _scaffoldKey,
         resizeToAvoidBottomPadding: false,
         body: Stack(children: <Widget>[
@@ -348,8 +348,10 @@ class _RegisterState extends State<Register> {
                                 textAlign: TextAlign.center),
                             Text(
                               "Deze zullen beschermd worden",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  fontSize: 16),
                             ),
                           ],
                         )))),
@@ -362,16 +364,47 @@ class _RegisterState extends State<Register> {
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
+                    
                     Expanded(
                       child: Padding(
-                          padding: EdgeInsets.only(right: 20, left: 20),
+                          padding: EdgeInsets.only(right: 20, left: 20, top: 0),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
+                                Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 0.0, bottom: 0),
+                        child: Text(
+                          phoneNumber,
+                          style: TextStyle(
+                              color: White,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 30),
+                        ),
+                      ),
+                    ),
+                    Container(
+                        transform: Matrix4.translationValues(0.0, -20.0, 0.0),
+                        child: FlatButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          label: Text(
+                            "Wijzig gsm-nummer",
+                            style: TextStyle(
+                              color: White,
+                            ),
+                          ),
+                          icon: Icon(
+                            Icons.edit,
+                            size: 15,
+                            color: White,
+                          ),
+                        )),
                                 Padding(
                                     padding:
-                                        EdgeInsets.only(top: 0, bottom: 20.0),
+                                        EdgeInsets.only(top: 15, bottom: 20.0),
                                     child: TextFormField(
                                       //  autofocus: true,
                                       decoration: InputDecoration(
@@ -462,7 +495,7 @@ class _RegisterState extends State<Register> {
                                           return "Geen correcte e-mail adres.";
                                         }
 
-                                        if(checkIfEmailExists(value)){
+                                        if (checkIfEmailExists(value)) {
                                           return "E-mailadres is al gebruikt.";
                                         }
                                         return null;

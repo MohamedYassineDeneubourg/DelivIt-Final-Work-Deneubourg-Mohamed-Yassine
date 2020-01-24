@@ -17,8 +17,8 @@ dependencies:
   cloud_firestore: ^0.13.0+1
   toast: ^0.1.5
   icon_shadow: ^1.0.1
-
-
+  flutter_spinkit: "^4.1.1"
+  circular_reveal_animation: ^1.1.5
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -5,3 +5,4 @@ import 'package:flutter/material.dart';
  const GrijsDark =  Color(0xFF717070);
  const GrijsMidden =  Color(0xFFCCCACA);
   const GrijsLicht =  Color(0xFFEFEFEF);
+  const White = Colors.white;
