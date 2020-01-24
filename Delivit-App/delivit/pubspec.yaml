@@ -11,14 +11,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Voor inschrijving:
   international_phone_input: ^1.0.2
   firebase_core: ^0.4.0+9
   firebase_auth: ^0.15.3+1
+  # Algemene:
+  font_awesome_flutter: ^8.5.0
   cloud_firestore: ^0.13.0+1
   toast: ^0.1.5
   icon_shadow: ^1.0.1
   flutter_spinkit: "^4.1.1"
-  circular_reveal_animation: ^1.1.5
+  curved_navigation_bar: ^0.3.1
+  # Kaart:
+  flutter_map: any
+  geopoint: ^0.7.0
+  geolocator: ^5.1.5
+  flutter_launcher_icons: "^0.7.3"
+  location_permissions: ^2.0.4+1
+  app_settings: ^2.0.2
+  # image_picker: ^0.6.1+11
+  # firebase_storage: ^3.0.8
 
 
   # The following adds the Cupertino Icons font to your application.

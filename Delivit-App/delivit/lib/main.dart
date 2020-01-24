@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:circular_reveal_animation/circular_reveal_animation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
@@ -8,7 +7,7 @@ import 'package:delivit/loadingScreen.dart';
 import 'package:delivit/login.dart';
 import 'package:delivit/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:international_phone_input/international_phone_input.dart';
@@ -80,8 +79,7 @@ class DelivitHomePage extends StatefulWidget {
   _DelivitHomePageState createState() => _DelivitHomePageState();
 }
 
-class _DelivitHomePageState extends State<DelivitHomePage>
-    with SingleTickerProviderStateMixin {
+class _DelivitHomePageState extends State<DelivitHomePage> {
   String phoneNumber;
   String phoneIsoCode;
   String confirmedNumber;
@@ -111,15 +109,6 @@ class _DelivitHomePageState extends State<DelivitHomePage>
   void initState() {
     getCurrentUser();
     super.initState();
-    animationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 2000),
-    );
-    animation = CurvedAnimation(
-      parent: animationController,
-      curve: Curves.easeIn,
-    );
-    animationController.forward();
   }
 
   void onValidPhoneNumber(
@@ -131,12 +120,16 @@ class _DelivitHomePageState extends State<DelivitHomePage>
 
   void onPhoneNumberChange(
       String number, String internationalizedPhoneNumber, String isoCode) {
-    buttonColor = Geel;
     setState(() {
       phoneNumber = number;
       phoneIsoCode = isoCode;
       if (phoneIsoCode == "BE") {
         phoneNo = "+32" + phoneNumber;
+      }
+      if (phoneNumber.length >= 9) {
+        buttonColor = Geel;
+      }else {
+        buttonColor = GrijsDark;
       }
     });
   }
@@ -196,12 +189,7 @@ class _DelivitHomePageState extends State<DelivitHomePage>
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        body: CircularRevealAnimation(
-      animation: animation,
-      centerAlignment: Alignment.bottomCenter,
-      minRadius: 12,
-      // @required
-      child: isLoading
+      body: isLoading
           ? loadingScreen
           : Stack(
               children: <Widget>[
@@ -266,8 +254,9 @@ class _DelivitHomePageState extends State<DelivitHomePage>
                                       initialSelection: "BE"),
                                 ),
                                 IconButton(
+                                  enableFeedback: true,
                                   icon: Icon(
-                                    Icons.send,
+                                    FontAwesomeIcons.arrowAltCircleRight,
                                     color: buttonColor,
                                   ),
                                   onPressed: () {
@@ -290,6 +279,6 @@ class _DelivitHomePageState extends State<DelivitHomePage>
                 )
               ],
             ),
-    ));
+    );
   }
 }

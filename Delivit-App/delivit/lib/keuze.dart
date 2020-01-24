@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:delivit/Aankoper/homeAankoper.dart';
 import 'package:flutter/material.dart';
 import 'package:icon_shadow/icon_shadow.dart';
 
@@ -260,8 +260,10 @@ class _KeuzeState extends State<Keuze> {
   }
 
   Future<void> aankoperGekozen() async {
-      FirebaseAuth.instance.signOut();
-
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomeAankoper()),
+        (Route<dynamic> route) => false);
   }
 
   void bezorgerGekozen() {}

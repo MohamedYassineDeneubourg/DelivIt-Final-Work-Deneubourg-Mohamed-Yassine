@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/keuze.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,6 +32,7 @@ class _RegisterState extends State<Register> {
   String errorMessage = '';
   bool smsValid = false;
   String phoneNumber;
+  bool emailIsOK = false;
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> verifyPhone() async {
@@ -215,7 +215,7 @@ class _RegisterState extends State<Register> {
           try {
             await Firestore.instance
                 .collection("Users")
-                .document(phoneNumber)
+                .document(_email)
                 .setData({
               'Naam': _naam,
               "Voornaam": _voornaam,
@@ -225,7 +225,9 @@ class _RegisterState extends State<Register> {
                 'latitude': 50.8465573,
                 'longitude': 4.351697,
               },
-              "GeldEuro": 0.0,
+              "Portefeuille": 0.0,
+              "ProfileImage":
+                  "https://scontent-bru2-1.xx.fbcdn.net/v/t1.0-9/74785339_3373666536006857_9010755981583319040_o.jpg?_nc_cat=108&_nc_ohc=y-IeuWV16TcAX-y7T4_&_nc_ht=scontent-bru2-1.xx&oh=8498e8a1a5555e1d985d8e732cb2c859&oe=5E9420BD",
               'isOnline': true,
             });
 
@@ -264,36 +266,37 @@ class _RegisterState extends State<Register> {
     }
   }
 
-
-
-   checkIfEmailExists(emailValue) async{
-    print("Check...");
-    bool bestaat = false;
+  checkIfEmailExists() async {
     try {
-      _auth.signInWithEmailAndPassword(email: emailValue, password: 'password');
+      await _auth.signInWithEmailAndPassword(
+          email: _email,
+          password:
+              "AppByDeneubourgMohamedYassine,DitIsEenVerification0486655492");
     } catch (signUpError) {
       print("errorSignup!");
 
       if (signUpError is PlatformException) {
+        print(signUpError.code);
         if (signUpError.code == 'ERROR_WRONG_PASSWORD') {
-          print('E-mail bestaat al!');
-          bestaat = true;
-          return true;
+          setState(() {
+            this.emailIsOK = false;
+          });
         }
         if (signUpError.code == 'ERROR_USER_NOT_FOUND') {
-          bestaat = false;
-          return false;
-        }
+          setState(() {
+            this.emailIsOK = true;
+          });
 
-        print("Een ander error  !");
-        return true;
+          if (signUpError.code == 'ERROR_TOO_MANY_REQUESTS') {
+            setState(() {
+              this.emailIsOK = false;
+            });
+          }
+        }
       }
-      print(signUpError);
-      print('returnit');
-      return bestaat;
     }
-    print("fale");
-    return false;
+
+    verifyPhone();
   }
 
   final _formKey = new GlobalKey<FormState>();
@@ -302,10 +305,6 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        drawer: IconButton(
-          icon: Icon(Icons.email),
-          onPressed: null,
-        ),
         key: _scaffoldKey,
         resizeToAvoidBottomPadding: false,
         body: Stack(children: <Widget>[
@@ -364,7 +363,6 @@ class _RegisterState extends State<Register> {
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    
                     Expanded(
                       child: Padding(
                           padding: EdgeInsets.only(right: 20, left: 20, top: 0),
@@ -373,35 +371,37 @@ class _RegisterState extends State<Register> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 0.0, bottom: 0),
-                        child: Text(
-                          phoneNumber,
-                          style: TextStyle(
-                              color: White,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 30),
-                        ),
-                      ),
-                    ),
-                    Container(
-                        transform: Matrix4.translationValues(0.0, -20.0, 0.0),
-                        child: FlatButton.icon(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          label: Text(
-                            "Wijzig gsm-nummer",
-                            style: TextStyle(
-                              color: White,
-                            ),
-                          ),
-                          icon: Icon(
-                            Icons.edit,
-                            size: 15,
-                            color: White,
-                          ),
-                        )),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 0.0, bottom: 0),
+                                    child: Text(
+                                      phoneNumber,
+                                      style: TextStyle(
+                                          color: White,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 30),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                    transform: Matrix4.translationValues(
+                                        0.0, -20.0, 0.0),
+                                    child: FlatButton.icon(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      label: Text(
+                                        "Wijzig gsm-nummer",
+                                        style: TextStyle(
+                                          color: White,
+                                        ),
+                                      ),
+                                      icon: Icon(
+                                        Icons.edit,
+                                        size: 15,
+                                        color: White,
+                                      ),
+                                    )),
                                 Padding(
                                     padding:
                                         EdgeInsets.only(top: 15, bottom: 20.0),
@@ -495,12 +495,14 @@ class _RegisterState extends State<Register> {
                                           return "Geen correcte e-mail adres.";
                                         }
 
-                                        if (checkIfEmailExists(value)) {
+                                        if (!emailIsOK) {
+                                          print("EmailAlGebruikt!");
                                           return "E-mailadres is al gebruikt.";
                                         }
                                         return null;
                                       },
                                       onSaved: (value) => _email = value,
+                                      onChanged: (value) => _email = value,
                                     )),
                                 Padding(
                                     padding: EdgeInsets.only(bottom: 20.0),
@@ -589,7 +591,7 @@ class _RegisterState extends State<Register> {
                                   fontWeight: FontWeight.bold)),
                           color: Geel,
                           onPressed: () {
-                            verifyPhone();
+                            checkIfEmailExists();
                           },
                         ))
                   ],

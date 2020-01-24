@@ -1,4 +1,5 @@
 import 'package:delivit/colors.dart';
+import 'package:delivit/keuze.dart';
 import 'package:delivit/loadingScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -191,7 +192,6 @@ class _LoginState extends State<Login> {
                                             color: White,
                                             onPressed: () {
                                               isWachtwoordFout();
-                                        
                                             },
                                           ))))),
                           FlatButton.icon(
@@ -220,32 +220,34 @@ class _LoginState extends State<Login> {
     try {
       await _auth.signInWithEmailAndPassword(
           email: email, password: _wachtwoord);
-          setState(() {
-            this.wachtwoordOk = false;
-          });
-          print("SinIn:");
-          print(wachtwoordOk);
+      setState(() {
+        this.wachtwoordOk = false;
+      });
+      print("SinIn:");
+      print(wachtwoordOk);
     } catch (signUpError) {
       FocusScope.of(context).requestFocus(new FocusNode());
       if (signUpError is PlatformException) {
-        if (signUpError.code == 'ERROR_WRONG_PASSWORD') {
-          
-        }
+        if (signUpError.code == 'ERROR_WRONG_PASSWORD') {}
       }
       setState(() {
         wachtwoordOk = true;
       });
       print("SinIn:");
-          print(wachtwoordOk);
-      
+      print(wachtwoordOk);
     }
 
-          print("pressedè");
-                                              final form =
-                                                  _formKey.currentState;
-                                              if (form.validate()) {
-                                                form.save();
-                                                print("ok navig now");
-                                              }
+    print("pressedè");
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      print("USER LOGGED IN !");
+      Navigator.pop(context);
+      print("popHier!");
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Keuze()),
+          (Route<dynamic> route) => false);
+    }
   }
 }
