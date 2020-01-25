@@ -195,8 +195,8 @@ class _KaartAankoperState extends State<KaartAankoper> {
                             18);
                       },
                       child: Icon(
-                        FontAwesomeIcons.locationArrow,
-                        color: Colors.blue.withOpacity(0.5),
+                        FontAwesomeIcons.crosshairs,
+                        color: GrijsDark,
                       ),
                     ),
                   )),

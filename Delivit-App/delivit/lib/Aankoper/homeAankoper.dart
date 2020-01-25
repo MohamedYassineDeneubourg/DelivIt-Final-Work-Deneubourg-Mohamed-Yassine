@@ -53,8 +53,10 @@ class _HomeAankoperState extends State<HomeAankoper> {
   @override
   Widget build(BuildContext context) {
     //_getData();
-
+ //Size size = MediaQuery.of(context).size;
     return new Scaffold(
+      drawerScrimColor: Geel.withOpacity(0.3),
+
       endDrawer: Drawer(
         semanticLabel: "Menu",
         child: StreamBuilder<DocumentSnapshot>(
@@ -78,6 +80,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
                             ),
                             fit: BoxFit.cover)),
                     arrowColor: GrijsDark,
+                    
                     otherAccountsPictures: <Widget>[
                       IconButton(
                         icon: Icon(Icons.close, color: GrijsDark),
