@@ -28,7 +28,7 @@ dependencies:
   geolocator: ^5.1.5
   flutter_launcher_icons: "^0.7.3"
   location_permissions: ^2.0.4+1
-  app_settings: ^2.0.2
+  app_settings: ^3.0.0+1
   # image_picker: ^0.6.1+11
   # firebase_storage: ^3.0.8
 

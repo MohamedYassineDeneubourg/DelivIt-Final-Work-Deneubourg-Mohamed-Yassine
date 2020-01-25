@@ -64,15 +64,15 @@ class _KaartAankoperState extends State<KaartAankoper> {
     final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
 
     Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
     userPosition = position;
 
     var locationOptions =
-        LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 0);
+        LocationOptions(accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
     print('!GeoLocator?');
 
     Firestore.instance.collection('Users').snapshots().listen((querySnapshot) {
-      print("NEW ON MAP");
+      //print("NEW ON MAP");
       opMapUsers = [
         new Marker(
           width: 35.0,

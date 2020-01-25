@@ -7,6 +7,7 @@ import 'package:delivit/loadingScreen.dart';
 import 'package:delivit/login.dart';
 import 'package:delivit/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -20,15 +21,21 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
+  bool userLoaded = false;
+
   String connectedUserMail;
 
-  void getCurrentUser() async {
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    if (user != null) {
+  void getCurrentUser() {
+    FirebaseAuth.instance.currentUser().then((e) {
+      print(e);
+
       setState(() {
-        connectedUserMail = user.email;
+        if (e != null) {
+          connectedUserMail = e.email;
+        }
+        userLoaded = true;
       });
-    }
+    });
   }
 
   @override
@@ -38,10 +45,20 @@ class _MainState extends State<Main> {
   }
 
   redirectGebruiker() {
-    if (connectedUserMail != null) {
-      return Keuze();
+    if (userLoaded) {
+      if (connectedUserMail != null) {
+        return Keuze();
+      } else {
+        return DelivitHomePage();
+      }
     } else {
-      return DelivitHomePage();
+      return Scaffold(
+          body: Container(
+        child: SpinKitDoubleBounce(
+          color: Geel,
+          size: 100,
+        ),
+      ));
     }
   }
 
@@ -107,31 +124,35 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
 
   @override
   void initState() {
-    getCurrentUser();
     super.initState();
+    getCurrentUser();
   }
 
   void onValidPhoneNumber(
       String number, String internationalizedPhoneNumber, String isoCode) {
-    setState(() {
-      confirmedNumber = internationalizedPhoneNumber;
-    });
+    if (this.mounted) {
+      setState(() {
+        confirmedNumber = internationalizedPhoneNumber;
+      });
+    }
   }
 
   void onPhoneNumberChange(
       String number, String internationalizedPhoneNumber, String isoCode) {
-    setState(() {
-      phoneNumber = number;
-      phoneIsoCode = isoCode;
-      if (phoneIsoCode == "BE") {
-        phoneNo = "+32" + phoneNumber;
-      }
-      if (phoneNumber.length >= 9) {
-        buttonColor = Geel;
-      }else {
-        buttonColor = GrijsDark;
-      }
-    });
+    if (this.mounted) {
+      setState(() {
+        phoneNumber = number;
+        phoneIsoCode = isoCode;
+        if (phoneIsoCode == "BE") {
+          phoneNo = "+32" + phoneNumber;
+        }
+        if (phoneNumber.length >= 9) {
+          buttonColor = Geel;
+        } else {
+          buttonColor = GrijsDark;
+        }
+      });
+    }
   }
 
   numerExists(phoneNumber) async {
@@ -182,11 +203,14 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
 
   @override
   void dispose() {
-    super.dispose();
+    if (mounted) {
+      super.dispose();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    print("Builded..");
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: isLoading
@@ -246,12 +270,15 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                             child: Row(
                               children: <Widget>[
                                 Expanded(
-                                  child: InternationalPhoneInput(
-                                      hintText: "Bv. 486 65 53 74",
-                                      errorText: "Foute gsm-nummer..",
-                                      onPhoneNumberChange: onPhoneNumberChange,
-                                      initialPhoneNumber: phoneNumber,
-                                      initialSelection: "BE"),
+                                  child: !mounted
+                                      ? null
+                                      : InternationalPhoneInput(
+                                          hintText: "Bv. 486 65 53 74",
+                                          errorText: "Foute gsm-nummer..",
+                                          onPhoneNumberChange:
+                                              onPhoneNumberChange,
+                                          initialPhoneNumber: phoneNumber,
+                                          initialSelection: "BE"),
                                 ),
                                 IconButton(
                                   enableFeedback: true,
@@ -269,7 +296,9 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                                         });
                                       }
 
-                                      print("------");
+                                      print(
+                                        "------",
+                                      );
                                     }
                                   },
                                 )

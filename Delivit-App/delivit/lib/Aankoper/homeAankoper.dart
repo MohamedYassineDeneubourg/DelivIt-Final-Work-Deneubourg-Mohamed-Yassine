@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Aankoper/kaartAankoper.dart';
@@ -17,6 +19,7 @@ class HomeAankoper extends StatefulWidget {
 class _HomeAankoperState extends State<HomeAankoper> {
   int _cIndex = 0;
   String email;
+  double tabHeight = 50;
   final List<Widget> _children = [KaartAankoper(), KaartAankoper()];
 
   String connectedUserMail;
@@ -40,6 +43,9 @@ class _HomeAankoperState extends State<HomeAankoper> {
 
   @override
   void initState() {
+    if (Platform.isIOS) {
+      tabHeight = 75.0;
+    }
     getCurrentUser();
     super.initState();
   }
@@ -196,7 +202,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
           ))),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: CurvedNavigationBar(
-        height: 50,
+        height: tabHeight,
         backgroundColor: Geel,
         animationDuration: Duration(seconds: 1),
         animationCurve: Curves.easeOutCirc,

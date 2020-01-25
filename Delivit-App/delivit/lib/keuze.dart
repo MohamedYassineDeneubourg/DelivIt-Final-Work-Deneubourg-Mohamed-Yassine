@@ -1,4 +1,5 @@
 import 'package:delivit/Aankoper/homeAankoper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:icon_shadow/icon_shadow.dart';
 
@@ -266,5 +267,7 @@ class _KeuzeState extends State<Keuze> {
         (Route<dynamic> route) => false);
   }
 
-  void bezorgerGekozen() {}
+  void bezorgerGekozen() {
+    FirebaseAuth.instance.signOut();
+  }
 }
