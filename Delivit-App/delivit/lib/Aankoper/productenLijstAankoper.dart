@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,6 +9,38 @@ class ProductenLijstAankoper extends StatefulWidget {
 }
 
 class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
+  @override
+  void initState() {
+    getData();
+    super.initState();
+  }
+
+  List producten = new List();
+  List bestellingProducten = new List();
+  Future<void> getData() async {
+    var reference;
+    if (selectedCategory == 'Alles') {
+      reference =
+          await Firestore.instance.collection("Products").getDocuments();
+    } else {
+      reference = await Firestore.instance
+          .collection("Products")
+          .where('Categorie', isEqualTo: selectedCategory)
+          .getDocuments();
+    }
+
+    print(selectedCategory);
+    List<DocumentSnapshot> documents = reference.documents;
+
+    setState(() {
+      producten = documents;
+      documents.forEach((object) {
+        print(object.data);
+      });
+    });
+    print(producten);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,12 +55,26 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                 fontFamily: "Montserrat")),
         centerTitle: true,
         title: new Text("KIES JE PRODUCTEN"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              toonSearchbar ? Icons.list : Icons.search,
+              color: GrijsDark,
+            ),
+            onPressed: () {
+              setState(() {
+                toonSearchbar = !toonSearchbar;
+              });
+            },
+          )
+        ],
       ),
       body: lijst(context),
     );
   }
 
   String selectedCategory = "Alles";
+  bool toonSearchbar = false;
   returnColor(name) {
     if (name == selectedCategory) {
       return true;
@@ -36,58 +83,164 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
     }
   }
 
+  Widget topWidget;
+
   Widget lijst(BuildContext context) {
-    List<Map> producten = [
-      {
-        "name": "Coca-Cola",
-        "image":
-            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-        "price": "\$45.12",
-        "userLiked": true,
-        "discount": 2,
-      },
-      {
-        "name": "Coca-Cola",
-        "image":
-            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-        "price": "\$45.12",
-        "userLiked": true,
-        "discount": 2,
-      },
-      {
-        "name": "Coca-Cola",
-        "image":
-            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-        "price": "\$45.12",
-        "userLiked": true,
-        "discount": 2,
-      },
-      {
-        "name": "Coca-Cola",
-        "image":
-            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-        "price": "\$45.12",
-        "userLiked": true,
-        "discount": 2,
-      },
-      {
-        "name": "Coca-Cola",
-        "image":
-            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-        "price": "\$45.12",
-        "userLiked": true,
-        "discount": 2,
-      },
-    ];
+    Widget categorieButton(
+      String name,
+      IconData icon,
+    ) {
+      return Container(
+        margin: EdgeInsets.only(left: 15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+                margin: EdgeInsets.only(bottom: 10),
+                width: 65,
+                height: 65,
+                child: RaisedButton(
+                  color: returnColor(name) ? Geel : White,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: GrijsDark.withOpacity(0.3)),
+                      borderRadius: BorderRadius.circular(6.0)),
+                  onPressed: () {
+                    setState(() {
+                      selectedCategory = name;
+                    });
+                    getData();
+                  },
+                  child: Icon(icon,
+                      size: 28, color: returnColor(name) ? White : GrijsDark),
+                )),
+            Text(name)
+          ],
+        ),
+      );
+    }
+
+    Widget filterCategorieMenu() {
+      return Padding(
+        key: Key("filterCategorieMenu"),
+        padding: const EdgeInsets.only(top: 30.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              height: 120,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                children: <Widget>[
+                  categorieButton(
+                    'Alles',
+                    FontAwesomeIcons.list,
+                  ),
+                  categorieButton(
+                    'Dranken',
+                    FontAwesomeIcons.glassWhiskey,
+                  ),
+                  categorieButton(
+                    'Alcohol',
+                    FontAwesomeIcons.glassCheers,
+                  ),
+                  categorieButton(
+                    'Zoet',
+                    FontAwesomeIcons.cookieBite,
+                  ),
+                  categorieButton(
+                    'Fruit&Gr.',
+                    FontAwesomeIcons.leaf,
+                  ),
+                  categorieButton(
+                    'Charcuter.',
+                    FontAwesomeIcons.shapes,
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+          splashColor: GrijsDark,
+          elevation: 4.0,
+          backgroundColor: Geel,
+          icon: const Icon(
+            Icons.shopping_cart,
+            color: White,
+          ),
+          label: Text(
+            "BESTELLEN (" + (bestellingProducten.length).toString() + ")",
+            style: TextStyle(color: White, fontWeight: FontWeight.w800),
+          ),
+          onPressed: ()  {
+            
+          }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Column(
         children: <Widget>[
-          filterCategorieMenu(),
+          AnimatedSwitcher(
+            child: toonSearchbar
+                ? Padding(
+                    padding: const EdgeInsets.only(
+                        top: 30.0, right: 15, left: 15, bottom: 30),
+                    child: Material(
+                      elevation: 3,
+                      child: TextFormField(
+                        //  autofocus: true,
+                        decoration: InputDecoration(
+                            errorStyle: TextStyle(fontWeight: FontWeight.w700),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Geel,
+                            ),
+                            // border: OutlineInputBorder(borderSide: BorderSide(color: Geel,width: 20)),
+                            fillColor: Colors.white,
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Geel)),
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: GrijsMidden)),
+                            errorBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.red, width: 6),
+                            ),
+                            labelText: 'Product',
+                            hintText: 'E.g Coca-cola'),
+                        validator: (value) =>
+                            value.isEmpty ? "moet ingevuld zijn" : null,
+                        onChanged: (value) {
+                          print(value);
+                        },
+                      ),
+                    ),
+                    key: Key("SearchBar"),
+                  )
+                : filterCategorieMenu(),
+            layoutBuilder:
+                (Widget currentChild, List<Widget> previousChildren) {
+              return currentChild;
+            },
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return ScaleTransition(
+                child: child,
+                scale: animation,
+              );
+            },
+            duration: const Duration(milliseconds: 250),
+          ),
           Expanded(
-            child: GridView.count(crossAxisCount: 2, children: <Widget>[
-              for (var product in producten)
-                Padding(
+            child: GridView.builder(
+              itemCount: producten.length,
+              itemBuilder: (context, product) {
+                print(product);
+                return Padding(
                   padding: const EdgeInsets.only(bottom: 5.0),
                   child: Center(
                     child: Stack(
@@ -101,20 +254,46 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                   color: White,
                                   elevation: 4,
                                   shape: RoundedRectangleBorder(
-                                      side: BorderSide(color: GrijsMidden),
+                                      side: BorderSide(
+                                          color: (bestellingProducten.contains(
+                                                  producten[product]
+                                                      .documentID))
+                                              ? Geel
+                                              : GrijsMidden,
+                                          width: (bestellingProducten.contains(
+                                                  producten[product]
+                                                      .documentID))
+                                              ? 4
+                                              : 1),
                                       borderRadius: BorderRadius.circular(5)),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    if (bestellingProducten.contains(
+                                        producten[product].documentID)) {
+                                      setState(() {
+                                        bestellingProducten.remove(
+                                            producten[product].documentID);
+                                      });
+                                    } else {
+                                      setState(() {
+                                        bestellingProducten
+                                            .add(producten[product].documentID);
+                                        print(bestellingProducten);
+                                      });
+                                    }
+                                  },
                                   child: Hero(
                                       transitionOnUserGestures: true,
-                                      tag: product["name"],
-                                      child: Image.network(product['image'],
+                                      tag: producten[product]
+                                          .data["ProductTitel"],
+                                      child: Image.network(
+                                          producten[product].data['ProductImage'],
                                           width: 100)))),
                         ),
                         Positioned(
                           top: 15,
                           left: 15,
                           child: Text(
-                            product["name"],
+                            producten[product].data["ProductTitel"],
                             style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ),
@@ -129,7 +308,10 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                   color: Geel.withOpacity(0.3),
                                   borderRadius: BorderRadius.circular(50)),
                               child: Center(
-                                child: Text(product['price'].toString(),
+                                child: Text(
+                                    producten[product]
+                                        .data["ProductDefaultPrijs"]
+                                        .toString(),
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.w700)),
@@ -138,70 +320,15 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                       ],
                     ),
                   ),
-                )
-            ]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget filterCategorieMenu() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 35.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          SizedBox(
-            height: 130,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              children: <Widget>[
-                categorieButton('Alles', FontAwesomeIcons.list,
-                    onPressed: () {}),
-                categorieButton('Drinks', FontAwesomeIcons.wineBottle,
-                    onPressed: () {}),
-                categorieButton('Creamery', FontAwesomeIcons.iceCream,
-                    onPressed: () {}),
-                categorieButton('Hot Drinks', FontAwesomeIcons.mugHot,
-                    onPressed: () {}),
-                categorieButton('Vegetables', FontAwesomeIcons.leaf,
-                    onPressed: () {}),
-              ],
+                );
+              },
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 1.0,
+                mainAxisSpacing: 5.0,
+              ),
             ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget categorieButton(String name, IconData icon, {onPressed}) {
-    return Container(
-      margin: EdgeInsets.only(left: 15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-              margin: EdgeInsets.only(bottom: 10),
-              width: 65,
-              height: 65,
-              child: RaisedButton(
-                color: returnColor(name) ? Geel : White,
-                shape: RoundedRectangleBorder(
-                    side: BorderSide(color: GrijsDark.withOpacity(0.3)),
-                    borderRadius: BorderRadius.circular(6.0)),
-                onPressed: () {
-                  setState(() {
-                    selectedCategory = name;
-                  });
-                },
-                child: Icon(icon,
-                    size: 28, color: returnColor(name) ? White : GrijsDark),
-              )),
-          Text(name)
+          ),
         ],
       ),
     );
