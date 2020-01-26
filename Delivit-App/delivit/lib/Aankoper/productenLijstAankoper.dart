@@ -23,222 +23,187 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
         centerTitle: true,
         title: new Text("KIES JE PRODUCTEN"),
       ),
-      body: storeTab(context),
+      body: lijst(context),
     );
   }
-}
 
-Widget storeTab(BuildContext context) {
-  List<Map> producten = [
-    {
-      "name": "Coca-Cola",
-      "image":
-          "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-      "price": "\$45.12",
-      "userLiked": true,
-      "discount": 2,
-    },    {
-      "name": "Coca-Cola",
-      "image":
-          "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-      "price": "\$45.12",
-      "userLiked": true,
-      "discount": 2,
-    },    {
-      "name": "Coca-Cola",
-      "image":
-          "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-      "price": "\$45.12",
-      "userLiked": true,
-      "discount": 2,
-    },    {
-      "name": "Coca-Cola",
-      "image":
-          "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-      "price": "\$45.12",
-      "userLiked": true,
-      "discount": 2,
-    },    {
-      "name": "Coca-Cola",
-      "image":
-          "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
-      "price": "\$45.12",
-      "userLiked": true,
-      "discount": 2,
-    },
-  ];
+  String selectedCategory = "Alles";
+  returnColor(name) {
+    if (name == selectedCategory) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-  return ListView(children: <Widget>[
-    headerTopCategories(),
-    deals('Drinks Parol', onViewMore: () {}, items: <Widget>[
-      for (var product in producten)
-        Container(
-          width: 180,
-          height: 180,
-          // color: Colors.red,
-          margin: EdgeInsets.only(left: 20),
-          child: Stack(
-            children: <Widget>[
-              Container(
-                  width: 180,
-                  height: 180,
-                  child: RaisedButton(
-                      color: White,
-                      elevation: 12,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
-                      onPressed: () {},
-                      child: Hero(
-                          transitionOnUserGestures: true,
-                          tag: product["name"],
-                          child: Image.network(product['image'], width: 100)))),
-              Positioned(
-                bottom: 10,
-                right: 0,
-                child: FlatButton(
-                  padding: EdgeInsets.all(20),
-                  shape: CircleBorder(),
-                  onPressed: () {},
-                  child: Icon(
-                    (product['userLiked'])
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    color: (product['userLiked']) ? Geel : GrijsDark,
-                    size: 30,
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                child: Text(' '),
-              ),
-              Positioned(
-                  top: 10,
-                  left: 10,
-                  child: (product['discount'] != null)
-                      ? Container(
-                          padding: EdgeInsets.only(
-                              top: 5, left: 10, right: 10, bottom: 5),
-                          decoration: BoxDecoration(
-                              color: Colors.grey[600],
-                              borderRadius: BorderRadius.circular(50)),
+  Widget lijst(BuildContext context) {
+    List<Map> producten = [
+      {
+        "name": "Coca-Cola",
+        "image":
+            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
+        "price": "\$45.12",
+        "userLiked": true,
+        "discount": 2,
+      },
+      {
+        "name": "Coca-Cola",
+        "image":
+            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
+        "price": "\$45.12",
+        "userLiked": true,
+        "discount": 2,
+      },
+      {
+        "name": "Coca-Cola",
+        "image":
+            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
+        "price": "\$45.12",
+        "userLiked": true,
+        "discount": 2,
+      },
+      {
+        "name": "Coca-Cola",
+        "image":
+            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
+        "price": "\$45.12",
+        "userLiked": true,
+        "discount": 2,
+      },
+      {
+        "name": "Coca-Cola",
+        "image":
+            "https://assets.lyreco.com/is/image/lyrecows/2018-3117696?locale=LU_fr&id=8yQqP0&fmt=jpg&fit=constrain,1&wid=430&hei=430",
+        "price": "\$45.12",
+        "userLiked": true,
+        "discount": 2,
+      },
+    ];
+
+    return Scaffold(
+      body: Column(
+        children: <Widget>[
+          filterCategorieMenu(),
+          Expanded(
+            child: GridView.count(crossAxisCount: 2, children: <Widget>[
+              for (var product in producten)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: Center(
+                    child: Stack(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0, left: 3),
+                          child: Container(
+                              width: 175,
+                              height: 200,
+                              child: RaisedButton(
+                                  color: White,
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                      side: BorderSide(color: GrijsMidden),
+                                      borderRadius: BorderRadius.circular(5)),
+                                  onPressed: () {},
+                                  child: Hero(
+                                      transitionOnUserGestures: true,
+                                      tag: product["name"],
+                                      child: Image.network(product['image'],
+                                          width: 100)))),
+                        ),
+                        Positioned(
+                          top: 15,
+                          left: 15,
                           child: Text(
-                              '-' + product['discount'].toString() + '%',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700)),
-                        )
-                      : SizedBox(width: 0))
-            ],
+                            product["name"],
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        Positioned(
+                            bottom: 20,
+                            right: 10,
+                            left: 10,
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                  top: 5, left: 10, right: 10, bottom: 5),
+                              decoration: BoxDecoration(
+                                  color: Geel.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: Center(
+                                child: Text(product['price'].toString(),
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w700)),
+                              ),
+                            )),
+                      ],
+                    ),
+                  ),
+                )
+            ]),
           ),
-        )
-    ])
-  ]);
-}
-
-Widget sectionHeader(String headerTitle, {onViewMore}) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      Container(
-        margin: EdgeInsets.only(left: 15, top: 10),
-        child: Text(
-          headerTitle,
-        ),
+        ],
       ),
-      Container(
-        margin: EdgeInsets.only(left: 15, top: 2),
-        child: FlatButton(
-          onPressed: onViewMore,
-          child: Text('View all ›'),
-        ),
-      )
-    ],
-  );
-}
+    );
+  }
 
-// wrap the horizontal listview inside a sizedBox..
-Widget headerTopCategories() {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: <Widget>[
-      sectionHeader('All Categories', onViewMore: () {}),
-      SizedBox(
-        height: 130,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
-          children: <Widget>[
-            headerCategoryItem('Frieds', FontAwesomeIcons.edit,
-                onPressed: () {}),
-            headerCategoryItem('Fast Food', FontAwesomeIcons.zhihu,
-                onPressed: () {}),
-            headerCategoryItem('Creamery', FontAwesomeIcons.poop,
-                onPressed: () {}),
-            headerCategoryItem('Hot Drinks', FontAwesomeIcons.radiation,
-                onPressed: () {}),
-            headerCategoryItem('Vegetables', FontAwesomeIcons.leaf,
-                onPressed: () {}),
-          ],
-        ),
-      )
-    ],
-  );
-}
+  Widget filterCategorieMenu() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 35.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(
+            height: 130,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              children: <Widget>[
+                categorieButton('Alles', FontAwesomeIcons.list,
+                    onPressed: () {}),
+                categorieButton('Drinks', FontAwesomeIcons.wineBottle,
+                    onPressed: () {}),
+                categorieButton('Creamery', FontAwesomeIcons.iceCream,
+                    onPressed: () {}),
+                categorieButton('Hot Drinks', FontAwesomeIcons.mugHot,
+                    onPressed: () {}),
+                categorieButton('Vegetables', FontAwesomeIcons.leaf,
+                    onPressed: () {}),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
 
-Widget headerCategoryItem(String name, IconData icon, {onPressed}) {
-  return Container(
-    margin: EdgeInsets.only(left: 15),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Container(
-            margin: EdgeInsets.only(bottom: 10),
-            width: 65,
-            height: 65,
-            child: RaisedButton(
-              color: White,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(color: GrijsDark.withOpacity(0.3)),
-                  borderRadius: BorderRadius.circular(6.0)),
-              onPressed: onPressed,
-              child: Icon(icon, size: 28, color: GrijsDark),
-            )),
-        Text(name)
-      ],
-    ),
-  );
-}
-
-Widget deals(String dealTitle, {onViewMore, List<Widget> items}) {
-  return Container(
-    margin: EdgeInsets.only(top: 5),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        sectionHeader(dealTitle, onViewMore: onViewMore),
-        SizedBox(
-          height: 250,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: (items != null)
-                ? items
-                : <Widget>[
-                    Container(
-                      margin: EdgeInsets.only(left: 15),
-                      child: Text(
-                        'No items available at this moment.',
-                      ),
-                    )
-                  ],
-          ),
-        )
-      ],
-    ),
-  );
+  Widget categorieButton(String name, IconData icon, {onPressed}) {
+    return Container(
+      margin: EdgeInsets.only(left: 15),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+              margin: EdgeInsets.only(bottom: 10),
+              width: 65,
+              height: 65,
+              child: RaisedButton(
+                color: returnColor(name) ? Geel : White,
+                shape: RoundedRectangleBorder(
+                    side: BorderSide(color: GrijsDark.withOpacity(0.3)),
+                    borderRadius: BorderRadius.circular(6.0)),
+                onPressed: () {
+                  setState(() {
+                    selectedCategory = name;
+                  });
+                },
+                child: Icon(icon,
+                    size: 28, color: returnColor(name) ? White : GrijsDark),
+              )),
+          Text(name)
+        ],
+      ),
+    );
+  }
 }
