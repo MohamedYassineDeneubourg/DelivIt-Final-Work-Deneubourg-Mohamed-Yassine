@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 class ProductenLijstAankoper extends StatefulWidget {
   @override
@@ -39,6 +40,30 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
       });
     });
     print(producten);
+    print("GetData!");
+  }
+
+  getDatabySearch(zoekWoord) async {
+    print(zoekWoord);
+    var reference = await Firestore.instance
+        .collection("Products")
+        .where("ProductTitel",
+            isGreaterThanOrEqualTo: toBeginningOfSentenceCase(zoekWoord))
+        .getDocuments();
+
+    print(zoekWoord);
+    List<DocumentSnapshot> documents = reference.documents;
+
+    setState(() {
+      print(documents.length);
+      if (documents.length == 0) {
+        print("no!");
+        producten = [];
+      } else {
+        print("yesè");
+        producten = documents;
+      }
+    });
   }
 
   @override
@@ -179,9 +204,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
             "BESTELLEN (" + (bestellingProducten.length).toString() + ")",
             style: TextStyle(color: White, fontWeight: FontWeight.w800),
           ),
-          onPressed: ()  {
-            
-          }),
+          onPressed: () {}),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Column(
         children: <Widget>[
@@ -216,6 +239,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                         validator: (value) =>
                             value.isEmpty ? "moet ingevuld zijn" : null,
                         onChanged: (value) {
+                          getDatabySearch(value);
                           print(value);
                         },
                       ),
@@ -239,7 +263,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
             child: GridView.builder(
               itemCount: producten.length,
               itemBuilder: (context, product) {
-                print(product);
+                //print(product);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 5.0),
                   child: Center(
@@ -286,8 +310,9 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                       tag: producten[product]
                                           .data["ProductTitel"],
                                       child: Image.network(
-                                          producten[product].data['ProductImage'],
-                                          width: 100)))),
+                                        producten[product].data['ProductImage'],
+                                        height: 110,
+                                      )))),
                         ),
                         Positioned(
                           top: 15,
@@ -308,7 +333,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                   color: Geel.withOpacity(0.3),
                                   borderRadius: BorderRadius.circular(50)),
                               child: Center(
-                                child: Text(
+                                child: Text("€ " +
                                     producten[product]
                                         .data["ProductDefaultPrijs"]
                                         .toString(),
