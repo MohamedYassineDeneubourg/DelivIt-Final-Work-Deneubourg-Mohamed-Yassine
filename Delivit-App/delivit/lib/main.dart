@@ -83,8 +83,8 @@ class _MainState extends State<Main> {
           }),
         ),
         debugShowCheckedModeBanner: false,
-       // home: redirectGebruiker());
-    home: ProductenLijstAankoper());
+        home: redirectGebruiker());
+    //home: ProductenLijstAankoper());
   }
 }
 

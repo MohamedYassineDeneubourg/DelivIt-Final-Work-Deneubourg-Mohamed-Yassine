@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Aankoper/kaartAankoper.dart';
+import 'package:delivit/Aankoper/productenLijstAankoper.dart';
 import 'package:delivit/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -53,10 +54,9 @@ class _HomeAankoperState extends State<HomeAankoper> {
   @override
   Widget build(BuildContext context) {
     //_getData();
- //Size size = MediaQuery.of(context).size;
+    //Size size = MediaQuery.of(context).size;
     return new Scaffold(
       drawerScrimColor: Geel.withOpacity(0.3),
-
       endDrawer: Drawer(
         semanticLabel: "Menu",
         child: StreamBuilder<DocumentSnapshot>(
@@ -80,7 +80,6 @@ class _HomeAankoperState extends State<HomeAankoper> {
                             ),
                             fit: BoxFit.cover)),
                     arrowColor: GrijsDark,
-                    
                     otherAccountsPictures: <Widget>[
                       IconButton(
                         icon: Icon(Icons.close, color: GrijsDark),
@@ -192,11 +191,17 @@ class _HomeAankoperState extends State<HomeAankoper> {
           width: 85.0,
           child: FittedBox(
               child: FloatingActionButton(
+            heroTag: "buttonGaNaarProductenLijst",
             shape: CircleBorder(side: BorderSide(color: Geel)),
             backgroundColor: Colors.white,
             elevation: 1,
             onPressed: () {
-              print("ADD");
+              print("PRODUCTENLIJST");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ProductenLijstAankoper(),fullscreenDialog: true),
+              );
             },
             child: Icon(
               Icons.add,

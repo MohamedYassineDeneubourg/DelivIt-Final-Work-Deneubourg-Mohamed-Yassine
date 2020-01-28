@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -12,8 +13,21 @@ class ProductenLijstAankoper extends StatefulWidget {
 class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
   @override
   void initState() {
+    getCurrentUser();
     getData();
     super.initState();
+  }
+
+  String connectedUserMail;
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    print(user);
+    if (user != null) {
+      setState(() {
+        connectedUserMail = user.email;
+      });
+    }
+    getShoppingBag();
   }
 
   List producten = new List();
@@ -43,6 +57,27 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
     print("GetData!");
   }
 
+  getShoppingBag() {
+    var reference = Firestore.instance
+        .collection("Users")
+        .document(connectedUserMail)
+        .get();
+
+    reference.then((data) {
+      print(data.documentID);
+      List shoppingBag = data["ShoppingBag"];
+      if (this.mounted) {
+        setState(() {
+          if (shoppingBag.length > 0) {
+            bestellingProducten = []
+              ..addAll(bestellingProducten)
+              ..addAll(shoppingBag);
+          }
+        });
+      }
+    });
+  }
+
   getDatabySearch(zoekWoord) async {
     print(zoekWoord);
     var reference = await Firestore.instance
@@ -68,7 +103,8 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return new Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: White,
       appBar: AppBar(
         backgroundColor: White,
@@ -193,6 +229,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+          heroTag: "ButtonBestelling",
           splashColor: GrijsDark,
           elevation: 4.0,
           backgroundColor: Geel,
@@ -304,6 +341,13 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                         print(bestellingProducten);
                                       });
                                     }
+
+                                    var reference = Firestore.instance
+                                        .collection("Users")
+                                        .document(connectedUserMail);
+
+                                    reference.updateData(
+                                        {"ShoppingBag": bestellingProducten});
                                   },
                                   child: Hero(
                                       transitionOnUserGestures: true,
@@ -333,10 +377,11 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                   color: Geel.withOpacity(0.3),
                                   borderRadius: BorderRadius.circular(50)),
                               child: Center(
-                                child: Text("€ " +
-                                    producten[product]
-                                        .data["ProductDefaultPrijs"]
-                                        .toString(),
+                                child: Text(
+                                    "€ " +
+                                        producten[product]
+                                            .data["ProductDefaultPrijs"]
+                                            .toString(),
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.w700)),
