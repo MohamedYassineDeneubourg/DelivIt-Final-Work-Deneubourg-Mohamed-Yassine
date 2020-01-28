@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Aankoper/bestellingConfirmAankoper.dart';
 import 'package:delivit/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -104,7 +105,6 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: White,
       appBar: AppBar(
         backgroundColor: White,
@@ -228,20 +228,29 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-          heroTag: "ButtonBestelling",
-          splashColor: GrijsDark,
-          elevation: 4.0,
-          backgroundColor: Geel,
-          icon: const Icon(
-            Icons.shopping_cart,
-            color: White,
-          ),
-          label: Text(
-            "BESTELLEN (" + (bestellingProducten.length).toString() + ")",
-            style: TextStyle(color: White, fontWeight: FontWeight.w800),
-          ),
-          onPressed: () {}),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom:20.0),
+        child: FloatingActionButton.extended(
+            heroTag: "ButtonBestelling",
+            splashColor: GrijsDark,
+            elevation: 4.0,
+            backgroundColor: Geel,
+            icon: const Icon(
+              Icons.shopping_cart,
+              color: White,
+            ),
+            label: Text(
+              "BESTELLEN (" + (bestellingProducten.length).toString() + ")",
+              style: TextStyle(color: White, fontWeight: FontWeight.w800),
+            ),
+            onPressed: () {
+               Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BestellingConfirmAankoper(),fullscreenDialog: true),
+              );
+            }),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Column(
         children: <Widget>[
