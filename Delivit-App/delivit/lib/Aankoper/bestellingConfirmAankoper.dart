@@ -11,28 +11,60 @@ class BestellingConfirmAankoper extends StatefulWidget {
 }
 
 class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
-  List _productenLijst = new List();
+  List _productenLijst = [];
   String userEmail;
-  List bestellingLijst = new List();
+  List bestellingLijst = [];
+  String connectedUserMail;
+  num totalePrijs = 0.0;
+  num leveringPrijs = 0.0;
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    print(user);
+    if (user != null) {
+      setState(() {
+        connectedUserMail = user.email;
+      });
+    }
+  }
+
   void _getData() async {
     final FirebaseUser userData = await FirebaseAuth.instance.currentUser();
     if (userData != null) {
       userEmail = userData.email;
       var reference =
-          Firestore.instance.collection("Users").document(userData.email);
+          Firestore.instance.collection("Users").document(userData.email).get();
 
-      reference.snapshots().listen((querySnapshot) {
+      reference.then((data) {
         if (this.mounted) {
           setState(() {
             print("Refreshed");
-            _productenLijst = querySnapshot.data['ShoppingBag'];
+            _productenLijst = []..addAll(data.data['ShoppingBag']);
             _productenLijst.forEach((product) {
-              Map productMap = {"ProductID": product, "Aantal": 1};
+              var reference = Firestore.instance
+                  .collection("Products")
+                  .document(product)
+                  .get();
 
-              bestellingLijst.add(productMap);
+              reference.then((data) {
+                print(data);
+                Map productMap = {
+                  "ProductID": product,
+                  "Aantal": 1,
+                  "ProductTitel": data.data["ProductTitel"],
+                  "ProductAveragePrijs": data.data['ProductAveragePrijs'],
+                  "ProductImage": data.data['ProductImage']
+                };
+                setState(() {
+                  bestellingLijst.add(productMap);
+                });
+              });
+              print(product);
             });
           });
         }
+        setState(() {
+          getTotalePrijs();
+        });
       });
     }
   }
@@ -40,55 +72,99 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
   @override
   void initState() {
     print("init!");
+    getCurrentUser();
     _getData();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    Size size = MediaQuery.of(context).size;
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: White,
+          textTheme: TextTheme(
+              title: TextStyle(
+                  color: Geel,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  fontFamily: "Montserrat")),
+          centerTitle: true,
+          title: new Text("BEVESTIGING"),
+        ),
         body: new Container(
-            padding: new EdgeInsets.only(top: 8.0, bottom: 20),
-            child: new Center(
-              child: new Expanded(
-                  child: new ListView.builder(
-                itemCount: bestellingLijst.length,
-                itemBuilder: (context, index) {
-                  var reference = Firestore.instance
-                      .collection("Users")
-                      .document(bestellingLijst[index]['ProductID'])
-                      .get();
-
-                  reference.then((product) {
+            height: size.height * 0.70,
+            padding:
+                new EdgeInsets.only(top: 8.0, bottom: 20, right: 15, left: 15),
+            child: new Column(
+              children: <Widget>[
+                new Expanded(
+                    child: new ListView.builder(
+                  itemCount: bestellingLijst.length,
+                  itemBuilder: (context, index) {
+                    getTotalePrijs();
                     return Card(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: ListTile(
                           onLongPress: () {
-                            _showDeleteVraag(_productenLijst[index]);
+                            _showDeleteVraag(bestellingLijst[index]);
                           },
-                          onTap: () {
-                            // goToDetail(_productenLijst[index]);
-                          },
-                          trailing: Text(_productenLijst[index]["Aantal"]),
-                          leading: CircleAvatar(
-                            backgroundColor: Geel,
-                          ),
-                          title: Text('${product['ProductTitel']}',
+                          onTap: null,
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: Icon(Icons.remove_circle),
+                                  onPressed: () {
+                                    if (bestellingLijst[index]['Aantal'] <= 1) {
+                                      _showDeleteVraag(bestellingLijst[index]);
+                                    } else {
+                                      setState(() {
+                                        bestellingLijst[index]['Aantal']--;
+                                        getTotalePrijs();
+                                      });
+                                    }
+                                  },
+                                ),
+                                Text(
+                                  (bestellingLijst[index]["Aantal"]).toString(),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20),
+                                ),
+                                IconButton(
+                                    icon: Icon(
+                                      Icons.add_circle,
+                                      color: Geel,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        bestellingLijst[index]['Aantal']++;
+                                        getTotalePrijs();
+                                      });
+                                    }),
+                              ]),
+                          leading: Image.network(
+                              bestellingLijst[index]['ProductImage']),
+                          title: Text(bestellingLijst[index]['ProductTitel'],
                               style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text('${product['ProductBeschrijving']}'),
+                          subtitle: Text(
+                            "€ " +
+                                bestellingLijst[index]['ProductAveragePrijs']
+                                    .toString(),
+                          ),
                         ));
-                  });
-
-                  return null;
-                },
-              )),
+                  },
+                )),
+                Text(totalePrijs.toString())
+              ],
             )),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 20.0),
           child: FloatingActionButton.extended(
-            heroTag: "ButtonBestelling",
+            heroTag: "ButtonBestellingConfirmatie",
             splashColor: GrijsDark,
             elevation: 4.0,
             backgroundColor: Geel,
@@ -103,6 +179,15 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
             onPressed: confirmBestelling,
           ),
         ));
+  }
+
+  getTotalePrijs() {
+    totalePrijs = 0;
+    bestellingLijst.forEach((product) {
+      totalePrijs =
+          totalePrijs + (product['Aantal'] * product['ProductAveragePrijs']);
+      print(totalePrijs);
+    });
   }
 
   void confirmBestelling() async {
@@ -122,12 +207,10 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // return object of type Dialog
         return AlertDialog(
           title: new Text("Verwijderen?"),
           content: new Text("Wil je $productNaam Verwijderen?"),
           actions: <Widget>[
-            // usually buttons at the bottom of the dialog
             FlatButton(
               color: Geel,
               child: new Text(
@@ -151,12 +234,16 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
   }
 
   verwijderVanBestelling(Map productMap) async {
-    print(userEmail);
-    Firestore.instance.collection('Users').document(userEmail).updateData({
-      "Todos": FieldValue.arrayRemove([productMap])
-    }).then((l) {
-      Navigator.of(context).pop();
-      print('Verwijderd!');
+    setState(() {
+      bestellingLijst.remove(productMap);
+      _productenLijst.remove(productMap['ProductID']);
+
+      var reference =
+          Firestore.instance.collection("Users").document(connectedUserMail);
+
+      reference.updateData({"ShoppingBag": _productenLijst});
+      getTotalePrijs();
     });
+    Navigator.pop(context);
   }
 }

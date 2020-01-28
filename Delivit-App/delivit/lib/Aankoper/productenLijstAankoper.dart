@@ -20,6 +20,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
   }
 
   String connectedUserMail;
+
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
@@ -51,11 +52,11 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
     setState(() {
       producten = documents;
       documents.forEach((object) {
-        print(object.data);
+        // print(object.data);
       });
     });
-    print(producten);
-    print("GetData!");
+    //print(producten);
+    print("GetData is done..");
   }
 
   getShoppingBag() {
@@ -86,8 +87,6 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
         .where("ProductTitel",
             isGreaterThanOrEqualTo: toBeginningOfSentenceCase(zoekWoord))
         .getDocuments();
-
-    print(zoekWoord);
     List<DocumentSnapshot> documents = reference.documents;
 
     setState(() {
@@ -229,7 +228,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
 
     return Scaffold(
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom:20.0),
+        padding: const EdgeInsets.only(bottom: 20.0),
         child: FloatingActionButton.extended(
             heroTag: "ButtonBestelling",
             splashColor: GrijsDark,
@@ -244,11 +243,17 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
               style: TextStyle(color: White, fontWeight: FontWeight.w800),
             ),
             onPressed: () {
-               Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => BestellingConfirmAankoper(),fullscreenDialog: true),
-              );
+                    builder: (context) => BestellingConfirmAankoper(),
+                    fullscreenDialog: true),
+              ).then((e) {
+                setState(() {
+                  bestellingProducten = [];
+                  getShoppingBag();
+                });
+              });
             }),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -360,8 +365,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                   },
                                   child: Hero(
                                       transitionOnUserGestures: true,
-                                      tag: producten[product]
-                                          .data["ProductTitel"],
+                                      tag: producten[product].documentID,
                                       child: Image.network(
                                         producten[product].data['ProductImage'],
                                         height: 110,
