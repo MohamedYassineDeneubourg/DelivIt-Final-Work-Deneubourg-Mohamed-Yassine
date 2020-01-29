@@ -29,6 +29,8 @@ dependencies:
   flutter_launcher_icons: "^0.7.3"
   location_permissions: ^2.0.4+1
   app_settings: ^3.0.0+1
+  datetime_picker_formfield: ^1.0.0
+  # flutter_google_places: ^0.2.3
   # image_picker: ^0.6.1+11
   # firebase_storage: ^3.0.8
 

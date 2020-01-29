@@ -47,6 +47,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
 
               reference.then((data) {
                 print(data);
+
                 Map productMap = {
                   "ProductID": product,
                   "Aantal": 1,
@@ -54,6 +55,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                   "ProductAveragePrijs": data.data['ProductAveragePrijs'],
                   "ProductImage": data.data['ProductImage']
                 };
+
                 setState(() {
                   bestellingLijst.add(productMap);
                 });
@@ -106,6 +108,12 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                   child: new ListView.builder(
                 itemCount: bestellingLijst.length,
                 itemBuilder: (context, index) {
+                  var reference = Firestore.instance
+                      .collection("Users")
+                      .document(connectedUserMail);
+
+                  reference
+                      .updateData({"MomenteleBestelling": bestellingLijst});
                   getTotalePrijs();
                   return Card(
                       shape: RoundedRectangleBorder(
@@ -269,6 +277,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       print(portefeuille);
       if ((totalePrijs + leveringPrijs + 5) > (portefeuille)) {
         print("Niet genoeg geld");
+        nietGenoegSaldo();
       } else {
         print("genoeg geld");
       }
@@ -291,25 +300,31 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Verwijderen?"),
+          title: new Text("Verwijderen?",style: TextStyle(fontWeight: FontWeight.bold),),
           content: new Text("Wil je $productNaam Verwijderen?"),
           actions: <Widget>[
-            FlatButton(
+            ButtonTheme(
+                minWidth: 400.0,
+                child:FlatButton(
               color: Geel,
               child: new Text(
-                "Ja",
-                style: TextStyle(color: Colors.white),
+                "JA",
+                style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
               ),
               onPressed: () {
                 verwijderVanBestelling(todoMap);
               },
-            ),
-            FlatButton(
-              child: new Text("Neen"),
+            )),
+           ButtonTheme(
+             
+                minWidth: 400.0,
+                child: FlatButton(
+                  color: GrijsDark,
+              child: new Text("NEEN",style: TextStyle(color: White,fontWeight: FontWeight.bold),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
-            )
+            ))
           ],
         );
       },
@@ -328,5 +343,48 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       getTotalePrijs();
     });
     Navigator.pop(context);
+  }
+
+  nietGenoegSaldo() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Onvoeldoende geld..",style: TextStyle(fontWeight: FontWeight.bold),),
+          content: new Text(
+              "Jij hebt onvoeldoende geld in je portefeuille... Gelieve geld toe te voegen."),
+          actions: <Widget>[
+            ButtonTheme(
+                minWidth: 400.0,
+                child: RaisedButton(
+                  color: Geel,
+                  child: Text(
+                    "GA NAAR PORTEFEUILLE",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    print("bevestiged code!");
+
+                    //  signIn();
+                  },
+                )),
+            ButtonTheme(
+                minWidth: 400.0,
+                child: RaisedButton(
+                  color: GrijsDark,
+                  child: Text(
+                    "BESTELLING WIJZIGEN",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                   Navigator.of(context).pop();
+                  },
+                ))
+          ],
+        );
+      },
+    );
   }
 }

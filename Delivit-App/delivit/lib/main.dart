@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Aankoper/laatsteStapBestellingAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
 import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
@@ -83,8 +84,8 @@ class _MainState extends State<Main> {
           }),
         ),
         debugShowCheckedModeBanner: false,
-        home: redirectGebruiker());
-    //home: ProductenLijstAankoper());
+      //  home: redirectGebruiker());
+    home: LaatsteStapBestellingAankoper());
   }
 }
 
