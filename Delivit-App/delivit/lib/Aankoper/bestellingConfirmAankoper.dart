@@ -15,8 +15,8 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
   String userEmail;
   List bestellingLijst = [];
   String connectedUserMail;
-  num totalePrijs = 0.0;
-  num leveringPrijs = 0.0;
+  double totalePrijs = 0.0;
+  double leveringPrijs = 3.5;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
@@ -74,6 +74,10 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
     print("init!");
     getCurrentUser();
     _getData();
+    setState(() {
+      getTotalePrijs();
+    });
+
     super.initState();
   }
 
@@ -81,104 +85,166 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: White,
-          textTheme: TextTheme(
-              title: TextStyle(
-                  color: Geel,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 20,
-                  fontFamily: "Montserrat")),
-          centerTitle: true,
-          title: new Text("BEVESTIGING"),
-        ),
-        body: new Container(
-            height: size.height * 0.70,
-            padding:
-                new EdgeInsets.only(top: 8.0, bottom: 20, right: 15, left: 15),
-            child: new Column(
-              children: <Widget>[
-                new Expanded(
-                    child: new ListView.builder(
-                  itemCount: bestellingLijst.length,
-                  itemBuilder: (context, index) {
-                    getTotalePrijs();
-                    return Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: ListTile(
-                          onLongPress: () {
-                            _showDeleteVraag(bestellingLijst[index]);
-                          },
-                          onTap: null,
-                          trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                IconButton(
-                                  icon: Icon(Icons.remove_circle),
+      appBar: AppBar(
+        backgroundColor: White,
+        textTheme: TextTheme(
+            title: TextStyle(
+                color: Geel,
+                fontWeight: FontWeight.w700,
+                fontSize: 20,
+                fontFamily: "Montserrat")),
+        centerTitle: true,
+        title: new Text("BEVESTIGING"),
+      ),
+      body: new Container(
+          height: size.height * 0.78,
+          padding:
+              new EdgeInsets.only(top: 8.0, bottom: 20, right: 15, left: 15),
+          child: new Column(
+            children: <Widget>[
+              new Expanded(
+                  child: new ListView.builder(
+                itemCount: bestellingLijst.length,
+                itemBuilder: (context, index) {
+                  getTotalePrijs();
+                  return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: ListTile(
+                        onLongPress: () {
+                          _showDeleteVraag(bestellingLijst[index]);
+                        },
+                        onTap: null,
+                        trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(Icons.remove_circle),
+                                onPressed: () {
+                                  if (bestellingLijst[index]['Aantal'] <= 1) {
+                                    _showDeleteVraag(bestellingLijst[index]);
+                                  } else {
+                                    setState(() {
+                                      bestellingLijst[index]['Aantal']--;
+                                      getTotalePrijs();
+                                    });
+                                  }
+                                },
+                              ),
+                              Text(
+                                (bestellingLijst[index]["Aantal"]).toString(),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 20),
+                              ),
+                              IconButton(
+                                  icon: Icon(
+                                    Icons.add_circle,
+                                    color: Geel,
+                                  ),
                                   onPressed: () {
-                                    if (bestellingLijst[index]['Aantal'] <= 1) {
-                                      _showDeleteVraag(bestellingLijst[index]);
-                                    } else {
-                                      setState(() {
-                                        bestellingLijst[index]['Aantal']--;
-                                        getTotalePrijs();
-                                      });
-                                    }
-                                  },
-                                ),
-                                Text(
-                                  (bestellingLijst[index]["Aantal"]).toString(),
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 20),
-                                ),
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.add_circle,
-                                      color: Geel,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        bestellingLijst[index]['Aantal']++;
-                                        getTotalePrijs();
-                                      });
-                                    }),
-                              ]),
-                          leading: Image.network(
-                              bestellingLijst[index]['ProductImage']),
-                          title: Text(bestellingLijst[index]['ProductTitel'],
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(
-                            "€ " +
-                                bestellingLijst[index]['ProductAveragePrijs']
-                                    .toString(),
-                          ),
-                        ));
-                  },
-                )),
-                Text(totalePrijs.toString())
-              ],
-            )),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 20.0),
-          child: FloatingActionButton.extended(
-            heroTag: "ButtonBestellingConfirmatie",
-            splashColor: GrijsDark,
-            elevation: 4.0,
-            backgroundColor: Geel,
-            icon: const Icon(
-              FontAwesomeIcons.check,
-              color: White,
-            ),
-            label: Text(
-              "BESTELLING BEVESTIGEN",
-              style: TextStyle(color: White, fontWeight: FontWeight.w800),
-            ),
-            onPressed: confirmBestelling,
+                                    setState(() {
+                                      bestellingLijst[index]['Aantal']++;
+                                      getTotalePrijs();
+                                    });
+                                  }),
+                            ]),
+                        leading: Image.network(
+                            bestellingLijst[index]['ProductImage']),
+                        title: Text(bestellingLijst[index]['ProductTitel'],
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(
+                          "€ " +
+                              bestellingLijst[index]['ProductAveragePrijs']
+                                  .toString(),
+                        ),
+                      ));
+                },
+              )),
+              Divider(
+                color: GrijsDark,
+                height: 30,
+                thickness: 2,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Artikelen",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + getTotalePrijs(),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Leveringskosten",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + leveringPrijs.toString(),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Totale prijs",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                    )),
+                    Text(
+                      "€ " +
+                          (double.parse(getTotalePrijs()) + leveringPrijs)
+                              .toString(),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                    )
+                  ],
+                ),
+              )
+            ],
+          )),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: FloatingActionButton.extended(
+          heroTag: "ButtonBestellingConfirmatie",
+          splashColor: GrijsDark,
+          elevation: 4.0,
+          backgroundColor: Geel,
+          icon: const Icon(
+            FontAwesomeIcons.check,
+            color: White,
           ),
-        ));
+          label: Text(
+            "BESTELLING BEVESTIGEN",
+            style: TextStyle(color: White, fontWeight: FontWeight.w800),
+          ),
+          onPressed: confirmBestelling,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
   }
 
   getTotalePrijs() {
@@ -186,11 +252,28 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
     bestellingLijst.forEach((product) {
       totalePrijs =
           totalePrijs + (product['Aantal'] * product['ProductAveragePrijs']);
-      print(totalePrijs);
     });
+
+    return totalePrijs.toString();
   }
 
   void confirmBestelling() async {
+    num portefeuille = 0;
+    var reference = Firestore.instance
+        .collection("Users")
+        .document(connectedUserMail)
+        .get();
+
+    reference.then((data) {
+      portefeuille = data.data['Portefeuille'];
+      print(portefeuille);
+      if ((totalePrijs + leveringPrijs + 5) > (portefeuille)) {
+        print("Niet genoeg geld");
+      } else {
+        print("genoeg geld");
+      }
+    });
+
     /* Navigator.push(
       context,
       MaterialPageRoute(
