@@ -220,6 +220,8 @@ class _RegisterState extends State<Register> {
               'Naam': _naam,
               "Voornaam": _voornaam,
               "Email": _email,
+              "RatingScore": 2.5,
+              "RatingMessages":[],
               "PhoneNumber": phoneNumber,
               "Position": {
                 'latitude': 50.8465573,

@@ -154,8 +154,6 @@ class _KaartAankoperState extends State<KaartAankoper> {
       });
     });
   }
-
-  String filterValue = "Totaal overzicht";
   @override
   Widget build(BuildContext context) {
     if (userPosition != null) {

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Aankoper/bestellingDetailAankoper.dart';
 import 'package:delivit/Aankoper/laatsteStapBestellingAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
 import 'package:delivit/colors.dart';
@@ -26,7 +27,7 @@ class _MainState extends State<Main> {
   bool userLoaded = false;
 
   String connectedUserMail;
- 
+
   void getCurrentUser() {
     FirebaseAuth.instance.currentUser().then((e) {
       print(e);
@@ -84,8 +85,8 @@ class _MainState extends State<Main> {
           }),
         ),
         debugShowCheckedModeBanner: false,
-          home: redirectGebruiker());
-        //home: LaatsteStapBestellingAankoper());
+        home: redirectGebruiker());
+        //home: BestellingDetailAankoper(bestellingId: "7l1YsQ269zezIk6oHJna",));
   }
 }
 

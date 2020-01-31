@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Aankoper/bestellingDetailAankoper.dart';
 import 'package:delivit/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class _OverzichtBestellingenAankoperState
               break;
           }
         }
-        
+
         if (snapshot.hasData && snapshot.data.documents.length != 0) {
           return Padding(
             padding: const EdgeInsets.only(top: 20.0, right: 15, left: 15),
@@ -111,7 +112,14 @@ class _OverzichtBestellingenAankoperState
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: ListTile(
-                      onTap: null,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BestellingDetailAankoper(
+                                      bestellingId: bestelling.documentID,
+                                    )));
+                      },
                       trailing: getIcon(bestelling['BestellingStatus']),
                       title: Text("Bestelling: " + datum + " - " + tijd,
                           style: TextStyle(fontWeight: FontWeight.bold)),
