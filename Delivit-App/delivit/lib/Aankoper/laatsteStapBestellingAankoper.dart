@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Aankoper/homeAankoper.dart';
 import 'package:delivit/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
 class LaatsteStapBestellingAankoper extends StatefulWidget {
@@ -17,6 +21,39 @@ class _LaatsteStapBestellingAankoperState
   String _straat, _nummer, _postcode, _additioneleInformatie = '';
   DateTime datum;
   final _formKey = new GlobalKey<FormState>();
+  String connectedUserMail;
+  List bestellingLijst = [];
+  Map adresPosition;
+
+  final straatController = TextEditingController();
+  final nummerController = TextEditingController();
+  final postcodeController = TextEditingController();
+
+  void getCurrentUser() {
+    FirebaseAuth.instance.currentUser().then((e) {
+      setState(() {
+        connectedUserMail = e.email;
+      });
+      print(e.email);
+      var reference =
+          Firestore.instance.collection("Users").document(e.email).get();
+
+      reference.then((data) {
+        if (this.mounted) {
+          setState(() {
+            connectedUserMail = e.email;
+            bestellingLijst = []..addAll(data.data['MomenteleBestelling']);
+          });
+        }
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    getCurrentUser();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +107,6 @@ class _LaatsteStapBestellingAankoperState
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                
                 Form(
                     key: _formKey,
                     child: Expanded(
@@ -100,9 +136,26 @@ class _LaatsteStapBestellingAankoperState
                                             fontSize: 20),
                                       ),
                                     ),
-                                  ),FlatButton.icon(
+                                  ),
+                                  FlatButton.icon(
                                     onPressed: () {
-                                      //   Navigator.pop(context);
+                                      Geolocator()
+                                          .getCurrentPosition(
+                                              desiredAccuracy: LocationAccuracy
+                                                  .bestForNavigation)
+                                          .then((e) async {
+                                        var positieAdres = await Geolocator()
+                                            .placemarkFromCoordinates(
+                                                e.latitude, e.longitude,localeIdentifier: "nl_BE");
+                                        setState(() {
+                                          straatController.text =
+                                              positieAdres.first.thoroughfare;
+                                          nummerController.text = positieAdres
+                                              .first.subThoroughfare;
+                                          postcodeController.text =
+                                              positieAdres.first.postalCode;
+                                        });
+                                      });
                                     },
                                     label: Text(
                                       "Huidig positie",
@@ -120,6 +173,7 @@ class _LaatsteStapBestellingAankoperState
                                       padding: EdgeInsets.only(
                                           top: 15, bottom: 20.0),
                                       child: TextFormField(
+                                        controller: straatController,
                                         decoration: InputDecoration(
                                             errorStyle: TextStyle(
                                                 fontWeight: FontWeight.w700),
@@ -143,12 +197,12 @@ class _LaatsteStapBestellingAankoperState
                                         validator: (value) => value.isEmpty
                                             ? "Straat moet ingevuld zijn"
                                             : null,
-
                                         onSaved: (value) => _straat = value,
                                       )),
                                   Padding(
                                       padding: EdgeInsets.only(bottom: 20.0),
                                       child: TextFormField(
+                                        controller: nummerController,
                                         keyboardType: TextInputType.number,
                                         inputFormatters: <TextInputFormatter>[
                                           WhitelistingTextInputFormatter
@@ -182,6 +236,7 @@ class _LaatsteStapBestellingAankoperState
                                   Padding(
                                       padding: EdgeInsets.only(bottom: 20.0),
                                       child: TextFormField(
+                                        controller: postcodeController,
                                         inputFormatters: <TextInputFormatter>[
                                           WhitelistingTextInputFormatter
                                               .digitsOnly
@@ -221,7 +276,7 @@ class _LaatsteStapBestellingAankoperState
                                         onSaved: (value) => _postcode = value,
                                       )),
                                   Padding(
-                                      padding: EdgeInsets.only( bottom: 15.0),
+                                      padding: EdgeInsets.only(bottom: 15.0),
                                       child: TextFormField(
                                         maxLines: 3,
                                         decoration: InputDecoration(
@@ -244,9 +299,8 @@ class _LaatsteStapBestellingAankoperState
                                             ),
                                             labelText: 'Additionele informatie',
                                             hintText: '...'),
-                                       
-
-                                        onSaved: (value) => _straat = value,
+                                        onSaved: (value) =>
+                                            _additioneleInformatie = value,
                                       )),
                                   Divider(),
                                   Center(
@@ -326,5 +380,58 @@ class _LaatsteStapBestellingAankoperState
         ]));
   }
 
-  void finalisatieBestelling() {}
+  void finalisatieBestelling() async {
+    if (valideerEnSave()) {
+      String volledigAdres =
+          _straat + " " + _nummer + ", " + _postcode + " Belgium";
+      print(volledigAdres);
+      try {
+        var geoQuery = await Geolocator()
+            .placemarkFromAddress(volledigAdres, localeIdentifier: 'nl_BE');
+        //  print(geoQuery.first.position.longitude);
+        adresPosition = {
+          'latitude': geoQuery.first.position.latitude,
+          'longitude': geoQuery.first.position.longitude
+        };
+        print(adresPosition);
+        await Firestore.instance.collection("Commands").document().setData({
+          'AdresPosition': {
+            'latitude': 50.8465573,
+            'longitude': 4.351697,
+          },
+          'Adres': _straat + " " + _nummer + ", " + _postcode,
+          'AdditioneleInformatie': _additioneleInformatie,
+          'BestellingLijst': bestellingLijst,
+          'BezorgDatumEnTijd': datum,
+          'BestellingStatus': 'AANVRAAG',
+          'AankoperEmail': connectedUserMail,
+          'BezorgerEmail': ''
+        }).then((e) {
+          var reference = Firestore.instance
+              .collection("Users")
+              .document(connectedUserMail);
+
+          reference.updateData({"MomenteleBestelling": [], "ShoppingBag": []});
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomeAankoper()),
+              (Route<dynamic> route) => false);
+        });
+      } catch (e) {
+        print('Error:$e');
+      }
+    }
+  }
+
+  bool valideerEnSave() {
+    final form = _formKey.currentState;
+
+    if (form.validate()) {
+      form.save();
+      print('Form is valid.');
+      return true;
+    }
+
+    return false;
+  }
 }

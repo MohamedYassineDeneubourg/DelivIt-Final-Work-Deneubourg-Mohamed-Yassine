@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Aankoper/laatsteStapBestellingAankoper.dart';
 import 'package:delivit/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -280,51 +281,54 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
         nietGenoegSaldo();
       } else {
         print("genoeg geld");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LaatsteStapBestellingAankoper(),
+              fullscreenDialog: true),
+        );
       }
     });
-
-    /* Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => AddTodo(
-                title: "Nieuwe Todo",
-              ),
-          fullscreenDialog: true),
-    ); */
   }
 
-  void _showDeleteVraag(Map todoMap) {
-    String productNaam = "'" + todoMap['ProductTitel'] + "'";
+  void _showDeleteVraag(Map productMap) {
+    String productNaam = "'" + productMap['ProductTitel'] + "'";
     // flutter defined function
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Verwijderen?",style: TextStyle(fontWeight: FontWeight.bold),),
+          title: new Text(
+            "Verwijderen?",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           content: new Text("Wil je $productNaam Verwijderen?"),
           actions: <Widget>[
             ButtonTheme(
                 minWidth: 400.0,
-                child:FlatButton(
-              color: Geel,
-              child: new Text(
-                "JA",
-                style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                verwijderVanBestelling(todoMap);
-              },
-            )),
-           ButtonTheme(
-             
+                child: FlatButton(
+                  color: Geel,
+                  child: new Text(
+                    "JA",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    verwijderVanBestelling(productMap);
+                  },
+                )),
+            ButtonTheme(
                 minWidth: 400.0,
                 child: FlatButton(
                   color: GrijsDark,
-              child: new Text("NEEN",style: TextStyle(color: White,fontWeight: FontWeight.bold),),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ))
+                  child: new Text(
+                    "NEEN",
+                    style: TextStyle(color: White, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ))
           ],
         );
       },
@@ -350,7 +354,10 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Onvoeldoende geld..",style: TextStyle(fontWeight: FontWeight.bold),),
+          title: new Text(
+            "Onvoeldoende geld..",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           content: new Text(
               "Jij hebt onvoeldoende geld in je portefeuille... Gelieve geld toe te voegen."),
           actions: <Widget>[
@@ -379,7 +386,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () {
-                   Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                   },
                 ))
           ],

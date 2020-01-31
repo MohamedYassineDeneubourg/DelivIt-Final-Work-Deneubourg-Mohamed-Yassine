@@ -26,7 +26,7 @@ class _MainState extends State<Main> {
   bool userLoaded = false;
 
   String connectedUserMail;
-
+ 
   void getCurrentUser() {
     FirebaseAuth.instance.currentUser().then((e) {
       print(e);
@@ -84,8 +84,8 @@ class _MainState extends State<Main> {
           }),
         ),
         debugShowCheckedModeBanner: false,
-      //  home: redirectGebruiker());
-    home: LaatsteStapBestellingAankoper());
+          home: redirectGebruiker());
+        //home: LaatsteStapBestellingAankoper());
   }
 }
 

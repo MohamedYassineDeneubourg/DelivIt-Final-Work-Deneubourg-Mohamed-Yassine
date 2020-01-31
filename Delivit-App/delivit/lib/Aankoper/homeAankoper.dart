@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Aankoper/kaartAankoper.dart';
+import 'package:delivit/Aankoper/overzichtBestellingenAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
 import 'package:delivit/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,7 +22,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
   int _cIndex = 0;
   String email;
   double tabHeight = 50;
-  final List<Widget> _children = [KaartAankoper(), KaartAankoper()];
+  final List<Widget> _children = [KaartAankoper(), OverzichtBestellingenAankoper()];
 
   String connectedUserMail;
   void _incrementTab(index) {
@@ -153,7 +154,10 @@ class _HomeAankoperState extends State<HomeAankoper> {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            print("uitlogg");
+                            
+                          },
                           color: GrijsDark.withOpacity(0.7),
                         ),
                       ),

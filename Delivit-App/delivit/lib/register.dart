@@ -226,6 +226,7 @@ class _RegisterState extends State<Register> {
                 'longitude': 4.351697,
               },
               "ShoppingBag": [],
+              "MomenteleBestelling": [],
               "Portefeuille": 0.0,
               "Functie": "NogTeKiezen",
               "ProfileImage":
