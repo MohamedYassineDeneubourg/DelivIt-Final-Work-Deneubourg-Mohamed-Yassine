@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/homeAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,6 +14,36 @@ class Keuze extends StatefulWidget {
 
 class _KeuzeState extends State<Keuze> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  String connectedUserMail;
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    if (user != null) {
+      setState(() {
+        connectedUserMail = user.email;
+      });
+    }
+
+    var reference = Firestore.instance
+        .collection("Users")
+        .document(connectedUserMail)
+        .get();
+
+    reference.then((data) {
+      if (data.data['Functie'] == "Aankoper") {
+        aankoperGekozen();
+      } else if (data.data['Functie'] == "Bezorger") {
+        bezorgerGekozen();
+      } else {
+        print("Gebruiker moet zijn functie kiezen.");
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    getCurrentUser();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -262,6 +293,11 @@ class _KeuzeState extends State<Keuze> {
   }
 
   Future<void> aankoperGekozen() async {
+    var reference =
+        Firestore.instance.collection("Users").document(connectedUserMail);
+
+    reference.updateData({"Functie": "Aankoper"});
+
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomeAankoper()),
@@ -269,8 +305,11 @@ class _KeuzeState extends State<Keuze> {
   }
 
   void bezorgerGekozen() {
-      Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ProductenLijstAankoper()));
+    var reference =
+        Firestore.instance.collection("Users").document(connectedUserMail);
 
+    reference.updateData({"Functie": "Bezorger"});
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ProductenLijstAankoper()));
   }
 }

@@ -395,10 +395,7 @@ class _LaatsteStapBestellingAankoperState
         };
         print(adresPosition);
         await Firestore.instance.collection("Commands").document().setData({
-          'AdresPosition': {
-            'latitude': 50.8465573,
-            'longitude': 4.351697,
-          },
+          'AdresPosition': adresPosition,
           'Adres': _straat + " " + _nummer + ", " + _postcode,
           'AdditioneleInformatie': _additioneleInformatie,
           'BestellingLijst': bestellingLijst,
@@ -407,6 +404,7 @@ class _LaatsteStapBestellingAankoperState
           'AankoperEmail': connectedUserMail,
           'BezorgerEmail': ''
         }).then((e) {
+          print("hoke");
           var reference = Firestore.instance
               .collection("Users")
               .document(connectedUserMail);

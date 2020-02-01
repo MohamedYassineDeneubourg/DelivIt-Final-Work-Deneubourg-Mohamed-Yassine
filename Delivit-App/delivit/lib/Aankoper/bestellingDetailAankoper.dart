@@ -272,7 +272,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                         "€" +
                                             aanbodLijst[index]
                                                     ['TotaleAanbodPrijs']
-                                                .toString(),
+                                                .toStringAsFixed(2),
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold)),

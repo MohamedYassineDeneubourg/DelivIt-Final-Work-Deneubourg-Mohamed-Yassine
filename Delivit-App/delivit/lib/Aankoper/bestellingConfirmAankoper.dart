@@ -165,7 +165,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                         subtitle: Text(
                           "€ " +
                               bestellingLijst[index]['ProductAveragePrijs']
-                                  .toString(),
+                                  .toStringAsFixed(2),
                         ),
                       ));
                 },
@@ -263,7 +263,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
           totalePrijs + (product['Aantal'] * product['ProductAveragePrijs']);
     });
 
-    return totalePrijs.toString();
+    return totalePrijs.toStringAsFixed(2);
   }
 
   void confirmBestelling() async {

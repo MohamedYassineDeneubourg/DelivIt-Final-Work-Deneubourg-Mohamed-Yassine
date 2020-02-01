@@ -1,13 +1,11 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/Aankoper/bestellingDetailAankoper.dart';
-import 'package:delivit/Aankoper/laatsteStapBestellingAankoper.dart';
-import 'package:delivit/Aankoper/productenLijstAankoper.dart';
 import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/loadingScreen.dart';
 import 'package:delivit/login.dart';
+import 'package:delivit/portefeuille.dart';
 import 'package:delivit/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -25,31 +23,52 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   bool userLoaded = false;
-
+  Widget functie;
   String connectedUserMail;
 
   void getCurrentUser() {
     FirebaseAuth.instance.currentUser().then((e) {
-      print(e);
-
       setState(() {
         if (e != null) {
           connectedUserMail = e.email;
+          userLoaded = true;
         }
-        userLoaded = true;
       });
+
+      print(e.email);
     });
   }
+
+  /*getFunctie() {
+    Firestore.instance
+        .collection("Users")
+        .document(connectedUserMail)
+        .snapshots()
+        .listen((data) {
+      print(data);
+      setState(() {
+        if (data['Functie'] == "Aankoper") {
+          functie = HomeAankoper();
+        } else if (data['Functie'] == "Bezorger") {
+          return HomeAankoper();
+        } else {
+          return Keuze();
+        }
+      });
+    });
+  }*/
 
   @override
   void initState() {
     getCurrentUser();
+
     super.initState();
   }
 
   redirectGebruiker() {
     if (userLoaded) {
       if (connectedUserMail != null) {
+        //return getFunctie();
         return Keuze();
       } else {
         return DelivitHomePage();
@@ -85,8 +104,8 @@ class _MainState extends State<Main> {
           }),
         ),
         debugShowCheckedModeBanner: false,
-        home: redirectGebruiker());
-        //home: BestellingDetailAankoper(bestellingId: "7l1YsQ269zezIk6oHJna",));
+        //  home: redirectGebruiker());
+        home: Portefeuille());
   }
 }
 
