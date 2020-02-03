@@ -3,10 +3,10 @@ import 'package:delivit/colors.dart';
 import 'package:delivit/stripeServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_credit_card/credit_card_model.dart';
+import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:stripe_sdk/stripe_sdk.dart';
-import 'package:stripe_sdk/stripe_sdk_ui.dart';
 
 class Portefeuille extends StatefulWidget {
   @override
@@ -17,11 +17,17 @@ class _PortefeuilleState extends State<Portefeuille> {
   List portefeuilleHistoriek = [];
   String connectedUserMail;
   Map gebruikerData;
+  //CardDetails:
+  String cardNumber = '';
+  String expiryDate = '';
+  String cardHolderName = '';
+  String cvvCode = '';
+  bool isCvvFocused = false;
+  //-------------------------
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    StripeApi.init("pk_test_BSPg6pigleBNqs9zFfQCDyAc00K4jhMtbI");
     getCurrentUser();
     super.initState();
   }
@@ -41,7 +47,21 @@ class _PortefeuilleState extends State<Portefeuille> {
   }
 
   void portefeuilleAanvullen() async {
-    var _formkey = GlobalKey<FormState>();
+    if (gebruikerData['stripeId'] == null) {
+      StripeServices().createStripeCustomer(
+          email: connectedUserMail,
+          userId: connectedUserMail.replaceFirst(RegExp('@'), 'AT'));
+    } else if ((gebruikerData['stripeCards'] == null)) {
+
+      kaartToevoegen();
+    } else {
+      print(gebruikerData['stripeId']);
+      StripeServices()
+          .charge(amount: 2000, customer: gebruikerData['stripeId']);
+    }
+  }
+
+  void kaartToevoegen() {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -50,25 +70,46 @@ class _PortefeuilleState extends State<Portefeuille> {
               "Aanbieding accepteren",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            content: CardForm(
-              card: StripeCard(),
-              formKey: _formkey,
+            content: Column(
+              children: <Widget>[
+                CreditCardWidget(
+                  cardNumber: cardNumber,
+                  expiryDate: expiryDate,
+                  cardHolderName: cardHolderName,
+                  cvvCode: cvvCode,
+                  showBackView: isCvvFocused,
+                  cardBgColor: Geel,
+                  height: 175,
+                  textStyle: TextStyle(color: Colors.yellowAccent),
+                  width: MediaQuery.of(context).size.width,
+                  animationDuration: Duration(milliseconds: 1000),
+                ),
+                CreditCardForm(
+                  themeColor: Colors.red,
+                  onCreditCardModelChange: onCreditCardModelChange,
+                ),
+              ],
             ),
             actions: <Widget>[
               ButtonTheme(
                   minWidth: 400.0,
                   child: FlatButton(
-                      color: Geel,
-                      child: new Text(
-                        "JA",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: () async {
-                        if (_formkey.currentState.validate()) {
-                          _formkey.currentState.save();
-                        }
-                      })),
+                    color: Geel,
+                    child: new Text(
+                      "JA",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      StripeServices().addCard(
+                          email: connectedUserMail,
+                          stripeId: gebruikerData['stripeId'].toString(),
+                          cardNumber: 4242424242424242,
+                          cvc: 223,
+                          year: 2022,
+                          month: 03);
+                    },
+                  )),
               ButtonTheme(
                   minWidth: 400.0,
                   child: FlatButton(
@@ -85,15 +126,16 @@ class _PortefeuilleState extends State<Portefeuille> {
             ],
           );
         });
-    if (gebruikerData['stripeId'] == null) {
-      StripeServices().createStripeCustomer(
-          email: connectedUserMail,
-          userId: connectedUserMail.replaceFirst(RegExp('@'), 'AT'));
-    } else {
-      print(gebruikerData['stripeId']);
-      StripeServices()
-          .charge(amount: 2000, customer: gebruikerData['stripeId']);
-    }
+  }
+
+  void onCreditCardModelChange(CreditCardModel creditCardModel) {
+    setState(() {
+      cardNumber = creditCardModel.cardNumber;
+      expiryDate = creditCardModel.expiryDate;
+      cardHolderName = creditCardModel.cardHolderName;
+      cvvCode = creditCardModel.cvvCode;
+      isCvvFocused = creditCardModel.isCvvFocused;
+    });
   }
 
   _getData() {

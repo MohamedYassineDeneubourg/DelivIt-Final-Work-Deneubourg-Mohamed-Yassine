@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
 class StripeServices {
@@ -39,22 +38,31 @@ class StripeServices {
   }
 
   Future<void> addCard(
-      {int cardNumber, int month, int year, int cvc, String stripeId}) async {
+      {int cardNumber,
+      int month,
+      int year,
+      int cvc,
+      String stripeId,
+      String email}) async {
+    print('addCard..');
     Map<String, dynamic> body = {
       "type": "card",
-      "card[number]": cardNumber,
-      "card[exp_month]": month,
-      "card[exp_year]": year,
-      "card[cvc]": cvc
+      "card[number]": cardNumber.toString(),
+      "card[exp_month]": month.toString(),
+      "card[exp_year]":year.toString(),
+      "card[cvc]":cvc.toString()
     };
-    Dio()
-        .post(PAYMENT_METHOD_URL,
-            data: body,
-            options: Options(
-                contentType: Headers.formUrlEncodedContentType,
-                headers: headers))
+    print("Await http...");
+    await http
+        .post(PAYMENT_METHOD_URL, body: body, headers: headers,encoding: Encoding.getByName("formUrlEncodedContentType"))
         .then((response) {
-      String paymentMethod = response.data["id"];
+          //print(response);
+      var reference = Firestore.instance.collection("Users").document(email);
+
+      reference.updateData({"stripeCard": body});
+      Map data = json.decode(response.body);
+      print(data['id']);
+      String paymentMethod = data['id'];
       print("=== The payment mathod id id ===: $paymentMethod");
       http
           .post(
@@ -85,7 +93,8 @@ class StripeServices {
       CHARGE_URL,
       body: data,
       headers: headers,
-    ).then((response) {
+    )
+        .then((response) {
       print(response.body.toString());
     }).catchError((err) {
       print("There was an error charging the customer: ${err.toString()}");

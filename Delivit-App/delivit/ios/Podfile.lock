@@ -314,9 +314,9 @@ PODS:
     - Flutter
     - FMDB (~> 2.7.2)
   - Stripe (18.4.0)
-  - stripe_payment (1.0.0):
+  - stripe_widget (0.0.1):
     - Flutter
-    - Stripe (>= 18.0.0)
+    - Stripe
 
 DEPENDENCIES:
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
@@ -332,7 +332,7 @@ DEPENDENCIES:
   - location_permissions (from `.symlinks/plugins/location_permissions/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
-  - stripe_payment (from `.symlinks/plugins/stripe_payment/ios`)
+  - stripe_widget (from `.symlinks/plugins/stripe_widget/ios`)
 
 SPEC REPOS:
   trunk:
@@ -389,8 +389,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
-  stripe_payment:
-    :path: ".symlinks/plugins/stripe_payment/ios"
+  stripe_widget:
+    :path: ".symlinks/plugins/stripe_widget/ios"
 
 SPEC CHECKSUMS:
   abseil: 18063d773f5366ff8736a050fe035a28f635fd27
@@ -431,7 +431,7 @@ SPEC CHECKSUMS:
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
   Stripe: fa837c60f0644b488c994024ce7d9b001ea4e97c
-  stripe_payment: 1baf1bbf556f7a35c210dc9e2eccf2075947b6be
+  stripe_widget: de9843c39f02f57dab810bbe481a8eeef1a2913d
 
 PODFILE CHECKSUM: bb642f70b2423009073d85971b8837788d32161b
 
