@@ -57,6 +57,8 @@ class _KeuzeState extends State<Keuze> {
                   Colors.white.withOpacity(0.9), BlendMode.srcOver),
               child: Image.asset(
                 'assets/images/backgroundLogin.jpg',
+                color: Geel.withOpacity(0.75),
+                colorBlendMode: BlendMode.srcOver,
                 width: size.width,
                 height: size.height,
                 fit: BoxFit.cover,
@@ -113,19 +115,17 @@ class _KeuzeState extends State<Keuze> {
                           borderRadius: new BorderRadius.circular(10.0)),
                       child:
                           Stack(alignment: Alignment.center, children: <Widget>[
-                        ColorFiltered(
-                            colorFilter: ColorFilter.mode(
-                                Geel.withOpacity(0.5), BlendMode.srcOver),
-                            child: ClipRRect(
-                              child: Image.asset(
-                                'assets/images/aankoperChoice.png',
-                                width: size.width,
-                                height: size.height / 3.5,
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
-                            )),
+                        ClipRRect(
+                          child: Image.asset(
+                            'assets/images/aankoperChoice.png',
+                            color: Geel.withOpacity(0.5),
+                            colorBlendMode: BlendMode.srcOver,
+                            width: size.width,
+                            height: size.height / 3.5,
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
                         Center(
                             child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -204,63 +204,65 @@ class _KeuzeState extends State<Keuze> {
                         child: RaisedButton(
                           shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(10.0)),
-                          child: Stack(alignment: Alignment.center, children: <
-                              Widget>[
-                            ColorFiltered(
-                                colorFilter: ColorFilter.mode(
-                                    Geel.withOpacity(0.5), BlendMode.srcOver),
-                                child: ClipRRect(
+                          child: Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                ClipRRect(
                                   child: Image.asset(
                                     'assets/images/bezorgerChoice.png',
+                                    color: Geel.withOpacity(0.75),
+                                    colorBlendMode: BlendMode.srcOver,
                                     width: size.width,
                                     height: size.height / 3.5,
                                     fit: BoxFit.cover,
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10.0)),
-                                )),
-                            Center(
-                                child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Container(
-                                    child: Center(
-                                        child: Text("Bezorger",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w900,
-                                                fontSize: 30,
-                                                shadows: [
-                                                  Shadow(
-                                                    blurRadius: 20.0,
-                                                    color: Colors.black,
-                                                    offset: Offset(3.0, 3.0),
-                                                  ),
-                                                ]),
-                                            textAlign: TextAlign.center))),
+                                ),
                                 Center(
-                                    child: Padding(
-                                  padding: EdgeInsets.only(right: 20, left: 20),
-                                  child: Text(
-                                    "Je wilt geld maken door boodschappen op tijd te leveren.",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        shadows: [
-                                          Shadow(
-                                            blurRadius: 10.0,
-                                            color: Colors.black,
-                                            offset: Offset(3.0, 3.0),
-                                          ),
-                                        ]),
-                                    textAlign: TextAlign.center,
-                                  ),
+                                    child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                        child: Center(
+                                            child: Text("Bezorger",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w900,
+                                                    fontSize: 30,
+                                                    shadows: [
+                                                      Shadow(
+                                                        blurRadius: 20.0,
+                                                        color: Colors.black,
+                                                        offset:
+                                                            Offset(3.0, 3.0),
+                                                      ),
+                                                    ]),
+                                                textAlign: TextAlign.center))),
+                                    Center(
+                                        child: Padding(
+                                      padding:
+                                          EdgeInsets.only(right: 20, left: 20),
+                                      child: Text(
+                                        "Je wilt geld maken door boodschappen op tijd te leveren.",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 10.0,
+                                                color: Colors.black,
+                                                offset: Offset(3.0, 3.0),
+                                              ),
+                                            ]),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    )),
+                                  ],
                                 )),
-                              ],
-                            )),
-                          ]),
+                              ]),
                           onPressed: bezorgerGekozen,
                         ),
                       ),

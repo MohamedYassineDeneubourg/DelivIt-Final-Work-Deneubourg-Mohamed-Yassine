@@ -23,6 +23,8 @@ dependencies:
   flutter_spinkit: "^4.1.1"
   curved_navigation_bar: ^0.3.1
   flutter_rating_bar: ^3.0.1+1
+  stripe_sdk: ^2.4.2
+  dio: ^3.0.8
   # Kaart:
   flutter_map: any
   geopoint: ^0.7.0

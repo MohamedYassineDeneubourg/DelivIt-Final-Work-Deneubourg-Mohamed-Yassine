@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
+import 'package:delivit/stripeServices.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:stripe_sdk/stripe_sdk.dart';
+import 'package:stripe_sdk/stripe_sdk_ui.dart';
 
 class Portefeuille extends StatefulWidget {
   @override
@@ -14,10 +17,12 @@ class _PortefeuilleState extends State<Portefeuille> {
   List portefeuilleHistoriek = [];
   String connectedUserMail;
   Map gebruikerData;
+  var _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
+    StripeApi.init("pk_test_BSPg6pigleBNqs9zFfQCDyAc00K4jhMtbI");
     getCurrentUser();
-
     super.initState();
   }
 
@@ -36,6 +41,59 @@ class _PortefeuilleState extends State<Portefeuille> {
   }
 
   void portefeuilleAanvullen() async {
+    var _formkey = GlobalKey<FormState>();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text(
+              "Aanbieding accepteren",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: CardForm(
+              card: StripeCard(),
+              formKey: _formkey,
+            ),
+            actions: <Widget>[
+              ButtonTheme(
+                  minWidth: 400.0,
+                  child: FlatButton(
+                      color: Geel,
+                      child: new Text(
+                        "JA",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () async {
+                        if (_formkey.currentState.validate()) {
+                          _formkey.currentState.save();
+                        }
+                      })),
+              ButtonTheme(
+                  minWidth: 400.0,
+                  child: FlatButton(
+                    color: GrijsDark,
+                    child: new Text(
+                      "NEEN",
+                      style:
+                          TextStyle(color: White, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ))
+            ],
+          );
+        });
+    if (gebruikerData['stripeId'] == null) {
+      StripeServices().createStripeCustomer(
+          email: connectedUserMail,
+          userId: connectedUserMail.replaceFirst(RegExp('@'), 'AT'));
+    } else {
+      print(gebruikerData['stripeId']);
+      StripeServices()
+          .charge(amount: 2000, customer: gebruikerData['stripeId']);
+    }
   }
 
   _getData() {
@@ -61,6 +119,7 @@ class _PortefeuilleState extends State<Portefeuille> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
           backgroundColor: White,
           textTheme: TextTheme(
@@ -150,72 +209,68 @@ class _PortefeuilleState extends State<Portefeuille> {
                               shape: RoundedRectangleBorder(
                                   borderRadius:
                                       new BorderRadius.circular(10.0)),
-                              child: Stack(
-                                  alignment: Alignment.center,
+                              child:
+                                  Stack(alignment: Alignment.center, children: <
+                                      Widget>[
+                                ClipRRect(
+                                  child: Image.asset(
+                                    'assets/images/geldToevoegen.jpg',
+                                    color: Geel.withOpacity(0.75),
+                                    colorBlendMode: BlendMode.srcOver,
+                                    width: size.width * 0.40,
+                                    height: size.width * 0.40,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                Center(
+                                    child: Column(
                                   children: <Widget>[
-                                    ColorFiltered(
-                                        colorFilter: ColorFilter.mode(
-                                            Geel.withOpacity(0.75),
-                                            BlendMode.srcOver),
-                                        child: ClipRRect(
-                                          child: Image.asset(
-                                            'assets/images/geldToevoegen.jpg',
-                                            width: size.width * 0.40,
-                                            height: size.width * 0.40,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10.0)),
-                                        )),
-                                    Center(
-                                        child: Column(
-                                      children: <Widget>[
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 20.0),
-                                          child: Text(
-                                            "Portefeuille",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white,
-                                                fontSize: 20,
-                                                shadows: [
-                                                  Shadow(
-                                                    blurRadius: 10.0,
-                                                    color: Colors.black,
-                                                    offset: Offset(3.0, 3.0),
-                                                  ),
-                                                ]),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                        Text(
-                                          "Aanvullen",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                              fontSize: 22,
-                                              shadows: [
-                                                Shadow(
-                                                  blurRadius: 10.0,
-                                                  color: Colors.black,
-                                                  offset: Offset(3.0, 3.0),
-                                                ),
-                                              ]),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Icon(
-                                            FontAwesomeIcons.arrowCircleDown,
-                                            color: White,
-                                            size: 30,
-                                          ),
-                                        )
-                                      ],
-                                    ))
-                                  ]),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 20.0),
+                                      child: Text(
+                                        "Portefeuille",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 10.0,
+                                                color: Colors.black,
+                                                offset: Offset(3.0, 3.0),
+                                              ),
+                                            ]),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Aanvullen",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          shadows: [
+                                            Shadow(
+                                              blurRadius: 10.0,
+                                              color: Colors.black,
+                                              offset: Offset(3.0, 3.0),
+                                            ),
+                                          ]),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Icon(
+                                        FontAwesomeIcons.arrowCircleDown,
+                                        color: White,
+                                        size: 30,
+                                      ),
+                                    )
+                                  ],
+                                ))
+                              ]),
                               onPressed: portefeuilleAanvullen,
                             ),
                           ),
@@ -230,74 +285,70 @@ class _PortefeuilleState extends State<Portefeuille> {
                               shape: RoundedRectangleBorder(
                                   borderRadius:
                                       new BorderRadius.circular(20.0)),
-                              child: Stack(
-                                  alignment: Alignment.center,
+                              child:
+                                  Stack(alignment: Alignment.center, children: <
+                                      Widget>[
+                                ClipRRect(
+                                  child: Image.asset(
+                                    'assets/images/geldAanvragen.jpg',
+                                    color: GrijsMidden.withOpacity(0.50),
+                                    colorBlendMode: BlendMode.srcOver,
+                                    width: size.width * 0.40,
+                                    height: size.width * 0.40,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                Center(
+                                    child: Column(
                                   children: <Widget>[
-                                    ColorFiltered(
-                                        colorFilter: ColorFilter.mode(
-                                            GrijsDark.withOpacity(0.75),
-                                            BlendMode.srcOver),
-                                        child: ClipRRect(
-                                          child: Image.asset(
-                                            'assets/images/geldAanvragen.jpg',
-                                            width: size.width * 0.40,
-                                            height: size.width * 0.40,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10.0)),
-                                        )),
-                                    Center(
-                                        child: Column(
-                                      children: <Widget>[
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 20.0),
-                                          child: Text(
-                                            "€" +
-                                                gebruikerData['Portefeuille']
-                                                    .toStringAsFixed(2),
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white,
-                                                fontSize: 20,
-                                                shadows: [
-                                                  Shadow(
-                                                    blurRadius: 10.0,
-                                                    color: Colors.black,
-                                                    offset: Offset(3.0, 3.0),
-                                                  ),
-                                                ]),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                        Text(
-                                          "Afhalen",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                              fontSize: 22,
-                                              shadows: [
-                                                Shadow(
-                                                  blurRadius: 10.0,
-                                                  color: Colors.black,
-                                                  offset: Offset(3.0, 3.0),
-                                                ),
-                                              ]),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Icon(
-                                            FontAwesomeIcons.arrowCircleUp,
-                                            color: White,
-                                            size: 30,
-                                          ),
-                                        )
-                                      ],
-                                    ))
-                                  ]),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 20.0),
+                                      child: Text(
+                                        "€" +
+                                            gebruikerData['Portefeuille']
+                                                .toStringAsFixed(2),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 10.0,
+                                                color: Colors.black,
+                                                offset: Offset(3.0, 3.0),
+                                              ),
+                                            ]),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Afhalen",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          shadows: [
+                                            Shadow(
+                                              blurRadius: 10.0,
+                                              color: Colors.black,
+                                              offset: Offset(3.0, 3.0),
+                                            ),
+                                          ]),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Icon(
+                                        FontAwesomeIcons.arrowCircleUp,
+                                        color: White,
+                                        size: 30,
+                                      ),
+                                    )
+                                  ],
+                                ))
+                              ]),
                               onPressed: () {},
                             ),
                           ),
