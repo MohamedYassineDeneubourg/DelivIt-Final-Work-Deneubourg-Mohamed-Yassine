@@ -294,6 +294,8 @@ class _KeuzeState extends State<Keuze> {
         ]));
   }
 
+
+
   Future<void> aankoperGekozen() async {
     var reference =
         Firestore.instance.collection("Users").document(connectedUserMail);
