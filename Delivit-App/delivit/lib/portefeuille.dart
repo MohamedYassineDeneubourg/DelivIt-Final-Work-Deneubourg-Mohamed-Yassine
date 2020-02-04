@@ -17,6 +17,7 @@ class _PortefeuilleState extends State<Portefeuille> {
   List portefeuilleHistoriek = [];
   String connectedUserMail;
   Map gebruikerData;
+  double geldToevoegen = 5.00;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
@@ -39,7 +40,7 @@ class _PortefeuilleState extends State<Portefeuille> {
     }
   }
 
-  void portefeuilleAanvullen() async {
+  void portefeuilleAanvullenCheck() async {
     if (gebruikerData['stripeId'] == null) {
       StripeServices().createStripeCustomer(
           email: connectedUserMail,
@@ -49,10 +50,145 @@ class _PortefeuilleState extends State<Portefeuille> {
           MaterialPageRoute(builder: (context) => PortefeuilleKaart()));
       // kaartToevoegen();
     } else {
-      print(gebruikerData['stripeId']);
-      StripeServices()
-          .chargeIt(amount: 2000, customer: gebruikerData['stripeId']);
+      portefeuilleAanvullen();
     }
+  }
+
+  void portefeuilleAanvullen() {
+    bool isLoading = false;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: new Text(
+                "Portefeuille aanvullen",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: isLoading
+                  ? Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: SpinKitDoubleBounce(
+                          color: Geel,
+                          size: 30,
+                        ),
+                      )
+                    ])
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text("Kies hieronder hoeveel geld je wilt storten."),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 25, bottom: 25.0),
+                          child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.remove_circle,
+                                    size: 35,
+                                  ),
+                                  onPressed: () {
+                                    if (geldToevoegen > 5) {
+                                      setState(() {
+                                        geldToevoegen = geldToevoegen - 5;
+                                      });
+                                    }
+                                  },
+                                ),
+                                Text(
+                                  geldToevoegen.toString(),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 30),
+                                ),
+                                IconButton(
+                                    icon: Icon(
+                                      Icons.add_circle,
+                                      color: Geel,
+                                      size: 35,
+                                    ),
+                                    onPressed: () {
+                                      if (geldToevoegen < 100) {
+                                        setState(() {
+                                          geldToevoegen = geldToevoegen + 5;
+                                        });
+                                      }
+                                    }),
+                              ]),
+                        ),
+                        Text("Met kaart:"),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0, left: 10),
+                          child: Card(
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Geel),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: ListTile(
+                                onTap: null,
+                                trailing: Text(
+                                    gebruikerData['stripeCard']['type']
+                                        .toString(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10)),
+                                leading: Icon(
+                                  FontAwesomeIcons.creditCard,
+                                  color: Geel,
+                                ),
+                                title: Text(
+                                    gebruikerData['stripeCard']['card[number]'],
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15)),
+                              )),
+                        )
+                      ],
+                    ),
+              actions: <Widget>[
+                ButtonTheme(
+                    minWidth: 400.0,
+                    child: FlatButton(
+                      color: Geel,
+                      child: new Text(
+                        "BEVESTIG",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        print(gebruikerData['stripeId']);
+                        StripeServices()
+                            .chargeIt(
+                                context: context,
+                                connectedUserEmail: connectedUserMail,
+                                amount: (geldToevoegen * 100).toInt(),
+                                customer: gebruikerData['stripeId'],
+                                paymentMethod: gebruikerData['stripeCard']
+                                    ['payment_method']);
+                      },
+                    )),
+                ButtonTheme(
+                    minWidth: 400.0,
+                    child: FlatButton(
+                      color: GrijsDark,
+                      child: new Text(
+                        "ANNULEREN",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ))
+              ],
+            );
+          });
+        });
   }
 
   _getData() {
@@ -126,10 +262,11 @@ class _PortefeuilleState extends State<Portefeuille> {
                                     fontSize: 50),
                               )))),
                   Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 10),
                     child: Container(
                       height: size.height * 0.40,
                       child: new ListView.builder(
+                        reverse: true,
                         itemCount: portefeuilleHistoriek.length,
                         itemBuilder: (context, index) {
                           return Card(
@@ -137,6 +274,7 @@ class _PortefeuilleState extends State<Portefeuille> {
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               child: ListTile(
+                                dense: true,
                                 onTap: null,
                                 trailing: Text(
                                     portefeuilleHistoriek[index]['Type'] +
@@ -152,6 +290,11 @@ class _PortefeuilleState extends State<Portefeuille> {
                                         ['BestellingId'],
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Text(
+                                    portefeuilleHistoriek[index]['Datum'],
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 8)),
                               ));
                         },
                       ),
@@ -239,7 +382,7 @@ class _PortefeuilleState extends State<Portefeuille> {
                                         ],
                                       ))
                                     ]),
-                                onPressed: portefeuilleAanvullen,
+                                onPressed: portefeuilleAanvullenCheck,
                               ),
                             ),
                           ),
@@ -320,14 +463,7 @@ class _PortefeuilleState extends State<Portefeuille> {
                                         ],
                                       ))
                                     ]),
-                                onPressed: () {
-                                  StripeServices().addCard(
-                                    context: context,
-                                    email: connectedUserMail,
-                                    stripeId:
-                                        gebruikerData['stripeId'].toString(),
-                                  );
-                                },
+                                onPressed: () {},
                               ),
                             ),
                           )
@@ -335,9 +471,10 @@ class _PortefeuilleState extends State<Portefeuille> {
                   ),
                   gebruikerData['stripeCard'] != null
                       ? Padding(
-                          padding: const EdgeInsets.only(right: 15.0, left: 15),
+                          padding: const EdgeInsets.only(right: 10.0, left: 10),
                           child: Card(
                               shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Geel),
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               child: ListTile(
@@ -367,7 +504,14 @@ class _PortefeuilleState extends State<Portefeuille> {
                                   color: White,
                                   borderOnForeground: false,
                                   child: ListTile(
-                                    onTap: () {
+                                    onTap: () async {
+                                      if (gebruikerData['stripeId'] == null) {
+                                        StripeServices().createStripeCustomer(
+                                            email: connectedUserMail,
+                                            userId:
+                                                connectedUserMail.replaceFirst(
+                                                    RegExp('@'), 'AT'));
+                                      }
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(

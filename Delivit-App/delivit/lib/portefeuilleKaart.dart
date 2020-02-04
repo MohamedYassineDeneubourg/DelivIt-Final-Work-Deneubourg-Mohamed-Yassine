@@ -257,7 +257,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
                               if (value.isEmpty) {
                                 return "Kaartnummer moet ingevuld zijn";
                               }
-
+                              return null;
                               /*if(!validateCardNumWithLuhnAlgorithm(value)){
                                 return "Kaartnummer is niet correct";
 

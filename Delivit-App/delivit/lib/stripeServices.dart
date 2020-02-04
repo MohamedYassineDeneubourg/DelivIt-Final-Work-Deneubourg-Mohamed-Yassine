@@ -51,14 +51,12 @@ class StripeServices {
     print('addCard..');
     Map<String, dynamic> body = {
       "type": "card",
-      "card[number]": "4242424242424242",
-      "card[exp_month]": "12",
-      "card[exp_year]": "22",
-      "card[cvc]": "333",
+      "card[number]": cardNumber,
+      "card[exp_month]": month,
+      "card[exp_year]": year,
+      "card[cvc]": cvc,
     };
 
-    String email = "m.yassine@hotmail.be";
-    String stripeId = "cus_GfUMDgGHRSw8m5";
     print("Await http...");
     await http
         .post(PAYMENT_METHOD_URL,
@@ -126,6 +124,7 @@ class StripeServices {
             .then((response) {
           //print(response.body.toString());
           body['type'] = data['card']['brand'];
+          body['payment_method'] = paymentMethod;
 
           Map dataZ = json.decode(response.body);
           String id = dataZ['id'];
@@ -133,36 +132,27 @@ class StripeServices {
           print('superoooook');
           http
               .post("https://api.stripe.com/v1/setup_intents/$id/confirm",
-                  body: {
-                    "payment_method": paymentMethod
-                    // "default_payment_method": paymentMethod.toString(),
-                  },
-                  headers: headers)
+                  body: {"payment_method": paymentMethod}, headers: headers)
               .then((response) {
             print(response.body.toString());
             print('superok');
           }).catchError((err) {
             print(err);
           });
-
           var reference =
               Firestore.instance.collection("Users").document(email);
 
           reference.updateData({"stripeCard": body});
           print("OOOKKK!!");
-          //  Navigator.of(context).pop();
-          /*   }).catchError((err) {
-          print("ERROR ATTACHING CARD TO CUSTOMER");
-          print("ERROR: ${err.toString()}");
-        });
-*/
-//      attachCard();
+          Navigator.of(context).pop();
         }).catchError((err) {
           print("==== THERE WAS AN ERROR ====: ${err.toString()}");
         });
       }
+    });
+  }
 
-      Future<void> charge({String customer, int amount}) async {
+  /* Future<void> charge({String customer, int amount}) async {
         Map<String, dynamic> data = {
           "amount": amount.toString(),
           "currency": "eur",
@@ -181,19 +171,22 @@ class StripeServices {
         }).catchError((err) {
           print("There was an error charging the customer: ${err.toString()}");
         });
-      }
-    });
-  }
+      } */
 
-  Future<void> chargeIt({String customer, int amount}) async {
+  Future<void> chargeIt(
+      {context,
+      String customer,
+      int amount,
+      String paymentMethod,
+      String connectedUserEmail}) async {
     http
         .post("https://api.stripe.com/v1/payment_intents",
             body: {
-              "amount": "3000",
+              "amount": amount.toString(),
               "currency": "eur",
-              "customer": "cus_GfUMDgGHRSw8m5",
+              "customer": customer,
               "confirm": "true",
-              "payment_method": "pm_1G8Vp5BwklMzFWDB3Tjdt6UN"
+              "payment_method": paymentMethod
               // "default_payment_method": paymentMethod.toString(),
             },
             headers: headers)
@@ -208,13 +201,32 @@ class StripeServices {
       http
           .post("https://api.stripe.com/v1/setup_intents/$id/confirm",
               body: {
-                "payment_method": "pm_1G8Vp5BwklMzFWDB3Tjdt6UN"
+                "payment_method": paymentMethod
                 // "default_payment_method": paymentMethod.toString(),
               },
               headers: headers)
           .then((response) {
         print(response.body.toString());
         print('superok');
+        Firestore.instance
+            .collection('Users')
+            .document(connectedUserEmail)
+            .updateData({
+          "Portefeuille": (FieldValue.increment((amount / 100).toDouble())),
+          "PortefeuilleHistoriek": FieldValue.arrayUnion(
+            [
+              {
+                "BestellingId": "Kaart: Geld storting",
+                "Datum": DateTime.now().toString(),
+                "Type": "+",
+                "TotalePrijs": (amount / 100).toDouble()
+              },
+            ],
+          ),
+        }).then((l) {
+          print('GELD IS GESTORT!');
+          Navigator.pop(context);
+        });
       }).catchError((err) {
         print(err);
       });
