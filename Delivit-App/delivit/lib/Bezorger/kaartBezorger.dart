@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
 import 'package:delivit/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,7 +20,7 @@ class KaartBezorger extends StatefulWidget {
 }
 
 class _KaartBezorgerState extends State<KaartBezorger> {
-  String userEmail;
+  String connectedUserMail;
   Position userPosition;
   bool isVisible = false;
   double paddingButton = 0;
@@ -34,8 +35,19 @@ class _KaartBezorgerState extends State<KaartBezorger> {
   MapController mapController = new MapController();
   @override
   initState() {
+    getCurrentUser();
     super.initState();
     _getData();
+  }
+
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    print(user);
+    if (user != null) {
+      setState(() {
+        connectedUserMail = user.email;
+      });
+    }
   }
 
   _getData() async {
@@ -74,6 +86,7 @@ class _KaartBezorgerState extends State<KaartBezorger> {
     print('!GeoLocator?');
 
     geolocator.getPositionStream(locationOptions).listen((Position position) {
+      //print(position.heading);
       if (this.mounted) {
         setState(() {
           userPosition = position;
@@ -88,11 +101,13 @@ class _KaartBezorgerState extends State<KaartBezorger> {
           builder: (ctx) => new Container(
             child: new RawMaterialButton(
               onPressed: null,
-              child: new Icon(
-                Icons.person_pin,
-                color: Colors.white,
-                size: 20.0,
-              ),
+              child: Transform.rotate(
+                  angle: userPosition.heading,
+                  child: Icon(
+                    Icons.person_pin,
+                    color: Colors.white,
+                    size: 20.0,
+                  )),
               shape: new CircleBorder(),
               elevation: 1.0,
               fillColor: Colors.blue,
@@ -140,12 +155,12 @@ class _KaartBezorgerState extends State<KaartBezorger> {
                     String distance =
                         await getDistance(bestelling['AdresPosition']);
                     print("yo");
-                    print(distance);
+                    // print(distance);
                     setState(() {
                       selectedBestelling = {
                         "AantalProducten":
                             (bestelling['BestellingLijst'].length).toString() +
-                                " Prod. te bezorgen",
+                                " prod. te bezorgen",
                         "Adres": bestelling['Adres'],
                         "Distance": distance,
                         "documentID": bestelling.documentID
@@ -291,6 +306,14 @@ class _KaartBezorgerState extends State<KaartBezorger> {
   }
 
   void naarDetailBestelling(bestellingId) {
-    print(bestellingId);
+    print(connectedUserMail);
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BestellingDetailBezorger(
+                  bestellingId: bestellingId,
+                  connectedUserMail: connectedUserMail,
+                ),
+            fullscreenDialog: true));
   }
 }

@@ -18,7 +18,6 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
   List bestellingLijst = [];
   String connectedUserMail;
   double totalePrijs = 0.0;
-  double leveringPrijs = 3.5;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
