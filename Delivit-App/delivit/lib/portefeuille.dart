@@ -148,31 +148,35 @@ class _PortefeuilleState extends State<Portefeuille> {
                       ],
                     ),
               actions: <Widget>[
-                ButtonTheme(
-                    minWidth: 400.0,
-                    child: FlatButton(
-                      color: Geel,
-                      child: new Text(
-                        "BEVESTIG",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        print(gebruikerData['stripeId']);
-                        StripeServices()
-                            .chargeIt(
+                isLoading
+                    ? null
+                    : ButtonTheme(
+                        minWidth: 400.0,
+                        child: FlatButton(
+                          color: isLoading ? GrijsDark : Geel,
+                          child: new Text(
+                            "BEVESTIG",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            print(gebruikerData['stripeId']);
+                            StripeServices().chargeIt(
                                 context: context,
                                 connectedUserEmail: connectedUserMail,
                                 amount: (geldToevoegen * 100).toInt(),
                                 customer: gebruikerData['stripeId'],
                                 paymentMethod: gebruikerData['stripeCard']
                                     ['payment_method']);
-                      },
-                    )),
-                ButtonTheme(
+                          },
+                        )),
+                 isLoading
+                    ? null
+                    : ButtonTheme(
                     minWidth: 400.0,
                     child: FlatButton(
                       color: GrijsDark,

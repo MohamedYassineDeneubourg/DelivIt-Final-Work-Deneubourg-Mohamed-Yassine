@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/homeAankoper.dart';
-import 'package:delivit/Aankoper/productenLijstAankoper.dart';
+import 'package:delivit/Bezorger/homeBezorger.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:icon_shadow/icon_shadow.dart';
@@ -8,35 +8,36 @@ import 'package:icon_shadow/icon_shadow.dart';
 import 'colors.dart';
 
 class Keuze extends StatefulWidget {
+  Keuze({Key key, this.connectedUserMail}) : super(key: key);
+  final String connectedUserMail;
+
   @override
-  _KeuzeState createState() => _KeuzeState();
+  _KeuzeState createState() =>
+      _KeuzeState(connectedUserMail: this.connectedUserMail);
 }
 
 class _KeuzeState extends State<Keuze> {
+  _KeuzeState({Key key, @required this.connectedUserMail});
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String connectedUserMail;
-  void getCurrentUser() async {
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    if (user != null) {
-      setState(() {
-        connectedUserMail = user.email;
-      });
-    }
-
-    var reference = Firestore.instance
+  Future<void> getCurrentUser() async {
+    var reference = await Firestore.instance
         .collection("Users")
         .document(connectedUserMail)
         .get();
-
-    reference.then((data) {
-      if (data.data['Functie'] == "Aankoper") {
-        aankoperGekozen();
-      } else if (data.data['Functie'] == "Bezorger") {
-        bezorgerGekozen();
-      } else {
-        print("Gebruiker moet zijn functie kiezen.");
-      }
+    setState(() {
+      print("Waiting..");
     });
+
+    print(reference.data['Functie']);
+    if (reference.data['Functie'] == "Aankoper") {
+      aankoperGekozen();
+    } else if (reference.data['Functie'] == "Bezorger") {
+      bezorgerGekozen();
+    } else {
+      print("Gebruiker moet zijn functie kiezen.");
+    }
   }
 
   @override
@@ -294,8 +295,6 @@ class _KeuzeState extends State<Keuze> {
         ]));
   }
 
-
-
   Future<void> aankoperGekozen() async {
     var reference =
         Firestore.instance.collection("Users").document(connectedUserMail);
@@ -309,11 +308,9 @@ class _KeuzeState extends State<Keuze> {
   }
 
   void bezorgerGekozen() {
-    var reference =
-        Firestore.instance.collection("Users").document(connectedUserMail);
-
-    reference.updateData({"Functie": "Bezorger"});
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ProductenLijstAankoper()));
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomeBezorger()),
+        (Route<dynamic> route) => false);
   }
 }

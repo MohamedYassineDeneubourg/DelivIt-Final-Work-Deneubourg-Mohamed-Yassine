@@ -5,7 +5,6 @@ import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/loadingScreen.dart';
 import 'package:delivit/login.dart';
-import 'package:delivit/portefeuille.dart';
 import 'package:delivit/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -69,7 +68,7 @@ class _MainState extends State<Main> {
     if (userLoaded) {
       if (connectedUserMail != null) {
         //return getFunctie();
-        return Keuze();
+        return Keuze(connectedUserMail: connectedUserMail);
       } else {
         return DelivitHomePage();
       }
@@ -104,8 +103,8 @@ class _MainState extends State<Main> {
           }),
         ),
         debugShowCheckedModeBanner: false,
-        //  home: redirectGebruiker());
-        home: Portefeuille());
+        home: redirectGebruiker());
+    //home: Portefeuille());
   }
 }
 

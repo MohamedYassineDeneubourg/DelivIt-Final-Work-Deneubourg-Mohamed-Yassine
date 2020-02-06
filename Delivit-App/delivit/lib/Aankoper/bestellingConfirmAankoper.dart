@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/laatsteStapBestellingAankoper.dart';
 import 'package:delivit/colors.dart';
+import 'package:delivit/portefeuille.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -371,7 +372,11 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () {
-                    print("bevestiged code!");
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Portefeuille()));
+                    print("Naar portefeuille!");
 
                     //  signIn();
                   },

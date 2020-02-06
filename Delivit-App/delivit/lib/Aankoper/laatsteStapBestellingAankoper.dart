@@ -146,7 +146,8 @@ class _LaatsteStapBestellingAankoperState
                                           .then((e) async {
                                         var positieAdres = await Geolocator()
                                             .placemarkFromCoordinates(
-                                                e.latitude, e.longitude,localeIdentifier: "nl_BE");
+                                                e.latitude, e.longitude,
+                                                localeIdentifier: "nl_BE");
                                         setState(() {
                                           straatController.text =
                                               positieAdres.first.thoroughfare;
@@ -402,9 +403,9 @@ class _LaatsteStapBestellingAankoperState
           'BezorgDatumEnTijd': datum,
           'BestellingStatus': 'AANVRAAG',
           'AankoperEmail': connectedUserMail,
-          'BezorgerEmail': ''
+          'BezorgerEmail': '',
+          'isBeschikbaar': true
         }).then((e) {
-          print("hoke");
           var reference = Firestore.instance
               .collection("Users")
               .document(connectedUserMail);

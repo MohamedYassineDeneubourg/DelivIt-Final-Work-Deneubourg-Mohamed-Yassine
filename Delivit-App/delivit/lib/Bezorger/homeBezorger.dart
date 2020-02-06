@@ -2,30 +2,31 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:delivit/Aankoper/kaartAankoper.dart';
-import 'package:delivit/Aankoper/overzichtBestellingenAankoper.dart';
-import 'package:delivit/Aankoper/productenLijstAankoper.dart';
+import 'package:delivit/Bezorger/kaartBezorger.dart';
+//import 'package:delivit/Bezorger/overzichtBestellingenBezorger.dart';
+//import 'package:delivit/Bezorger/productenLijstBezorger.dart';
 import 'package:delivit/colors.dart';
 import 'package:delivit/portefeuille.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class HomeAankoper extends StatefulWidget {
-  HomeAankoper({Key key, this.title}) : super(key: key);
+class HomeBezorger extends StatefulWidget {
+  HomeBezorger({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  State<StatefulWidget> createState() => new _HomeAankoperState();
+  State<StatefulWidget> createState() => new _HomeBezorgerState();
 }
 
-class _HomeAankoperState extends State<HomeAankoper> {
+class _HomeBezorgerState extends State<HomeBezorger> {
   int _cIndex = 0;
   String email;
   double tabHeight = 50;
   final List<Widget> _children = [
-    KaartAankoper(),
-    OverzichtBestellingenAankoper()
+    KaartBezorger(),
+    //OverzichtBestellingenBezorger()
+    KaartBezorger()
   ];
 
   String connectedUserMail;
@@ -128,7 +129,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Portefeuille(),fullscreenDialog: true));
+                              builder: (context) => Portefeuille(),
+                              fullscreenDialog: true));
                     },
                   ),
                   ListTile(
@@ -197,29 +199,6 @@ class _HomeAankoperState extends State<HomeAankoper> {
         })()),
       ),
       body: _children[_cIndex],
-      floatingActionButton: Container(
-          width: 85.0,
-          child: FittedBox(
-              child: FloatingActionButton(
-            heroTag: "buttonGaNaarProductenLijst",
-            shape: CircleBorder(side: BorderSide(color: Geel)),
-            backgroundColor: Colors.white,
-            elevation: 1,
-            onPressed: () {
-              print("PRODUCTENLIJST");
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProductenLijstAankoper(),
-                    fullscreenDialog: true),
-              );
-            },
-            child: Icon(
-              Icons.add,
-              color: Geel,
-            ),
-          ))),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: CurvedNavigationBar(
         height: tabHeight,
         backgroundColor: Geel,
