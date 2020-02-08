@@ -189,6 +189,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: ListTile(
+                    enabled: false,
                     onTap: () async {
                       if (verzameldeProducten
                           .contains(bestellingLijst[index]['ProductID'])) {

@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:intl/intl.dart';
+import 'package:toast/toast.dart';
 
 class BestellingDetailAankoper extends StatefulWidget {
   BestellingDetailAankoper({Key key, this.bestellingId}) : super(key: key);
@@ -687,20 +688,35 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                     heroTag: "ButtonBestellingConfirmatie",
                     splashColor: GrijsDark,
                     elevation: 4.0,
-                    backgroundColor: Geel,
-                    icon: const Icon(
-                      FontAwesomeIcons.check,
+                    backgroundColor:
+                        (bestelling['BestellingStatus'] == "ONDERWEG")
+                            ? GrijsDark
+                            : Geel,
+                    icon: Icon(
+                      (bestelling['BestellingStatus'] == "ONDERWEG")
+                          ? Icons.timer
+                          : FontAwesomeIcons.check,
                       color: White,
                     ),
                     label: Text(
-                      (bestelling['BestellingStatus'] == "ONDERWEG")
+                      (bestelling['BestellingStatus'] ==
+                              "BESTELLING CONFIRMATIE")
                           ? "BESTELLING IS BEZORGD"
-                          : "BESTELLING ANNULEREN",
+                          : (bestelling['BestellingStatus'] == "ONDERWEG")
+                              ? "WACHTEN OP BEZORGER.."
+                              : "BESTELLING ANNULEREN",
                       style:
                           TextStyle(color: White, fontWeight: FontWeight.w800),
                     ),
                     onPressed: () {
                       if (bestelling['BestellingStatus'] == "ONDERWEG") {
+                        Toast.show("De bezorger moet eerst de bestelling bevestigen.",
+                            context,
+                            duration: Toast.LENGTH_SHORT,
+                            gravity: Toast.TOP,
+                            backgroundColor: Colors.red);
+                      } else if (bestelling['BestellingStatus'] ==
+                          "BESTELLING CONFIRMATIE") {
                         Firestore.instance
                             .collection('Commands')
                             .document(bestellingId)
