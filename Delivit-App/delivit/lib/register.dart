@@ -231,6 +231,7 @@ class _RegisterState extends State<Register> {
               "MomenteleBestelling": [],
               "Portefeuille": 0.0,
               "PortefeuilleHistoriek": [],
+              "PrijsLijstBezorger":{},
               "Functie": "NogTeKiezen",
               "ProfileImage":
                   "https://scontent-bru2-1.xx.fbcdn.net/v/t1.0-9/74785339_3373666536006857_9010755981583319040_o.jpg?_nc_cat=108&_nc_ohc=y-IeuWV16TcAX-y7T4_&_nc_ht=scontent-bru2-1.xx&oh=8498e8a1a5555e1d985d8e732cb2c859&oe=5E9420BD",

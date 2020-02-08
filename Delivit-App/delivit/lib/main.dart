@@ -24,17 +24,22 @@ class _MainState extends State<Main> {
   bool userLoaded = false;
   Widget functie;
   String connectedUserMail;
-
+  final navigatorKey = GlobalKey<NavigatorState>();
   void getCurrentUser() {
     FirebaseAuth.instance.currentUser().then((e) {
       setState(() {
         if (e != null) {
-          connectedUserMail = e.email;
-          userLoaded = true;
-        }
-      });
+          setState(() {
+            connectedUserMail = e.email;
+          });
 
-      print(e.email);
+          print(e.email);
+        }
+
+        setState(() {
+          userLoaded = true;
+        });
+      });
     });
   }
 
@@ -86,6 +91,7 @@ class _MainState extends State<Main> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        navigatorKey: navigatorKey,
         title: 'Delivit',
         theme: ThemeData(
           fontFamily: "Montserrat",

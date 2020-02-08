@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/homeAankoper.dart';
 import 'package:delivit/Bezorger/homeBezorger.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:icon_shadow/icon_shadow.dart';
 
@@ -22,22 +21,23 @@ class _KeuzeState extends State<Keuze> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String connectedUserMail;
   Future<void> getCurrentUser() async {
-    var reference = await Firestore.instance
+    await Firestore.instance
         .collection("Users")
         .document(connectedUserMail)
-        .get();
-    setState(() {
-      print("Waiting..");
+        .get()
+        .then((e) {
+      print(e.data['Functie']);
+      if (e.data['Functie'] == "Aankoper") {
+        aankoperGekozen();
+      } else if (e.data['Functie'] == "Bezorger") {
+        bezorgerGekozen();
+      } else {
+        print("Gebruiker moet zijn functie kiezen.");
+      }
+      setState(() {
+        print("Waiting..");
+      });
     });
-
-    print(reference.data['Functie']);
-    if (reference.data['Functie'] == "Aankoper") {
-      aankoperGekozen();
-    } else if (reference.data['Functie'] == "Bezorger") {
-      bezorgerGekozen();
-    } else {
-      print("Gebruiker moet zijn functie kiezen.");
-    }
   }
 
   @override

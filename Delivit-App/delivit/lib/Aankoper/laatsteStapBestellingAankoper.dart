@@ -397,6 +397,7 @@ class _LaatsteStapBestellingAankoperState
         print(adresPosition);
         await Firestore.instance.collection("Commands").document().setData({
           'AdresPosition': adresPosition,
+          'AanbodLijst': [],
           'Adres': _straat + " " + _nummer + ", " + _postcode,
           'AdditioneleInformatie': _additioneleInformatie,
           'BestellingLijst': bestellingLijst,
@@ -404,7 +405,8 @@ class _LaatsteStapBestellingAankoperState
           'BestellingStatus': 'AANVRAAG',
           'AankoperEmail': connectedUserMail,
           'BezorgerEmail': '',
-          'isBeschikbaar': true
+          'isBeschikbaar': true,
+          'VerzameldeProducten': []
         }).then((e) {
           var reference = Firestore.instance
               .collection("Users")

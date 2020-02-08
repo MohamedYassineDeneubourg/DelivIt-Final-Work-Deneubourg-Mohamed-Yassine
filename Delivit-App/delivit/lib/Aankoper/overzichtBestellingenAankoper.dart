@@ -52,6 +52,14 @@ class _OverzichtBestellingenAankoperState
               );
               break;
 
+            case ("PRODUCTEN VERZAMELEN"):
+              return Icon(
+                Icons.shopping_cart,
+                size: 30,
+                color: Geel,
+              );
+              break;
+
             case ("ONDERWEG"):
               return Icon(
                 Icons.directions_bike,
@@ -70,7 +78,7 @@ class _OverzichtBestellingenAankoperState
 
             default:
               return Icon(
-                Icons.queue_play_next,
+                Icons.help_outline,
                 size: 30,
                 color: Geel,
               );
@@ -78,7 +86,7 @@ class _OverzichtBestellingenAankoperState
           }
         }
 
-        if (snapshot.hasData && snapshot.data.documents.length != 0) {
+        if (snapshot.hasData && snapshot.data.documents.length != 0 ) {
           return Padding(
             padding: const EdgeInsets.only(top: 20.0, right: 15, left: 15),
             child: Scaffold(
@@ -86,6 +94,7 @@ class _OverzichtBestellingenAankoperState
               itemCount: snapshot.data.documents.length,
               itemBuilder: (_, index) {
                 var bestelling = snapshot.data.documents[index];
+                String bestellingStatus = bestelling['BestellingStatus'];
                 String datum = new DateFormat.d()
                         .format(bestelling['BezorgDatumEnTijd'].toDate())
                         .toString() +
@@ -105,10 +114,10 @@ class _OverzichtBestellingenAankoperState
                 return Card(
                     shape: RoundedRectangleBorder(
                       side: BorderSide(
-                          color: (bestelling['BestellingStatus'] ==
+                          color: bestelling != null ? (bestellingStatus ==
                                   "AANBIEDING GEKREGEN")
                               ? Geel
-                              : GrijsLicht),
+                              : GrijsLicht : GrijsLicht),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: ListTile(
@@ -120,10 +129,10 @@ class _OverzichtBestellingenAankoperState
                                       bestellingId: bestelling.documentID,
                                     )));
                       },
-                      trailing: getIcon(bestelling['BestellingStatus']),
+                      trailing: getIcon(bestellingStatus),
                       title: Text("Bestelling: " + datum + " - " + tijd,
                           style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(bestelling['BestellingStatus']),
+                      subtitle: Text(bestellingStatus),
                     ));
               },
             )),

@@ -6,6 +6,7 @@ import 'package:delivit/Bezorger/kaartBezorger.dart';
 //import 'package:delivit/Bezorger/overzichtBestellingenBezorger.dart';
 //import 'package:delivit/Bezorger/productenLijstBezorger.dart';
 import 'package:delivit/colors.dart';
+import 'package:delivit/main.dart';
 import 'package:delivit/portefeuille.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -164,6 +165,12 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                             ),
                           ),
                           onPressed: () {
+                            FirebaseAuth.instance.signOut();
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Main()));
                             print("uitlogg");
                           },
                           color: GrijsDark.withOpacity(0.7),
