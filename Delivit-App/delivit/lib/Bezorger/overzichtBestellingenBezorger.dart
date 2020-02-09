@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/Aankoper/bestellingDetailAankoper.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
 import 'package:delivit/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';

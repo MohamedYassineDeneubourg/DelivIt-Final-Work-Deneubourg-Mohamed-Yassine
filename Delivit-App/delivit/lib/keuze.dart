@@ -29,12 +29,14 @@ class _KeuzeState extends State<Keuze> {
         .then((e) {
       if (e != null) {
         print(e.data['Functie']);
-        if (e.data['Functie'] == "Aankoper") {
-          aankoperGekozen();
-        } else if (e.data['Functie'] == "Bezorger") {
-          bezorgerGekozen();
-        } else {
-          print("Gebruiker moet zijn functie kiezen.");
+        if (e.data['Functie'] != null) {
+          if (e.data['Functie'] == "Aankoper") {
+            aankoperGekozen();
+          } else if (e.data['Functie'] == "Bezorger") {
+            bezorgerGekozen();
+          } else {
+            print("Gebruiker moet zijn functie kiezen.");
+          }
         }
       }
       setState(() {

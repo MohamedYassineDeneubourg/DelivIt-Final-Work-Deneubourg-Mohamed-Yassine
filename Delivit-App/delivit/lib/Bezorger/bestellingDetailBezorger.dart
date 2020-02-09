@@ -1,9 +1,13 @@
+import 'dart:io';
+import 'package:android_intent/android_intent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BestellingDetailBezorger extends StatefulWidget {
   BestellingDetailBezorger({Key key, this.bestellingId, this.connectedUserMail})
@@ -116,10 +120,12 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
           return floatingButton(
               "AANBOD MAKEN", FontAwesomeIcons.solidArrowAltCircleUp, () {
             setState(() {
+              print("NOOO HERE!");
               Firestore.instance
                   .collection('Commands')
                   .document(bestellingId)
                   .updateData({
+                "BestellingStatus": "AANBIEDING GEKREGEN",
                 "AanbodLijst": FieldValue.arrayUnion([
                   {
                     'EmailBezorger': connectedUserMail,
@@ -161,7 +167,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
 
       case ("PRODUCTEN VERZAMELEN"):
         return floatingButton(
-            "ROUTEBESCHRIJVING NAAR KLANT", FontAwesomeIcons.map, () {
+            "ROUTEBESCHRIJVING NAAR KLANT", FontAwesomeIcons.map, () async {
           setState(() {
             Firestore.instance
                 .collection('Commands')
@@ -170,6 +176,45 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
               "BestellingStatus": "ONDERWEG",
             });
           });
+          String latitude;
+          String longitude;
+          var me = await Geolocator().getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.bestForNavigation);
+
+          latitude = me.latitude.toString();
+          longitude = me.longitude.toString();
+
+          String origin =
+              latitude + "," + longitude; // lat,long like 123.34,68.56
+          print("NAVIGATE !");
+          print(origin);
+          String destination =
+              bestelling['AdresPosition']['latitude'].toString() +
+                  "," +
+                  bestelling['AdresPosition']['longitude'].toString();
+          if (Platform.isAndroid) {
+            final AndroidIntent intent = new AndroidIntent(
+                action: 'action_view',
+                data: Uri.encodeFull(
+                    "https://www.google.com/maps/dir/?api=1&origin=" +
+                        origin +
+                        "&destination=" +
+                        destination +
+                        "&travelmode=driving&dir_action=navigate"),
+                package: 'com.google.android.apps.maps');
+            intent.launch();
+          } else {
+            String url = "https://www.google.com/maps/dir/?api=1&origin=" +
+                origin +
+                "&destination=" +
+                destination +
+                "&travelmode=driving&dir_action=navigate";
+            if (await canLaunch(url)) {
+              await launch(url);
+            } else {
+              throw 'Could not launch $url';
+            }
+          }
         });
         break;
 
@@ -309,9 +354,17 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
         );
         break;
 
-      case ("GELEVERD"):
+      case ("BEZORGD"):
         return Icon(
           Icons.assignment_turned_in,
+          size: 30,
+          color: Geel,
+        );
+        break;
+
+      case ("ONDERWEG"):
+        return Icon(
+          Icons.directions_bike,
           size: 30,
           color: Geel,
         );
@@ -612,7 +665,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             )),
             Text(
-              "€ " + leveringPrijs.toString(),
+              "€ " + leveringPrijs.toStringAsFixed(2),
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             )
           ],
@@ -630,57 +683,14 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
             )),
             Text(
               "€ " +
-                  (double.parse(getTotalePrijs()) + leveringPrijs).toString(),
+                  (double.parse(getTotalePrijs()) + leveringPrijs)
+                      .toStringAsFixed(2),
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
             )
           ],
         ),
       )
     ];
-  }
-
-  buttonFunction(bestelling) {
-    if ((bestelling == "AANVRAAG" || bestelling == "AANBIEDING GEKREGEN") &&
-        !checkAanbod()) {
-      print(checkAanbod());
-      print("yi");
-      setState(() {
-        buttonText = "AANBOD MAKEN";
-      });
-      return () {
-        Firestore.instance
-            .collection('Commands')
-            .document(bestellingId)
-            .updateData({
-          "AanbodLijst": FieldValue.arrayUnion([
-            {
-              'EmailBezorger': connectedUserMail,
-              'TotaleAanbodPrijs': totalePrijs + leveringPrijs,
-            }
-          ])
-        });
-      };
-    }
-    if (bestelling == "AANVRAAG" ||
-        bestelling == "AANBIEDING GEKREGEN" && checkAanbod()) {
-      print("yo");
-      setState(() {
-        buttonText = "AANBOD VERWIJDEREN";
-      });
-      return () {
-        Firestore.instance
-            .collection('Commands')
-            .document(bestellingId)
-            .updateData({
-          "AanbodLijst": FieldValue.arrayRemove([
-            {
-              'EmailBezorger': connectedUserMail,
-              'TotaleAanbodPrijs': totalePrijs + leveringPrijs,
-            }
-          ])
-        });
-      };
-    }
   }
 
   checkAanbod() {

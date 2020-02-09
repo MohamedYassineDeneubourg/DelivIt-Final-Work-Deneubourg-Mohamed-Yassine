@@ -158,6 +158,8 @@ PODS:
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
+  - android_intent (0.0.1):
+    - Flutter
   - "app_settings (3.0.0+1)":
     - Flutter
   - BoringSSL-GRPC (0.0.3):
@@ -313,8 +315,15 @@ PODS:
   - sqflite (0.0.1):
     - Flutter
     - FMDB (~> 2.7.2)
+  - url_launcher (0.0.1):
+    - Flutter
+  - url_launcher_macos (0.0.1):
+    - Flutter
+  - url_launcher_web (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
+  - android_intent (from `.symlinks/plugins/android_intent/ios`)
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
@@ -328,6 +337,9 @@ DEPENDENCIES:
   - location_permissions (from `.symlinks/plugins/location_permissions/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
+  - url_launcher_macos (from `.symlinks/plugins/url_launcher_macos/ios`)
+  - url_launcher_web (from `.symlinks/plugins/url_launcher_web/ios`)
 
 SPEC REPOS:
   trunk:
@@ -357,6 +369,8 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
+  android_intent:
+    :path: ".symlinks/plugins/android_intent/ios"
   app_settings:
     :path: ".symlinks/plugins/app_settings/ios"
   cloud_firestore:
@@ -383,9 +397,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
+  url_launcher:
+    :path: ".symlinks/plugins/url_launcher/ios"
+  url_launcher_macos:
+    :path: ".symlinks/plugins/url_launcher_macos/ios"
+  url_launcher_web:
+    :path: ".symlinks/plugins/url_launcher_web/ios"
 
 SPEC CHECKSUMS:
   abseil: 18063d773f5366ff8736a050fe035a28f635fd27
+  android_intent: f144b3783d533cc5bc2cd04cdbd1dc2b6950bd69
   app_settings: d103828c9f5d515c4df9ee754dabd443f7cedcf3
   BoringSSL-GRPC: db8764df3204ccea016e1c8dd15d9a9ad63ff318
   cloud_firestore: c5d1e4d114eecb1dfb535f008435685bcf6063f1
@@ -422,6 +443,9 @@ SPEC CHECKSUMS:
   path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
+  url_launcher: a1c0cc845906122c4784c542523d8cacbded5626
+  url_launcher_macos: fd7894421cd39320dce5f292fc99ea9270b2a313
+  url_launcher_web: e5527357f037c87560776e36436bf2b0288b965c
 
 PODFILE CHECKSUM: bb642f70b2423009073d85971b8837788d32161b
 

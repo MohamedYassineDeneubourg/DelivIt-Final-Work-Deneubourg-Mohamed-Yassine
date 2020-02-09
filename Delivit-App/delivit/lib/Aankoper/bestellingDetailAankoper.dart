@@ -61,7 +61,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
           print("Refreshed");
           bestelling = data.data;
           print(data.data);
-          verzameldeProducten = []..addAll(data.data['VerzameldeProducten']);
+          if (data.data['VerzameldeProducten'] != null) {
+            verzameldeProducten = []..addAll(data.data['VerzameldeProducten']);
+          }
           bestellingLijst = []..addAll(data.data['BestellingLijst']);
         });
 
@@ -331,10 +333,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
       case ("PRODUCTEN VERZAMELEN"):
         print("producten verzz");
-        setState(() {
-          getBezorgerInfo();
-          getMarkers();
-        });
+        getBezorgerInfo();
+        getMarkers();
+
         return getMapEnInfo(status);
 
         break;
@@ -376,9 +377,11 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
           .snapshots();
 
       reference.listen((onData) {
-        setState(() {
-          bezorgerInfo = onData.data;
-        });
+        if (mounted) {
+          setState(() {
+            bezorgerInfo = onData.data;
+          });
+        }
       });
     }
   }
@@ -505,13 +508,14 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
     if (bezorgerInfo != null && bestelling != null) {
       print(bezorgerInfo['Position']['latitude']);
       print(bezorgerInfo['Position']['longitude']);
-      print(bestelling['AdresPosition']['latitude']);
       num longitudeBezorger = bezorgerInfo['Position']['longitude'];
       num latitudeBezorger = bezorgerInfo['Position']['latitude'];
 
       num longitudeBestelling = bestelling['AdresPosition']['longitude'];
       num latitudeBestelling = bestelling['AdresPosition']['latitude'];
       setState(() {
+        mapController.move(new LatLng(latitudeBezorger, longitudeBezorger), 15);
+
         opMapMarkers = [
           Marker(
             width: 35.0,
