@@ -651,6 +651,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                             child: ListTile(
+                              enabled: (verzameldeProducten.contains(
+                                      bestellingLijst[index]['ProductID']))
+                                  ? false
+                                  : true,
                               onTap: null,
                               trailing: Text(
                                   bestellingLijst[index]['Aantal'].toString(),
@@ -710,11 +714,12 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                     ),
                     onPressed: () {
                       if (bestelling['BestellingStatus'] == "ONDERWEG") {
-                        Toast.show("De bezorger moet eerst de bestelling bevestigen.",
+                        Toast.show(
+                            "De bezorger moet eerst de bestelling bevestigen.",
                             context,
-                            duration: Toast.LENGTH_SHORT,
-                            gravity: Toast.TOP,
-                            backgroundColor: Colors.red);
+                            duration: Toast.LENGTH_LONG,
+                            gravity: Toast.BOTTOM,
+                            backgroundColor: GrijsDark);
                       } else if (bestelling['BestellingStatus'] ==
                           "BESTELLING CONFIRMATIE") {
                         Firestore.instance

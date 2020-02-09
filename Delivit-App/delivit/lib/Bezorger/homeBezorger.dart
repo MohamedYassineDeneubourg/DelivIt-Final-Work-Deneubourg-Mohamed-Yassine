@@ -12,6 +12,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'overzichtBestellingenBezorger.dart';
+
 class HomeBezorger extends StatefulWidget {
   HomeBezorger({Key key, this.title}) : super(key: key);
   final String title;
@@ -27,7 +29,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
   final List<Widget> _children = [
     KaartBezorger(),
     //OverzichtBestellingenBezorger()
-    KaartBezorger()
+    OverzichtBestellingenBezorger()
   ];
 
   String connectedUserMail;
@@ -166,8 +168,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                           ),
                           onPressed: () {
                             FirebaseAuth.instance.signOut();
-                            Navigator.pop(context);
-                            Navigator.push(
+                            Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Main()));

@@ -20,19 +20,22 @@ class _KeuzeState extends State<Keuze> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String connectedUserMail;
-  Future<void> getCurrentUser() async {
-    await Firestore.instance
+
+  getCurrentUser() {
+    Firestore.instance
         .collection("Users")
         .document(connectedUserMail)
         .get()
         .then((e) {
-      print(e.data['Functie']);
-      if (e.data['Functie'] == "Aankoper") {
-        aankoperGekozen();
-      } else if (e.data['Functie'] == "Bezorger") {
-        bezorgerGekozen();
-      } else {
-        print("Gebruiker moet zijn functie kiezen.");
+      if (e != null) {
+        print(e.data['Functie']);
+        if (e.data['Functie'] == "Aankoper") {
+          aankoperGekozen();
+        } else if (e.data['Functie'] == "Bezorger") {
+          bezorgerGekozen();
+        } else {
+          print("Gebruiker moet zijn functie kiezen.");
+        }
       }
       setState(() {
         print("Waiting..");

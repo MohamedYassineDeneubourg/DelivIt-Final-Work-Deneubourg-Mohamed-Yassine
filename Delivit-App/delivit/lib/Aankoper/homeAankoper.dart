@@ -6,6 +6,7 @@ import 'package:delivit/Aankoper/kaartAankoper.dart';
 import 'package:delivit/Aankoper/overzichtBestellingenAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
 import 'package:delivit/colors.dart';
+import 'package:delivit/main.dart';
 import 'package:delivit/portefeuille.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -128,7 +129,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Portefeuille(),fullscreenDialog: true));
+                              builder: (context) => Portefeuille(),
+                              fullscreenDialog: true));
                     },
                   ),
                   ListTile(
@@ -162,6 +164,11 @@ class _HomeAankoperState extends State<HomeAankoper> {
                             ),
                           ),
                           onPressed: () {
+                            FirebaseAuth.instance.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Main()));
                             print("uitlogg");
                           },
                           color: GrijsDark.withOpacity(0.7),
