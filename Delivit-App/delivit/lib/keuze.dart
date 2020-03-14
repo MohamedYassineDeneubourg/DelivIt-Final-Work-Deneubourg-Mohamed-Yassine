@@ -7,27 +7,32 @@ import 'package:icon_shadow/icon_shadow.dart';
 import 'colors.dart';
 
 class Keuze extends StatefulWidget {
-  Keuze({Key key, this.connectedUserMail}) : super(key: key);
+  Keuze({Key key, this.connectedUserMail, this.redirect}) : super(key: key);
   final String connectedUserMail;
+  final bool redirect;
 
   @override
-  _KeuzeState createState() =>
-      _KeuzeState(connectedUserMail: this.connectedUserMail);
+  _KeuzeState createState() => _KeuzeState(
+      connectedUserMail: this.connectedUserMail, redirect: this.redirect);
 }
 
 class _KeuzeState extends State<Keuze> {
-  _KeuzeState({Key key, @required this.connectedUserMail});
+  _KeuzeState(
+      {Key key, @required this.connectedUserMail, @required this.redirect});
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String connectedUserMail;
-
+  bool redirect;
   getCurrentUser() {
+    if (redirect == null) {
+      redirect = false;
+    }
     Firestore.instance
         .collection("Users")
         .document(connectedUserMail)
         .get()
         .then((e) {
-      if (e != null) {
+      if (e != null && redirect) {
         print(e.data['Functie']);
         if (e.data['Functie'] != null) {
           if (e.data['Functie'] == "Aankoper") {

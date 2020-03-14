@@ -472,13 +472,14 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                   mapController: mapController,
                   options: new MapOptions(
                     onTap: (LatLng eo) {
-                      mapController.move(
-                          new LatLng(bezorgerInfo['Position']['latitude'],
-                              bezorgerInfo['Position']['longitude']),
-                          15);
+                      mapController.onReady.then((result) {
+                        mapController.move(
+                            new LatLng(bezorgerInfo['Position']['latitude'],
+                                bezorgerInfo['Position']['longitude']),
+                            15);
+                      });
                     },
-                    center: new LatLng(bezorgerInfo['Position']['latitude'],
-                        bezorgerInfo['Position']['longitude']),
+                    center: new LatLng(53, 22),
                     zoom: 15.0,
                   ),
                   layers: [
@@ -513,47 +514,51 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
       num longitudeBestelling = bestelling['AdresPosition']['longitude'];
       num latitudeBestelling = bestelling['AdresPosition']['latitude'];
-      setState(() {
-        mapController.move(new LatLng(latitudeBezorger, longitudeBezorger), 15);
+      print(mapController);
 
-        opMapMarkers = [
-          Marker(
-            width: 35.0,
-            height: 35.0,
-            point: new LatLng(latitudeBestelling, longitudeBestelling),
-            builder: (ctx) => new Container(
-              child: new RawMaterialButton(
-                onPressed: null,
-                child: Icon(
-                  Icons.home,
-                  color: Colors.white,
-                  size: 20.0,
+      mapController.onReady.then((result) {
+        setState(() {
+          mapController.move(LatLng(latitudeBezorger, longitudeBezorger), 15);
+
+          opMapMarkers = [
+            Marker(
+              width: 35.0,
+              height: 35.0,
+              point: new LatLng(latitudeBestelling, longitudeBestelling),
+              builder: (ctx) => new Container(
+                child: new RawMaterialButton(
+                  onPressed: null,
+                  child: Icon(
+                    Icons.home,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
+                  shape: new CircleBorder(),
+                  elevation: 1.0,
+                  fillColor: Colors.blue,
                 ),
-                shape: new CircleBorder(),
-                elevation: 1.0,
-                fillColor: Colors.blue,
               ),
             ),
-          ),
-          Marker(
-            width: 35.0,
-            height: 35.0,
-            point: new LatLng(latitudeBezorger, longitudeBezorger),
-            builder: (ctx) => new Container(
-              child: new RawMaterialButton(
-                onPressed: null,
-                child: Icon(
-                  Icons.directions_bike,
-                  color: Colors.white,
-                  size: 20.0,
+            Marker(
+              width: 35.0,
+              height: 35.0,
+              point: new LatLng(latitudeBezorger, longitudeBezorger),
+              builder: (ctx) => new Container(
+                child: new RawMaterialButton(
+                  onPressed: null,
+                  child: Icon(
+                    Icons.directions_bike,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
+                  shape: new CircleBorder(),
+                  elevation: 3.0,
+                  fillColor: Geel,
                 ),
-                shape: new CircleBorder(),
-                elevation: 3.0,
-                fillColor: Geel,
               ),
-            ),
-          )
-        ];
+            )
+          ];
+        });
       });
     }
   }

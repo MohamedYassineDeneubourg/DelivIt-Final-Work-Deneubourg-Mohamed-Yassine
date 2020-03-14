@@ -6,11 +6,14 @@ import 'package:delivit/Bezorger/kaartBezorger.dart';
 //import 'package:delivit/Bezorger/overzichtBestellingenBezorger.dart';
 //import 'package:delivit/Bezorger/productenLijstBezorger.dart';
 import 'package:delivit/colors.dart';
+import 'package:delivit/keuze.dart';
 import 'package:delivit/main.dart';
 import 'package:delivit/portefeuille.dart';
+import 'package:delivit/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'overzichtBestellingenBezorger.dart';
 
@@ -91,7 +94,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                     arrowColor: GrijsDark,
                     otherAccountsPictures: <Widget>[
                       IconButton(
-                        icon: Icon(Icons.close, color: GrijsDark),
+                        icon: Icon(Icons.close, color: White),
                         onPressed: () {
                           Navigator.pop(context);
                         },
@@ -114,17 +117,27 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                         style: TextStyle(color: White)),
                   ),
                   ListTile(
-                    leading: Icon(FontAwesomeIcons.userAlt, color: GrijsDark),
+                    leading: Icon(FontAwesomeIcons.userAlt, color: Geel),
                     title: Text(
                       'Profiel',
                       style: TextStyle(color: GrijsDark),
                     ),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Profile(
+                                    userEmail: connectedUserMail,
+                                  ),
+                              fullscreenDialog: true));
                     },
                   ),
                   ListTile(
-                    leading: Icon(FontAwesomeIcons.wallet, color: GrijsDark),
+                    leading: Icon(
+                      FontAwesomeIcons.wallet,
+                      color: Geel,
+                      size: 22,
+                    ),
                     title: Text('Portefeuille (€' +
                         snapshot.data['Portefeuille'].toString() +
                         ")"),
@@ -137,17 +150,43 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                     },
                   ),
                   ListTile(
-                    leading: Icon(FontAwesomeIcons.wrench, color: GrijsDark),
-                    title: Text('Instellingen'),
+                    leading: Icon(
+                      FontAwesomeIcons.facebookMessenger,
+                      color: Geel,
+                      size: 23,
+                    ),
+                    title: Text('Berichten'),
+                    onTap: () {
+                      /* Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatPage(isTutu: true),
+                                        fullscreenDialog: true)); */
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.school, color: Geel),
+                    title: Text('Aankoper-modus'),
                     onTap: () {
                       Navigator.pop(context);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Keuze(
+                                    connectedUserMail: connectedUserMail,
+                                    redirect: false,
+                                  )));
                     },
                   ),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.solidQuestionCircle,
                         color: GrijsDark),
-                    title: Text('Help'),
+                    title: Text('Aide'),
                     onTap: () {
+                      print('Launch mail..');
+                      launch(
+                          "mailto:contact@delivit.be?subject=HELP:%20Application&body=Hallo%20L'équipe%20Hitutu,");
                       Navigator.pop(context);
                     },
                   ),
@@ -160,7 +199,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                         height: 70,
                         child: FlatButton(
                           child: Text(
-                            "Uitloggen",
+                            "Zich Uitloggen",
                             style: TextStyle(
                               color: White,
                               fontWeight: FontWeight.w700,
@@ -168,6 +207,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                           ),
                           onPressed: () {
                             FirebaseAuth.instance.signOut();
+                            Navigator.pop(context);
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(

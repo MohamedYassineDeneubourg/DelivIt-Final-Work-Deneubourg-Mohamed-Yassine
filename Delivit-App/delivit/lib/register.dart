@@ -255,7 +255,7 @@ class _RegisterState extends State<Register> {
           print("popHier!");
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => Keuze()),
+              MaterialPageRoute(builder: (context) => Keuze(connectedUserMail: _email,redirect: false,)),
               (Route<dynamic> route) => false);
         } else {
           Toast.show("Er is iets mis gegaan.. U kan herbeginnen.", context,

@@ -73,7 +73,7 @@ class _MainState extends State<Main> {
     if (userLoaded) {
       if (connectedUserMail != null) {
         //return getFunctie();
-        return Keuze(connectedUserMail: connectedUserMail);
+        return Keuze(connectedUserMail: connectedUserMail,redirect: true,);
       } else {
         return DelivitHomePage();
       }
