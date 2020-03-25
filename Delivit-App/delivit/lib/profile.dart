@@ -1,4 +1,3 @@
-
 import 'package:delivit/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Profile extends StatefulWidget {
   Profile({Key key, this.userEmail}) : super(key: key);
-  String userEmail;
+  final String userEmail;
   @override
   _ProfileState createState() => _ProfileState(userEmail: this.userEmail);
 }
@@ -110,8 +109,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildFullName() {
-  
-
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -284,7 +281,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         ));
   }
 
-
   Widget _buildComments(BuildContext context) {
     return Container(
         height: MediaQuery.of(context).size.height * 0.10,
@@ -374,25 +370,30 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         SizedBox(height: 10.0),
                         _buildFullName(),
                         _buildStatContainer(),
-                        (gebruikerData["Functie"] == "Tutu")? Container(
-                          color: White,
-                          child: Column(
-                            children: <Widget>[
-                              
-                              competences(context),
-                             (ratingMessages.length != 0)? Text(
-                                "Ce que les Tutties en pensent..",
-                                textAlign: TextAlign.start,
-                              ) : Text(
-                                "Aucun avis n'a été déposé sur ce Tutu..",
-                                textAlign: TextAlign.start,
-                              ),
-                             (ratingMessages.length != 0)? _buildComments(context) : Container(),
-                            ],
-                          ),
-                        ) : Container(
-                          color: White,
-                          child: _buildBio(context, screenSize)),
+                        (gebruikerData["Functie"] == "Tutu")
+                            ? Container(
+                                color: White,
+                                child: Column(
+                                  children: <Widget>[
+                                    competences(context),
+                                    (ratingMessages.length != 0)
+                                        ? Text(
+                                            "Ce que les Tutties en pensent..",
+                                            textAlign: TextAlign.start,
+                                          )
+                                        : Text(
+                                            "Aucun avis n'a été déposé sur ce Tutu..",
+                                            textAlign: TextAlign.start,
+                                          ),
+                                    (ratingMessages.length != 0)
+                                        ? _buildComments(context)
+                                        : Container(),
+                                  ],
+                                ),
+                              )
+                            : Container(
+                                color: White,
+                                child: _buildBio(context, screenSize)),
                       ],
                     ),
                   ),
