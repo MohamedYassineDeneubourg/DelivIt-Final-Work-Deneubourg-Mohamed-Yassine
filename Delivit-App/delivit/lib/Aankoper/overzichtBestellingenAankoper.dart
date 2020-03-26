@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 
 class OverzichtBestellingenAankoper extends StatefulWidget {
   @override
@@ -32,6 +33,7 @@ class _OverzichtBestellingenAankoperState
       stream: Firestore.instance
           .collection('Commands')
           .where("AankoperEmail", isEqualTo: connectedUserMail)
+          .orderBy("BezorgDatumEnTijd", descending: true)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         getIcon(status) {
@@ -86,7 +88,7 @@ class _OverzichtBestellingenAankoperState
           }
         }
 
-        if (snapshot.hasData && snapshot.data.documents.length != 0 ) {
+        if (snapshot.hasData && snapshot.data.documents.length != 0) {
           return Padding(
             padding: const EdgeInsets.only(top: 20.0, right: 15, left: 15),
             child: Scaffold(
@@ -114,10 +116,11 @@ class _OverzichtBestellingenAankoperState
                 return Card(
                     shape: RoundedRectangleBorder(
                       side: BorderSide(
-                          color: bestelling != null ? (bestellingStatus ==
-                                  "AANBIEDING GEKREGEN")
-                              ? Geel
-                              : GrijsLicht : GrijsLicht),
+                          color: bestelling != null
+                              ? (bestellingStatus == "AANBIEDING GEKREGEN")
+                                  ? Geel
+                                  : GrijsLicht
+                              : GrijsLicht),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: ListTile(
@@ -138,13 +141,18 @@ class _OverzichtBestellingenAankoperState
             )),
           );
         } else {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 40.0, left: 40),
-              child: Text(
-                "Je hebt nog geen bestellingen gemaakt. Je kan nu een nieuwe aanmaken! ",
-                textAlign: TextAlign.center,
-              ),
+          return Padding(
+            padding: const EdgeInsets.only(right: 40.0, left: 40),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Lottie.asset('assets/Animations/empty.json'),
+                Text(
+                  "Je hebt nog geen bestellingen gemaakt. \n Je kan nu een nieuwe aanmaken! ",
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           );
         }

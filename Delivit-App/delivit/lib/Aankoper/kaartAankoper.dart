@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'package:app_settings/app_settings.dart';
+import 'package:lottie/lottie.dart';
 
 class KaartAankoper extends StatefulWidget {
   KaartAankoper({Key key, this.title}) : super(key: key);
@@ -32,6 +33,42 @@ class _KaartAankoperState extends State<KaartAankoper> {
     _getData();
   }
 
+  showGpsSettings() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            title: Text('LOCALISATIE NIET GEACTIVEERD',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            content: Container(
+                height: 85,
+                child: SingleChildScrollView(
+                  child: Text(
+                      "Je moet je GPS-optie op uw toestel activeren om door te kunnen gaan."),
+                )),
+            contentPadding: EdgeInsets.all(20),
+            actions: <Widget>[
+              ButtonTheme(
+                  minWidth: 400.0,
+                  child: FlatButton(
+                    color: Geel,
+                    child: new Text(
+                      "Naar instellingen",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      AppSettings.openLocationSettings();
+                      Navigator.pop(context);
+                    },
+                  )),
+            ],
+          );
+        });
+  }
+
   _getData() async {
     print('!GetData?');
 
@@ -39,36 +76,24 @@ class _KaartAankoperState extends State<KaartAankoper> {
         await LocationPermissions().checkServiceStatus();
     print(serviceStatus);
     if (serviceStatus == ServiceStatus.disabled) {
-      AlertDialog(
-        title: Text("GPS niet geactiveerd"),
-        content: SingleChildScrollView(
-          child: Text(
-              "Je moet je GPS-optie op uw toestel activeren om door te kunnen gaan."),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text("Naar instellingen"),
-            onPressed: () {
-              AppSettings.openLocationSettings();
-
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
+      showGpsSettings();
     }
     var geolocator = Geolocator();
     GeolocationStatus geolocationStatus =
         await geolocator.checkGeolocationPermissionStatus();
     print(geolocationStatus);
     final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+    print(userPosition);
 
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
+    Position position = await geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest)
+        .catchError((e) {
+      print(e);
+    });
     userPosition = position;
 
     var locationOptions =
-        LocationOptions(accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
+        LocationOptions(accuracy: LocationAccuracy.lowest, distanceFilter: 0);
     print('!GeoLocator?');
 
     Firestore.instance.collection('Users').snapshots().listen((querySnapshot) {
@@ -154,6 +179,7 @@ class _KaartAankoperState extends State<KaartAankoper> {
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     if (userPosition != null) {
@@ -227,11 +253,29 @@ class _KaartAankoperState extends State<KaartAankoper> {
           ));
     } else {
       return Container(
-        child: SpinKitDoubleBounce(
-          color: Geel,
-          size: 100,
-        ),
-      );
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+            SpinKitDoubleBounce(
+              color: Geel,
+              size: 100,
+            ),
+            Padding(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: RaisedButton.icon(
+                    onPressed: () {
+                      AppSettings.openLocationSettings();
+                    },
+                    label: Text(
+                      "Localisatie & Wifi activeren",
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                    icon: Lottie.asset('assets/Animations/settings.json',
+                        width: 30))),
+          ]));
     }
   }
 }

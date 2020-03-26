@@ -23,16 +23,16 @@ class StripeServices {
     String stripeId = await http
         .post(CUSTOMERS_URL, body: body, headers: headers)
         .then((response) {
-      print(response.body);
+      //print(response.body);
       String stripeId = jsonDecode(response.body)["id"];
-      print("The stripe id is: $stripeId");
+      //print("The stripe id is: $stripeId");
       var reference = Firestore.instance.collection("Users").document(email);
 
       reference.updateData({"stripeId": stripeId});
 
       return stripeId;
     }).catchError((err) {
-      print("==== THERE WAS AN ERROR ====: ${err.toString()}");
+      //print("==== THERE WAS AN ERROR ====: ${err.toString()}");
       return null;
     });
 
@@ -48,7 +48,7 @@ class StripeServices {
     String stripeId,
     String email,
   }) async {
-    print('addCard..');
+    //print('addCard..');
     Map<String, dynamic> body = {
       "type": "card",
       "card[number]": cardNumber,
@@ -57,17 +57,17 @@ class StripeServices {
       "card[cvc]": cvc,
     };
 
-    print("Await http...");
+    //print("Await http...");
     await http
         .post(PAYMENT_METHOD_URL,
             body: body,
             headers: headers,
             encoding: Encoding.getByName("formUrlEncodedContentType"))
         .then((response) {
-      //print(response);
+      ////print(response);
 
       Map data = json.decode(response.body);
-      print(data);
+      //print(data);
       if (data['error'] != null) {
         showDialog(
             context: context,
@@ -99,17 +99,17 @@ class StripeServices {
             });
       } else {
         String paymentMethod = data['id'];
-        print("=== The payment mathod id id ===: $paymentMethod");
+        //print("=== The payment mathod id id ===: $paymentMethod");
         http
             .post(
                 "https://api.stripe.com/v1/payment_methods/$paymentMethod/attach",
                 body: {"customer": stripeId},
                 headers: headers)
             .then((response) {
-          print("CODE ZERO");
+          //print("CODE ZERO");
         }).catchError((err) {
-          print("ERROR ATTACHING CARD TO CUSTOMER");
-          print("ERROR: ${err.toString()}");
+          //print("ERROR ATTACHING CARD TO CUSTOMER");
+          //print("ERROR: ${err.toString()}");
         });
 
         http
@@ -122,31 +122,31 @@ class StripeServices {
                 },
                 headers: headers)
             .then((response) {
-          //print(response.body.toString());
+          ////print(response.body.toString());
           body['type'] = data['card']['brand'];
           body['payment_method'] = paymentMethod;
 
           Map dataZ = json.decode(response.body);
           String id = dataZ['id'];
-          print(response.body.toString());
-          print('superoooook');
+          //print(response.body.toString());
+          //print('superoooook');
           http
               .post("https://api.stripe.com/v1/setup_intents/$id/confirm",
                   body: {"payment_method": paymentMethod}, headers: headers)
               .then((response) {
-            print(response.body.toString());
-            print('superok');
+            //print(response.body.toString());
+            //print('superok');
           }).catchError((err) {
-            print(err);
+            //print(err);
           });
           var reference =
               Firestore.instance.collection("Users").document(email);
 
           reference.updateData({"stripeCard": body});
-          print("OOOKKK!!");
+          //print("OOOKKK!!");
           Navigator.of(context).pop();
         }).catchError((err) {
-          print("==== THERE WAS AN ERROR ====: ${err.toString()}");
+          //print("==== THERE WAS AN ERROR ====: ${err.toString()}");
         });
       }
     });
@@ -167,9 +167,9 @@ class StripeServices {
           headers: headers,
         )
             .then((response) {
-          print(response.body.toString());
+          //print(response.body.toString());
         }).catchError((err) {
-          print("There was an error charging the customer: ${err.toString()}");
+          //print("There was an error charging the customer: ${err.toString()}");
         });
       } */
 
@@ -191,10 +191,10 @@ class StripeServices {
             },
             headers: headers)
         .then((response) {
-      //print(response.body.toString());
+      ////print(response.body.toString());
       //  body['type'] = data['card']['brand'];
-      print(response.body.toString());
-      print('superoooook');
+      //print(response.body.toString());
+      //print('superoooook');
       Map dataZ = json.decode(response.body);
       String id = dataZ['id'];
 
@@ -206,8 +206,8 @@ class StripeServices {
               },
               headers: headers)
           .then((response) {
-        print(response.body.toString());
-        print('superok');
+        //print(response.body.toString());
+        //print('superok');
         Firestore.instance
             .collection('Users')
             .document(connectedUserEmail)
@@ -224,11 +224,11 @@ class StripeServices {
             ],
           ),
         }).then((l) {
-          print('GELD IS GESTORT!');
+          //print('GELD IS GESTORT!');
           Navigator.pop(context);
         });
       }).catchError((err) {
-        print(err);
+        //print(err);
       });
     });
   }

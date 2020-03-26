@@ -38,15 +38,15 @@ class _RegisterState extends State<Register> {
   Future<void> verifyPhone() async {
     if (valideerEnSave()) {
       final PhoneCodeSent smsOTPSent = (String verId, [int forceCodeResend]) {
-        print(verId);
+        //print(verId);
         this.verificationId = verId;
         smsOTPDialog(context).then((value) {
-          print(value);
-          print('Verify phone');
+          //print(value);
+          //print('Verify phone');
         });
       };
       try {
-        print(this.phoneNumber);
+        //print(this.phoneNumber);
         await _auth.verifyPhoneNumber(
             phoneNumber: this.phoneNumber,
             codeAutoRetrievalTimeout: (String verId) {
@@ -55,12 +55,12 @@ class _RegisterState extends State<Register> {
             codeSent: smsOTPSent,
             timeout: const Duration(seconds: 20),
             verificationCompleted: (AuthCredential phoneAuthCredential) {
-              print("OK!");
-              print(phoneAuthCredential);
+              //print("OK!");
+              //print(phoneAuthCredential);
             },
             verificationFailed: (AuthException exceptio) {
-              print("FAILLLL!");
-              print('${exceptio.message}');
+              //print("FAILLLL!");
+              //print('${exceptio.message}');
             });
       } catch (e) {
         final errorToast = SnackBar(
@@ -121,7 +121,7 @@ class _RegisterState extends State<Register> {
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       onPressed: () {
-                        print("bevestiged code!");
+                        //print("bevestiged code!");
                         valideerEnAuth();
                         //  signIn();
                       },
@@ -139,17 +139,17 @@ class _RegisterState extends State<Register> {
   }
 
   handleError(PlatformException error) {
-    print(error);
+    //print(error);
     switch (error.code) {
       case 'ERROR_INVALID_VERIFICATION_CODE':
         FocusScope.of(context).requestFocus(new FocusNode());
         setState(() {
           errorMessage = 'De code is niet correct..';
         });
-        print('popdaar!');
+        //print('popdaar!');
         // Navigator.of(context).pop();
         smsOTPDialog(context).then((value) {
-          print('sign in');
+          //print('sign in');
         });
         break;
       default:
@@ -164,11 +164,11 @@ class _RegisterState extends State<Register> {
   bool valideerEnSave() {
     final form = _formKey.currentState;
 
-    print(_wachtwoord);
-    print(_herhaalWachtwoord);
+    //print(_wachtwoord);
+    //print(_herhaalWachtwoord);
     if (form.validate()) {
       form.save();
-      print('Form is valid: Email: $_email & Password: $_wachtwoord');
+      //print('Form is valid: Email: $_email & Password: $_wachtwoord');
       if (_wachtwoord == _herhaalWachtwoord) {
         return true;
       } else {
@@ -183,10 +183,10 @@ class _RegisterState extends State<Register> {
   }
 
   Future valideerEnAuth() async {
-    print("valideerEnAuth!");
+    //print("valideerEnAuth!");
     if (valideerEnSave()) {
       try {
-        print("Creating User...");
+        //print("Creating User...");
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: _email, password: _wachtwoord);
 
@@ -202,16 +202,16 @@ class _RegisterState extends State<Register> {
           });
         } on PlatformException catch (e) {
           handleError(e);
-          print(e);
+          //print(e);
         } catch (e) {
           handleError(e);
-          print('error: $e');
+          //print('error: $e');
         }
 
-        print("IS SMS VALID ? $smsValid");
+        //print("IS SMS VALID ? $smsValid");
         if (smsValid) {
           // currentUser.updateEmail(_email);
-          print("Creating user in DATABASE...");
+          //print("Creating user in DATABASE...");
           try {
             await Firestore.instance
                 .collection("Users")
@@ -238,21 +238,21 @@ class _RegisterState extends State<Register> {
               'isOnline': true,
             });
 
-            print("User fully created!");
+            //print("User fully created!");
           } on PlatformException catch (e) {
-            print(e);
+            //print(e);
             final errorToast = SnackBar(
-                content: Text('Er is iets mis gegaan.. U kan herbeginnen.'));
+                content: Text('Er is iets mis gegaan.. U kan herbeginnen. \n' + e.message));
             _scaffoldKey.currentState.showSnackBar(errorToast);
           } catch (e) {
             //handleError(e);
             setState(() {
               errorMessage = "Probeer opnieuw, foute code..";
             });
-            print('Error:$e');
+            //print('Error:$e');
           }
           Navigator.pop(context);
-          print("popHier!");
+          //print("popHier!");
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => Keuze(connectedUserMail: _email,redirect: false,)),
@@ -266,9 +266,9 @@ class _RegisterState extends State<Register> {
             currentUser.delete();
           }
         }
-        // print('Ingelogd met : ${gebruiker.user.uid}');
+        // //print('Ingelogd met : ${gebruiker.user.uid}');
       } catch (e) {
-        print('error: $e');
+        //print('error: $e');
       }
     }
   }
@@ -280,10 +280,10 @@ class _RegisterState extends State<Register> {
           password:
               "AppByDeneubourgMohamedYassine,DitIsEenVerification0486655492");
     } catch (signUpError) {
-      print("errorSignup!");
+      //print("errorSignup!");
 
       if (signUpError is PlatformException) {
-        print(signUpError.code);
+        //print(signUpError.code);
         if (signUpError.code == 'ERROR_WRONG_PASSWORD') {
           setState(() {
             this.emailIsOK = false;
@@ -503,7 +503,7 @@ class _RegisterState extends State<Register> {
                                         }
 
                                         if (!emailIsOK) {
-                                          print("EmailAlGebruikt!");
+                                          //print("EmailAlGebruikt!");
                                           return "E-mailadres is al gebruikt.";
                                         }
                                         return null;

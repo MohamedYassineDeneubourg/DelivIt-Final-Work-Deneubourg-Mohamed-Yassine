@@ -42,7 +42,7 @@ class _KaartBezorgerState extends State<KaartBezorger> {
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
+    //print(user);
     if (user != null) {
       setState(() {
         connectedUserMail = user.email;
@@ -51,11 +51,11 @@ class _KaartBezorgerState extends State<KaartBezorger> {
   }
 
   _getData() async {
-    print('!GetData?');
+    //print('!GetData?');
 
     ServiceStatus serviceStatus =
         await LocationPermissions().checkServiceStatus();
-    print(serviceStatus);
+    //print(serviceStatus);
     if (serviceStatus == ServiceStatus.disabled) {
       AlertDialog(
         title: Text("GPS niet geactiveerd"),
@@ -78,15 +78,15 @@ class _KaartBezorgerState extends State<KaartBezorger> {
     var geolocator = Geolocator();
     GeolocationStatus geolocationStatus =
         await geolocator.checkGeolocationPermissionStatus();
-    print(geolocationStatus);
+    //print(geolocationStatus);
     final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
 
     var locationOptions = LocationOptions(
         accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
-    print('!GeoLocator?');
+    //print('!GeoLocator?');
 
     geolocator.getPositionStream(locationOptions).listen((Position position) {
-      //print(position.heading);
+      ////print(position.heading);
       if (this.mounted) {
         setState(() {
           userPosition = position;
@@ -131,12 +131,12 @@ class _KaartBezorgerState extends State<KaartBezorger> {
         .where("isBeschikbaar", isEqualTo: true)
         .snapshots()
         .listen((querySnapshot) {
-      print("NEW ON MAP");
+      //print("NEW ON MAP");
 
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot bestelling = querySnapshot.documents[i];
         Map positionMap = bestelling['AdresPosition'];
-        print("NEW ON " + i.toString());
+        //print("NEW ON " + i.toString());
         opMapBestellingen.add(
           new Marker(
             width: 100.0,
@@ -154,8 +154,8 @@ class _KaartBezorgerState extends State<KaartBezorger> {
                   onPressed: () async {
                     String distance =
                         await getDistance(bestelling['AdresPosition']);
-                    print("yo");
-                    // print(distance);
+                    //print("yo");
+                    // //print(distance);
                     setState(() {
                       selectedBestelling = {
                         "AantalProducten":
@@ -165,7 +165,7 @@ class _KaartBezorgerState extends State<KaartBezorger> {
                         "Distance": distance,
                         "documentID": bestelling.documentID
                       };
-                      print(bestelling['AdresPosition']);
+                      //print(bestelling['AdresPosition']);
                       isVisible = true;
                       paddingButton = 100;
                     });
@@ -306,7 +306,7 @@ class _KaartBezorgerState extends State<KaartBezorger> {
   }
 
   void naarDetailBestelling(bestellingId) {
-    print(connectedUserMail);
+    //print(connectedUserMail);
     Navigator.push(
         context,
         MaterialPageRoute(

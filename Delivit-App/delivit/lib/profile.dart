@@ -15,8 +15,8 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   _ProfileState({Key key, @required this.userEmail});
   final String userEmail;
-  num coursDonner = 0;
-  num coursRecu = 0;
+  num bezorgdeBestellingen = 0;
+  num gekregenBestellingen = 0;
   num _ratingScore = 2.5;
   Map gebruikerData;
   List ratingMessages = [];
@@ -39,34 +39,35 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         setState(() {
           // print("Refreshed");
           gebruikerData = data.data;
-          print(gebruikerData['Functie']);
           ratingMessages = data.data['RatingMessages'];
-          _tabBarController =
-              TabController(length: ratingMessages.length, vsync: this);
+
           //print(data.data);
         });
       }
     });
 
+    _tabBarController =
+        TabController(length: ratingMessages.length, vsync: this);
+
     Firestore.instance
-        .collection('Prestations')
-        .where("TutuEmail", isEqualTo: userEmail)
+        .collection('Commands')
+        .where("BezorgerEmail", isEqualTo: userEmail)
         .getDocuments()
         .then((e) {
       e.documents.length;
       setState(() {
-        coursDonner = e.documents.length;
+        bezorgdeBestellingen = e.documents.length;
       });
     });
 
     Firestore.instance
-        .collection('Prestations')
-        .where("EtudiantEmail", isEqualTo: userEmail)
+        .collection('Commands')
+        .where("AankoperEmail", isEqualTo: userEmail)
         .getDocuments()
         .then((e) {
       e.documents.length;
       setState(() {
-        coursRecu = e.documents.length;
+        gekregenBestellingen = e.documents.length;
       });
     });
 
@@ -75,7 +76,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget _buildCoverImage(Size screenSize) {
     return Container(
-      height: screenSize.height * 0.50,
+      height: screenSize.height * 0.40,
       decoration: BoxDecoration(
         color: Geel.withOpacity(0.7),
         image: DecorationImage(
@@ -126,31 +127,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   ],
                   fontSize: 26),
               textAlign: TextAlign.center),
-          (gebruikerData["Functie"] == "Tutu")
+          (gebruikerData["Functie"] == "Bezorger")
               ? _buildRatingBars()
               : Container(),
-          Text(gebruikerData['Etablissement'],
-              style: TextStyle(shadows: [
-                Shadow(
-                  blurRadius: 10.0,
-                  color: Colors.black,
-                  offset: Offset(3.0, 3.0),
-                ),
-              ], color: White, fontWeight: FontWeight.w700, fontSize: 17),
-              textAlign: TextAlign.center),
-          Text(gebruikerData['Etudes'] + " - " + gebruikerData['AnneeEtude'],
-              style: TextStyle(
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black,
-                      offset: Offset(3.0, 3.0),
-                    ),
-                  ],
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15),
-              textAlign: TextAlign.center),
         ],
       ),
     );
@@ -195,12 +174,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            (gebruikerData["Functie"] == "Tutu")
-                ? _buildStatItem("Cours donné", coursDonner.toString())
-                : _buildStatItem(
-                    "Cours reçu",
-                    coursRecu.toString(),
-                  )
+            _buildStatItem("Bezorgd", bezorgdeBestellingen.toString()),
+            _buildStatItem(
+              "Besteld",
+              gekregenBestellingen.toString(),
+            )
           ],
         ),
       ),
@@ -262,26 +240,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildBio(BuildContext context, Size screenSize) {
-    return Padding(
-        padding: EdgeInsets.only(top: 25, left: 20, right: 20),
-        child: Container(
-          padding: EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            border: Border.all(color: Geel.withOpacity(0.5)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          height: screenSize.height * 0.15,
-          width: screenSize.width,
-          child: SingleChildScrollView(
-              child: Text(
-            gebruikerData['Biographie'],
-            style: TextStyle(color: Colors.black, fontSize: 14),
-          )),
-        ));
-  }
-
   Widget _buildComments(BuildContext context) {
+
     return Container(
         height: MediaQuery.of(context).size.height * 0.10,
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -351,7 +311,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -361,7 +321,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       body: (gebruikerData != null)
           ? Stack(
               children: <Widget>[
-                _buildCoverImage(screenSize),
+                _buildCoverImage(size),
                 SafeArea(
                   child: SingleChildScrollView(
                     child: Column(
@@ -370,30 +330,27 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         SizedBox(height: 10.0),
                         _buildFullName(),
                         _buildStatContainer(),
-                        (gebruikerData["Functie"] == "Tutu")
-                            ? Container(
-                                color: White,
-                                child: Column(
-                                  children: <Widget>[
-                                    competences(context),
-                                    (ratingMessages.length != 0)
-                                        ? Text(
-                                            "Ce que les Tutties en pensent..",
-                                            textAlign: TextAlign.start,
-                                          )
-                                        : Text(
-                                            "Aucun avis n'a été déposé sur ce Tutu..",
-                                            textAlign: TextAlign.start,
-                                          ),
-                                    (ratingMessages.length != 0)
-                                        ? _buildComments(context)
-                                        : Container(),
-                                  ],
-                                ),
-                              )
-                            : Container(
-                                color: White,
-                                child: _buildBio(context, screenSize)),
+                        Container(
+                           height: size.height * 0.45,
+                          color: Colors.transparent,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              (ratingMessages.length != 0)
+                                  ? Text(
+                                      "Commentaar beoordeling aankopers..",
+                                      textAlign: TextAlign.start,
+                                    )
+                                  : Text(
+                                      "Er is geen beoordeling gemaakt..",
+                                      textAlign: TextAlign.start,
+                                    ),
+                              (ratingMessages.length != 0)
+                                  ? _buildComments(context)
+                                  : Container(),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),

@@ -47,6 +47,8 @@ dependencies:
   image_picker: ^0.6.3+4
   flutter_native_image: ^0.0.5
   firebase_storage: ^3.0.8
+  lottie: ^0.3.2
+  expandable: ^4.1.2
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -78,6 +80,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/Animations/
 
   uses-material-design: true
   # An image asset can refer to one or more resolution-specific "variants", see

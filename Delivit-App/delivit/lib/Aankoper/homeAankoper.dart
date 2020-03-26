@@ -42,9 +42,14 @@ class _HomeAankoperState extends State<HomeAankoper> {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
     if (user != null) {
+      print("User is connected!");
       setState(() {
         connectedUserMail = user.email;
       });
+    } else {
+      FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Main()));
     }
   }
 
@@ -59,6 +64,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
 
   @override
   Widget build(BuildContext context) {
+    print("Drawer??");
     //_getData();
     //Size size = MediaQuery.of(context).size;
     return new Scaffold(
@@ -72,7 +78,10 @@ class _HomeAankoperState extends State<HomeAankoper> {
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            print(snapshot);
             if (snapshot.hasData) {
+              print("drawer");
+
               return Column(
                 children: <Widget>[
                   UserAccountsDrawerHeader(

@@ -33,7 +33,7 @@ class _MainState extends State<Main> {
             connectedUserMail = e.email;
           });
 
-          print(e.email);
+          //print(e.email);
         }
 
         setState(() {
@@ -49,7 +49,7 @@ class _MainState extends State<Main> {
         .document(connectedUserMail)
         .snapshots()
         .listen((data) {
-      print(data);
+      //print(data);
       setState(() {
         if (data['Functie'] == "Aankoper") {
           functie = HomeAankoper();
@@ -135,7 +135,7 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
   AnimationController animationController;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
+    //print(user);
     if (user != null) {
       setState(() {
         connectedUserMail = user.email;
@@ -183,15 +183,15 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
   }
 
   numerExists(phoneNumber) async {
-    print(phoneNumber);
+    //print(phoneNumber);
     final query = await Firestore.instance
         .collection("Users")
         .where('PhoneNumber', isEqualTo: phoneNumber)
         .getDocuments();
-    print(query.documents.length);
+    //print(query.documents.length);
 
     if (query.documents.length == 0) {
-      print('Nummer Bestaat niet!');
+      //print('Nummer Bestaat niet!');
       setState(() {
         isLoading = false;
       });
@@ -205,11 +205,11 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
 
       return null;
     }
-    //print('Nummer Bestaat !');
+    ////print('Nummer Bestaat !');
     List<DocumentSnapshot> documents = query.documents;
     documents.forEach((object) {
-      print("Nummer bestaat wel");
-      print(object.data['Email']);
+      //print("Nummer bestaat wel");
+      //print(object.data['Email']);
       String emailVoorLogin = object.data['Email'];
       setState(() {
         isLoading = false;
@@ -237,7 +237,7 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("Builded..");
+    //print("Builded..");
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: isLoading
@@ -323,9 +323,7 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                                         });
                                       }
 
-                                      print(
-                                        "------",
-                                      );
+                                     
                                     }
                                   },
                                 )

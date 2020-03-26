@@ -48,7 +48,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
     reference.listen((data) {
       if (this.mounted) {
         setState(() {
-          print("Card..");
+          //print("Card..");
           gebruikerData = data.data;
         });
       }
@@ -58,7 +58,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    print(size.height);
+    //print(size.height);
     return Scaffold(
       appBar: AppBar(
           backgroundColor: White,
@@ -265,7 +265,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
                             },
                             onChanged: (value) {
                               setState(() {
-                                print(value);
+                                //print(value);
                                 cardNumber = value;
                               });
                             },
@@ -313,7 +313,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
                               },
                               onChanged: (value) {
                                 setState(() {
-                                  print(value);
+                                  //print(value);
                                   month = value;
                                 });
                               },
@@ -359,7 +359,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
                                 },
                                 onChanged: (value) {
                                   setState(() {
-                                    print(value);
+                                    //print(value);
                                     year = "20" + value;
                                   });
                                 }),
@@ -406,7 +406,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
                               },
                               onChanged: (value) {
                                 setState(() {
-                                  print(value);
+                                  //print(value);
                                   cvc = value;
                                 });
                               },
@@ -468,7 +468,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
 
     if (form.validate()) {
       form.save();
-      print('Form is valid.');
+      //print('Form is valid.');
       return true;
     }
 

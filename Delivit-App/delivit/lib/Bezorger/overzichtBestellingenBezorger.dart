@@ -32,6 +32,7 @@ class _OverzichtBestellingenBezorgerState
       stream: Firestore.instance
           .collection('Commands')
           .where("BezorgerEmail", isEqualTo: connectedUserMail)
+          .orderBy("BezorgDatumEnTijd", descending: true)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         getIcon(status) {

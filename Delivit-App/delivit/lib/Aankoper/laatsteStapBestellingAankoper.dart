@@ -413,12 +413,77 @@ class _LaatsteStapBestellingAankoperState
               .document(connectedUserMail);
 
           reference.updateData({"MomenteleBestelling": [], "ShoppingBag": []});
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => HomeAankoper()),
-              (Route<dynamic> route) => false);
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomeAankoper()));
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return new AlertDialog(
+                  title: Text('CONFIRMATIE BESTELLING',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  content: Container(
+                      height: 85,
+                      child: SingleChildScrollView(
+                        child: Text(
+                            "Super! Je bestelling is geplaatst, bekijk deze in je lijst en wacht tot dat je een aanbieding gekregen hebt"),
+                      )),
+                  contentPadding: EdgeInsets.all(20),
+                  actions: <Widget>[
+                    ButtonTheme(
+                        minWidth: 400.0,
+                        child: FlatButton(
+                          color: Geel,
+                          child: new Text(
+                            "OK",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        )),
+                  ],
+                );
+              });
         });
       } catch (e) {
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return new AlertDialog(
+                title: Text('OEPS.. ONJUISTE ADRES',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                content: Container(
+                    height: 85,
+                    child: SingleChildScrollView(
+                      child: Text(
+                          "Je adres is onjuist, kijk deze goed na en probeer opnieuw.. \n \n" +
+                              e.toString()),
+                    )),
+                contentPadding: EdgeInsets.all(20),
+                actions: <Widget>[
+                 ButtonTheme(
+                        minWidth: 400.0,
+                        child: FlatButton(
+                          color: Geel,
+                          child: new Text(
+                            "OK",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        )),
+                ],
+              );
+            });
         print('Error:$e');
       }
     }

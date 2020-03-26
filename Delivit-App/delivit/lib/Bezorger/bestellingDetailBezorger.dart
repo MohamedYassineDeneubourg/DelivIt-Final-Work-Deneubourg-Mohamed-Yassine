@@ -7,6 +7,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BestellingDetailBezorger extends StatefulWidget {
@@ -234,18 +235,8 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
         break;
 
       case ("BESTELLING CONFIRMATIE"):
-        return floatingButton("BESTELLING IS BEZORGD", FontAwesomeIcons.check,
-            () {
-          Firestore.instance
-              .collection('Commands')
-              .document(bestellingId)
-              .updateData({
-            "BestellingStatus": "BEZORGD",
-            "ConfirmatieBezorger": true,
-          });
-
-          print("NOG CHECKEN OF KLANT CONFIRMEERD");
-        });
+        return floatingButton(
+            "AANKOPER MOET BEVESTIGEN", FontAwesomeIcons.solidClock, () {});
         break;
     }
   }
@@ -355,11 +346,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
         break;
 
       case ("BEZORGD"):
-        return Icon(
-          Icons.assignment_turned_in,
-          size: 30,
-          color: Geel,
-        );
+        return Lottie.asset('assets/Animations/checked.json');
         break;
 
       case ("ONDERWEG"):
@@ -466,7 +453,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                                       style: TextStyle(
                                         color: Colors.black87,
                                         fontWeight: FontWeight.w900,
-                                        fontSize: 26,
+                                        fontSize: 20,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),

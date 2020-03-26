@@ -223,8 +223,8 @@ class _LoginState extends State<Login> {
       setState(() {
         this.wachtwoordOk = false;
       });
-      print("SinIn:");
-      print(wachtwoordOk);
+      //print("SinIn:");
+      //print(wachtwoordOk);
     } catch (signUpError) {
       FocusScope.of(context).requestFocus(new FocusNode());
       if (signUpError is PlatformException) {
@@ -233,17 +233,17 @@ class _LoginState extends State<Login> {
       setState(() {
         wachtwoordOk = true;
       });
-      print("SinIn:");
-      print(wachtwoordOk);
+      //print("SinIn:");
+      //print(wachtwoordOk);
     }
 
-    print("pressedè");
+    //print("pressedè");
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      print("USER LOGGED IN !");
+      //print("USER LOGGED IN !");
       Navigator.pop(context);
-      print("popHier!");
+      //print("popHier!");
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => Keuze()),

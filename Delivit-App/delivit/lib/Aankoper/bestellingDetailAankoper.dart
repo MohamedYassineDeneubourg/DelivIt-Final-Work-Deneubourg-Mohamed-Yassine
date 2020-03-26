@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
+import 'package:expandable/expandable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,7 +10,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:toast/toast.dart';
+
+import '../profile.dart';
 
 class BestellingDetailAankoper extends StatefulWidget {
   BestellingDetailAankoper({Key key, this.bestellingId}) : super(key: key);
@@ -28,6 +32,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
   List aanbodLijst = [];
   String connectedUserMail;
   Map bestelling;
+  double totalePrijs = 0.0;
   Map bezorgerInfo;
   List verzameldeProducten = new List();
   MapController mapController = new MapController();
@@ -58,9 +63,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
       aanbodLijst = [];
       if (this.mounted) {
         setState(() {
-          print("Refreshed");
           bestelling = data.data;
-          print(data.data);
+          //print(data.data);
           if (data.data['VerzameldeProducten'] != null) {
             verzameldeProducten = []..addAll(data.data['VerzameldeProducten']);
           }
@@ -86,8 +90,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                   .get();
 
               reference.then((data) {
-                print(data);
-                print(distanceInMeters);
+                //print(data);
+                //print(distanceInMeters);
                 Map bezorgerMap = {
                   "EmailBezorger": aanbod['EmailBezorger'],
                   "NaamVoornaam":
@@ -109,6 +113,82 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
         }
       }
     });
+  }
+
+  getTotalePrijsWidget() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: ExpandablePanel(
+          header: Padding(
+              padding: const EdgeInsets.only(right: 10, left: 10),
+              child: Column(
+                children: <Widget>[
+                  Divider(
+                    color: GrijsDark,
+                    height: 10,
+                    thickness: 2,
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        "Totale prijs",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900),
+                      )),
+                      Text(
+                        "€ " +
+                            (double.parse(getTotalePrijs()) + leveringPrijs)
+                                .toStringAsFixed(2),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900),
+                      )
+                    ],
+                  ),
+                ],
+              )),
+          expanded: Column(
+            children: <Widget>[
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Artikelen",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + getTotalePrijs(),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Leveringskosten",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + leveringPrijs.toStringAsFixed(2),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )),
+    );
   }
 
   getDatum() {
@@ -147,6 +227,28 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                       child: Image.network(
                     bezorgerMap['ProfileImage'],
                   ))),
+              FlatButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Profile(
+                                userEmail: bezorgerMap['EmailBezorger'],
+                              ),
+                          fullscreenDialog: true));
+                },
+                label: Text(
+                  "Profiel bekijken",
+                  style: TextStyle(
+                    color: GrijsDark,
+                  ),
+                ),
+                icon: Icon(
+                  Icons.person,
+                  size: 15,
+                  color: GrijsDark,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: Text("Wil je " +
@@ -167,7 +269,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     onPressed: () {
-                      print(bezorgerMap['EmailBezorger']);
+                      //print(bezorgerMap['EmailBezorger']);
                       Firestore.instance
                           .collection('Commands')
                           .document(bestellingId)
@@ -273,7 +375,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                       textAlign: TextAlign.center,
                     ),
                     Container(
-                      height: size.height * 0.25,
+                      height: size.height * 0.20,
                       child: new ListView.builder(
                         itemCount: aanbodLijst.length,
                         itemBuilder: (context, index) {
@@ -332,7 +434,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
         break;
 
       case ("PRODUCTEN VERZAMELEN"):
-        print("producten verzz");
+        //print("producten verzz");
         getBezorgerInfo();
         getMarkers();
 
@@ -341,7 +443,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
         break;
 
       case ("ONDERWEG"):
-        print("IS ONDERWEG!");
+        //print("IS ONDERWEG!");
         setState(() {
           getBezorgerInfo();
           getMarkers();
@@ -350,12 +452,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
         break;
 
-      case ("GELEVERD"):
-        return Icon(
-          Icons.assignment_turned_in,
-          size: 30,
-          color: Geel,
-        );
+      case ("BEZORGD"):
+        getBezorgerInfo();
+        return getMapEnInfo(status);
         break;
 
       default:
@@ -370,7 +469,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
   getBezorgerInfo() {
     if (bestelling != null) {
-      print(bestelling);
+      //print(bestelling);
       var reference = Firestore.instance
           .collection("Users")
           .document(bestelling['BezorgerEmail'])
@@ -386,9 +485,20 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
     }
   }
 
+  getTotalePrijs() {
+    totalePrijs = 0;
+    bestellingLijst.forEach((product) {
+      totalePrijs =
+          totalePrijs + (product['Aantal'] * product['ProductAveragePrijs']);
+    });
+
+    return totalePrijs.toStringAsFixed(2);
+  }
+
   getMapEnInfo(status) {
     Size size = MediaQuery.of(context).size;
     if (bezorgerInfo != null) {
+      print("mapinfo");
       return Expanded(
         child: Container(
             width: size.width,
@@ -412,7 +522,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                   ),
                   subtitle: (status == "PRODUCTEN VERZAMELEN")
                       ? Text('Verzamelt je producten..')
-                      : Text('Is nu aan het aankomen!'),
+                      : (status == "BEZORGD")
+                          ? Text('Heeft het geleverd.')
+                          : Text('Is nu aan het aankomen!'),
                   trailing: Container(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -438,7 +550,17 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                 Icons.person,
                                 color: Colors.white,
                               ),
-                              onPressed: () {}),
+                              onPressed: () {
+                                print(bestelling);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Profile(
+                                              userEmail:
+                                                  bestelling['BezorgerEmail'],
+                                            ),
+                                        fullscreenDialog: true));
+                              }),
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 10),
@@ -467,37 +589,41 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                       ],
                     ),
                   )),
-              Flexible(
-                child: FlutterMap(
-                  mapController: mapController,
-                  options: new MapOptions(
-                    onTap: (LatLng eo) {
-                      mapController.onReady.then((result) {
-                        mapController.move(
-                            new LatLng(bezorgerInfo['Position']['latitude'],
-                                bezorgerInfo['Position']['longitude']),
-                            15);
-                      });
-                    },
-                    center: new LatLng(53, 22),
-                    zoom: 15.0,
-                  ),
-                  layers: [
-                    new TileLayerOptions(
-                      urlTemplate: "https://api.tiles.mapbox.com/v4/"
-                          "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
-                      additionalOptions: {
-                        'accessToken':
-                            '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
-                        'id': 'mapbox.streets',
-                      },
-                    ),
-                    new MarkerLayerOptions(
-                      markers: opMapMarkers,
-                    ),
-                  ],
-                ),
-              )
+              (status == "BEZORGD")
+                  ? Lottie.asset('assets/Animations/checked.json',
+                      width: size.width * 0.2)
+                  : Flexible(
+                      child: FlutterMap(
+                        mapController: mapController,
+                        options: new MapOptions(
+                          onTap: (LatLng eo) {
+                            mapController.onReady.then((result) {
+                              mapController.move(
+                                  new LatLng(
+                                      bezorgerInfo['Position']['latitude'],
+                                      bezorgerInfo['Position']['longitude']),
+                                  15);
+                            });
+                          },
+                          center: new LatLng(53, 22),
+                          zoom: 15.0,
+                        ),
+                        layers: [
+                          new TileLayerOptions(
+                            urlTemplate: "https://api.tiles.mapbox.com/v4/"
+                                "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
+                            additionalOptions: {
+                              'accessToken':
+                                  '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
+                              'id': 'mapbox.streets',
+                            },
+                          ),
+                          new MarkerLayerOptions(
+                            markers: opMapMarkers,
+                          ),
+                        ],
+                      ),
+                    )
             ])),
       );
     } else {
@@ -507,14 +633,14 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
   getMarkers() {
     if (bezorgerInfo != null && bestelling != null) {
-      print(bezorgerInfo['Position']['latitude']);
-      print(bezorgerInfo['Position']['longitude']);
+      //print(bezorgerInfo['Position']['latitude']);
+      //print(bezorgerInfo['Position']['longitude']);
       num longitudeBezorger = bezorgerInfo['Position']['longitude'];
       num latitudeBezorger = bezorgerInfo['Position']['latitude'];
 
       num longitudeBestelling = bestelling['AdresPosition']['longitude'];
       num latitudeBestelling = bestelling['AdresPosition']['latitude'];
-      print(mapController);
+      //print(mapController);
 
       mapController.onReady.then((result) {
         setState(() {
@@ -589,7 +715,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
           ? Container(
               padding: new EdgeInsets.only(
                   top: 8.0, bottom: 20, right: 15, left: 15),
-              child: new Column(
+              child: Column(
                 children: <Widget>[
                   Padding(
                       padding: EdgeInsets.only(
@@ -640,15 +766,20 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontWeight: FontWeight.w900,
-                                      fontSize: 26,
+                                      fontSize: 20,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
                               )))),
                   Container(
-                    height: size.height * 0.25,
+                    constraints: BoxConstraints(
+                      maxHeight: (bestelling['BestellingStatus'] == "BEZORGD")
+                          ? size.height * 0.45
+                          : size.height * 0.22,
+                    ),
                     child: new ListView.builder(
+                      shrinkWrap: true,
                       itemCount: bestellingLijst.length,
                       itemBuilder: (context, index) {
                         return Card(
@@ -681,9 +812,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                       },
                     ),
                   ),
+                  getTotalePrijsWidget(),
                   (bestelling != null)
                       ? getStatusWidget(bestelling['BestellingStatus'])
-                      : Padding(padding: EdgeInsets.all(1))
+                      : Container()
                 ],
               ))
           : Container(
@@ -694,7 +826,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
             ),
       floatingActionButton: (bestelling != null)
           ? ((bestelling['BestellingStatus'] == "AANVRAAG") ||
-                  (bestelling['BestellingStatus'] == "ONDERWEG"))
+                  (bestelling['BestellingStatus'] == "ONDERWEG") ||
+                  (bestelling['BestellingStatus'] == "BESTELLING CONFIRMATIE"))
               ? Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: FloatingActionButton.extended(
@@ -799,5 +932,236 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
           : Padding(padding: EdgeInsets.all(1)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  ratingSystem(setState) {
+    List ratingScoreList = bezorgerInfo['RatingScoresList'];
+    print(ratingScoreList);
+    num ratingNumber;
+    String ratingMessage;
+    bool anonyme = false;
+
+    bool isOk = false;
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return WillPopScope(
+                onWillPop: () async {
+                  if (isOk) {
+                    Navigator.pop(context);
+                    return true;
+                  } else {
+                    return false;
+                  }
+                },
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                  title: new Text(
+                    "TU EN PENSES QUOI ?",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        "HiTutu espère que tu as appris un tas de choses ! N’hésite pas à noter ton Tutu pour lui permettre de s’améliorer 😀",
+                        textAlign: TextAlign.justify,
+                      ),
+                      Divider(
+                        color: Geel,
+                        thickness: 2,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: CircleAvatar(
+                          backgroundColor: Geel,
+                          radius: 60,
+                          child: ClipOval(
+                            child: Image.network(bezorgerInfo['ProfileImage'],
+                                fit: BoxFit.cover),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12.0, bottom: 12),
+                        child: Text(
+                            bezorgerInfo['Naam'].toUpperCase() +
+                                " " +
+                                bezorgerInfo['Voornaam'].toUpperCase(),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 22),
+                            textAlign: TextAlign.center),
+                      ),
+                      Center(
+                        child: RatingBar(
+                          initialRating: 0,
+                          maxRating: 5,
+                          minRating: 0,
+                          allowHalfRating: true,
+                          unratedColor: GrijsMidden,
+                          itemBuilder: (context, index) => Icon(
+                            Icons.school,
+                            color: Colors.amber,
+                          ),
+                          itemCount: 5,
+                          itemSize: 45.0,
+                          direction: Axis.horizontal,
+                          onRatingUpdate: (double value) {
+                            setState(() {
+                              ratingNumber = value;
+                            });
+                          },
+                        ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(top: 15.0),
+                          child: TextFormField(
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                                errorStyle:
+                                    TextStyle(fontWeight: FontWeight.w700),
+                                prefixIcon: Icon(
+                                  Icons.textsms,
+                                  color: Geel,
+                                ),
+                                fillColor: Colors.white,
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Geel, width: 2),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Geel, width: 2),
+                                ),
+                                errorBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.red, width: 2),
+                                ),
+                                labelText: 'Votre avis sur ' +
+                                    bezorgerInfo['Naam'].toUpperCase() +
+                                    " " +
+                                    bezorgerInfo['Voornaam'].toUpperCase(),
+                                hintText: '...'),
+                            onChanged: (value) => ratingMessage = value,
+                          )),
+                      Center(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Checkbox(
+                              activeColor: Geel,
+                              value: anonyme,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  anonyme = value;
+                                });
+                              },
+                            ),
+                            Text(
+                              "Rester anonyme",
+                              textAlign: TextAlign.center,
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  actions: <Widget>[
+                    ButtonTheme(
+                        minWidth: 400.0,
+                        child: RaisedButton(
+                          color: Geel,
+                          child: Text(
+                            "CONFIRMER",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () async {
+                            if (ratingNumber == null ||
+                                ratingMessage == null ||
+                                ratingMessage.length < 5) {
+                              Toast.show(
+                                  "Vous devez donner une note avant de continuer..",
+                                  context,
+                                  duration: Toast.LENGTH_LONG,
+                                  gravity: Toast.BOTTOM,
+                                  backgroundColor: GrijsDark);
+                            } else {
+                              num total = 0;
+
+                              ratingScoreList.forEach((e) {
+                                total = total + e;
+                              });
+
+                              total = (total + ratingNumber) /
+                                  (ratingScoreList.length + 1);
+
+                              try {
+                                await Firestore.instance
+                                    .collection("Users")
+                                    .document(bestelling['TutuEmail'])
+                                    .updateData({
+                                  'RatingScore': total,
+                                  'RatingScoresList':
+                                      FieldValue.arrayUnion([ratingNumber]),
+                                  'RatingMessages': FieldValue.arrayUnion([
+                                    {
+                                      "NomPrenom": anonyme
+                                          ? "Anonyme"
+                                          : connectedUserMail,
+                                      "Message": ratingMessage,
+                                      "Score": ratingNumber
+                                    }
+                                  ])
+                                });
+                                await Firestore.instance
+                                    .collection('Commands')
+                                    .document(bestellingId)
+                                    .updateData({
+                                  "isBeschikbaar": false,
+                                  "BestellingStatus": "BEZORGD",
+                                });
+
+                                await Firestore.instance
+                                    .collection('Users')
+                                    .document(bestelling['TutuEmail'])
+                                    .updateData({
+                                  "PrestationNonConfirmee": null,
+                                  "Portefeuille": FieldValue.increment(
+                                      bestelling['geldBezorger'])
+                                });
+
+                                print(ratingNumber);
+                                print(ratingMessage);
+                                setState(() {
+                                  isOk = true;
+                                });
+                                Navigator.pop(context);
+                              } catch (e) {
+                                Toast.show(
+                                    "Une erreur s'est produite..", context,
+                                    duration: Toast.LENGTH_LONG,
+                                    gravity: Toast.BOTTOM,
+                                    backgroundColor: GrijsDark);
+                                print('Error:$e');
+                              }
+                            }
+                            //  signIn();
+                          },
+                        )),
+                  ],
+                ),
+              );
+            },
+          );
+        });
   }
 }

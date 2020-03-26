@@ -164,7 +164,7 @@ class _PortefeuilleState extends State<Portefeuille> {
                             setState(() {
                               isLoading = true;
                             });
-                            print(gebruikerData['stripeId']);
+                            //print(gebruikerData['stripeId']);
                             StripeServices().chargeIt(
                                 context: context,
                                 connectedUserEmail: connectedUserMail,
@@ -204,9 +204,9 @@ class _PortefeuilleState extends State<Portefeuille> {
     reference.listen((data) {
       if (this.mounted) {
         setState(() {
-          // print("Refreshed");
+          // //print("Refreshed");
           gebruikerData = data.data;
-          //print(data.data);
+          ////print(data.data);
           portefeuilleHistoriek = []
             ..addAll(data.data['PortefeuilleHistoriek']);
         });

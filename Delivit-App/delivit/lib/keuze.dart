@@ -33,19 +33,19 @@ class _KeuzeState extends State<Keuze> {
         .get()
         .then((e) {
       if (e != null && redirect) {
-        print(e.data['Functie']);
+        //print(e.data['Functie']);
         if (e.data['Functie'] != null) {
           if (e.data['Functie'] == "Aankoper") {
             aankoperGekozen();
           } else if (e.data['Functie'] == "Bezorger") {
             bezorgerGekozen();
           } else {
-            print("Gebruiker moet zijn functie kiezen.");
+            //print("Gebruiker moet zijn functie kiezen.");
           }
         }
       }
       setState(() {
-        print("Waiting..");
+        //print("Waiting..");
       });
     });
   }
