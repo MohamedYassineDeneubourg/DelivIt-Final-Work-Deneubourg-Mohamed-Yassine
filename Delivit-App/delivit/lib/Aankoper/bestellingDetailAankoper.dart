@@ -26,7 +26,7 @@ class BestellingDetailAankoper extends StatefulWidget {
 
 class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
   _BestellingDetailAankoperState({Key key, @required this.bestellingId});
-  List<Marker> opMapMarkers;
+  List<Marker> opMapMarkers = [];
   String bestellingId;
   List bestellingLijst = [];
   List aanbodLijst = [];
@@ -75,8 +75,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
           bestelling['AanbodLijst'].forEach((aanbod) {
             double distanceInMeters;
             Geolocator()
-                .getCurrentPosition(
-                    desiredAccuracy: LocationAccuracy.bestForNavigation)
+                .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest)
                 .then((e) async {
               distanceInMeters = await Geolocator().distanceBetween(
                   bestelling['AdresPosition']['latitude'],
@@ -305,6 +304,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
     switch (status) {
       case ("AANVRAAG"):
         return Container(
+            margin: EdgeInsets.only(top: 20),
             width: size.width,
             decoration: new BoxDecoration(
                 color: GrijsLicht,
@@ -342,6 +342,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
       case ("AANBIEDING GEKREGEN"):
         return Container(
+            margin: EdgeInsets.only(top: 20),
             width: size.width,
             decoration: new BoxDecoration(
                 color: GrijsLicht,
@@ -428,6 +429,15 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                               ));
                         },
                       ),
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 10.0, right: 40, left: 40),
+                      child: Text(
+                        "Je kan je bestelling niet meer annuleren. \n Indien het echt noodzakelijk is, gelieve contact te nemen met de bezorger.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 10),
+                      ),
                     )
                   ],
                 )));
@@ -453,6 +463,12 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
         break;
 
       case ("BEZORGD"):
+        getBezorgerInfo();
+        return Lottie.asset('assets/Animations/checked.json',
+            width: size.width * 0.25);
+        break;
+
+      case ("BESTELLING CONFIRMATIE"):
         getBezorgerInfo();
         return getMapEnInfo(status);
         break;
@@ -495,10 +511,89 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
     return totalePrijs.toStringAsFixed(2);
   }
 
+  getInfoWidget(status) {
+    Size size = MediaQuery.of(context).size;
+    return ListTile(
+        title: Text(
+          (bezorgerInfo['Naam'] + " " + bezorgerInfo['Voornaam']).toUpperCase(),
+          textAlign: TextAlign.left,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+        ),
+        subtitle: (status == "PRODUCTEN VERZAMELEN")
+            ? Text('Verzamelt je producten..')
+            : (status == "BEZORGD")
+                ? Text('Heeft het geleverd.')
+                : (status == "BESTELLING CONFIRMATIE")
+                    ? Text('Wacht op je bevestiging..')
+                    : Text('Is nu aan het aankomen!'),
+        trailing: Container(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Container(
+                height: size.width * 0.10,
+                width: size.width * 0.10,
+                decoration: new BoxDecoration(
+                    color: Geel,
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 1.0,
+                        color: GrijsMidden,
+                        offset: Offset(0.3, 0.3),
+                      ),
+                    ],
+                    borderRadius: new BorderRadius.all(Radius.circular(360.0))),
+                child: new IconButton(
+                    icon: new Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      print(bestelling);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Profile(
+                                    userEmail: bestelling['BezorgerEmail'],
+                                  ),
+                              fullscreenDialog: true));
+                    }),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Container(
+                  height: size.width * 0.10,
+                  width: size.width * 0.10,
+                  decoration: new BoxDecoration(
+                      color: GrijsDark,
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 1.0,
+                          color: GrijsMidden,
+                          offset: Offset(0.3, 0.3),
+                        ),
+                      ],
+                      borderRadius:
+                          new BorderRadius.all(Radius.circular(360.0))),
+                  child: new IconButton(
+                      icon: new Icon(
+                        Icons.message,
+                        color: Colors.white,
+                      ),
+                      onPressed: null),
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
   getMapEnInfo(status) {
     Size size = MediaQuery.of(context).size;
     if (bezorgerInfo != null) {
-      print("mapinfo");
+      //print("mapinfo");
       return Expanded(
         child: Container(
             width: size.width,
@@ -513,85 +608,14 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                 ],
                 borderRadius: new BorderRadius.all(Radius.circular(10.0))),
             child: Column(children: <Widget>[
-              ListTile(
-                  title: Text(
-                    (bezorgerInfo['Naam'] + bezorgerInfo['Voornaam'])
-                        .toUpperCase(),
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-                  ),
-                  subtitle: (status == "PRODUCTEN VERZAMELEN")
-                      ? Text('Verzamelt je producten..')
-                      : (status == "BEZORGD")
-                          ? Text('Heeft het geleverd.')
-                          : Text('Is nu aan het aankomen!'),
-                  trailing: Container(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Container(
-                          height: size.width * 0.10,
-                          width: size.width * 0.10,
-                          decoration: new BoxDecoration(
-                              color: Geel,
-                              boxShadow: [
-                                BoxShadow(
-                                  blurRadius: 1.0,
-                                  color: GrijsMidden,
-                                  offset: Offset(0.3, 0.3),
-                                ),
-                              ],
-                              borderRadius:
-                                  new BorderRadius.all(Radius.circular(360.0))),
-                          child: new IconButton(
-                              icon: new Icon(
-                                Icons.person,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                print(bestelling);
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Profile(
-                                              userEmail:
-                                                  bestelling['BezorgerEmail'],
-                                            ),
-                                        fullscreenDialog: true));
-                              }),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Container(
-                            height: size.width * 0.10,
-                            width: size.width * 0.10,
-                            decoration: new BoxDecoration(
-                                color: GrijsDark,
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 1.0,
-                                    color: GrijsMidden,
-                                    offset: Offset(0.3, 0.3),
-                                  ),
-                                ],
-                                borderRadius: new BorderRadius.all(
-                                    Radius.circular(360.0))),
-                            child: new IconButton(
-                                icon: new Icon(
-                                  Icons.message,
-                                  color: Colors.white,
-                                ),
-                                onPressed: null),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-              (status == "BEZORGD")
-                  ? Lottie.asset('assets/Animations/checked.json',
-                      width: size.width * 0.2)
+              getInfoWidget(status),
+              (status == "BESTELLING CONFIRMATIE" && mapController != null)
+                  ? Container(
+                      child: SpinKitDoubleBounce(
+                        color: Geel,
+                        size: 100,
+                      ),
+                    )
                   : Flexible(
                       child: FlutterMap(
                         mapController: mapController,
@@ -772,47 +796,57 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                   ),
                                 ],
                               )))),
-                  Container(
-                    constraints: BoxConstraints(
-                      maxHeight: (bestelling['BestellingStatus'] == "BEZORGD")
-                          ? size.height * 0.45
-                          : size.height * 0.22,
-                    ),
-                    child: new ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: bestellingLijst.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                            color: (verzameldeProducten.contains(
-                                    bestellingLijst[index]['ProductID']))
-                                ? GrijsMidden.withOpacity(0.3)
-                                : White,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: ListTile(
-                              enabled: (verzameldeProducten.contains(
-                                      bestellingLijst[index]['ProductID']))
-                                  ? false
-                                  : true,
-                              onTap: null,
-                              trailing: Text(
-                                  bestellingLijst[index]['Aantal'].toString(),
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              leading: Image.network(
-                                bestellingLijst[index]['ProductImage'],
-                                height: 40,
-                              ),
-                              title: Text(
-                                  bestellingLijst[index]['ProductTitel'],
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                            ));
-                      },
-                    ),
-                  ),
-                  getTotalePrijsWidget(),
+                  (bestelling['BestellingStatus'] == "BEZORGD")
+                      ? Column(children: [
+                          getInfoWidget(
+                              bestelling['BestellingStatus'] == "BEZORGD"),
+                          getBestellingOverzicht()
+                        ])
+                      : Container(
+                          constraints: BoxConstraints(
+                            maxHeight: size.height * 0.22,
+                          ),
+                          child: new ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: bestellingLijst.length,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                  color: (verzameldeProducten.contains(
+                                          bestellingLijst[index]['ProductID']))
+                                      ? GrijsMidden.withOpacity(0.3)
+                                      : White,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: ListTile(
+                                    enabled: (verzameldeProducten.contains(
+                                            bestellingLijst[index]
+                                                ['ProductID']))
+                                        ? false
+                                        : true,
+                                    onTap: null,
+                                    trailing: Text(
+                                        bestellingLijst[index]['Aantal']
+                                            .toString(),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    leading: Image.network(
+                                      bestellingLijst[index]['ProductImage'],
+                                      height: 40,
+                                    ),
+                                    title: Text(
+                                        bestellingLijst[index]['ProductTitel'],
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                  ));
+                            },
+                          ),
+                        ),
+                  (bestelling['BestellingStatus'] == "AANVRAAG") ||
+                          (bestelling['BestellingStatus'] ==
+                              "AANBIEDING GEKREGEN")
+                      ? Container()
+                      : getTotalePrijsWidget(),
                   (bestelling != null)
                       ? getStatusWidget(bestelling['BestellingStatus'])
                       : Container()
@@ -837,7 +871,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                     backgroundColor:
                         (bestelling['BestellingStatus'] == "ONDERWEG")
                             ? GrijsDark
-                            : Geel,
+                            : (bestelling['BestellingStatus'] ==
+                                    "BESTELLING CONFIRMATIE")
+                                ? Colors.green
+                                : Geel,
                     icon: Icon(
                       (bestelling['BestellingStatus'] == "ONDERWEG")
                           ? Icons.timer
@@ -864,14 +901,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                             backgroundColor: GrijsDark);
                       } else if (bestelling['BestellingStatus'] ==
                           "BESTELLING CONFIRMATIE") {
-                        Firestore.instance
-                            .collection('Commands')
-                            .document(bestellingId)
-                            .updateData({
-                          "ConfirmatieKlant": true,
-                          "isBeschikbaar": false,
-                          "BestellingStatus": "BEZORGD",
-                        });
+                        ratingSystem(setState);
                       } else {
                         showDialog(
                             context: context,
@@ -934,8 +964,39 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
     );
   }
 
+  getBestellingOverzicht() {
+    Size size = MediaQuery.of(context).size;
+
+    return Container(
+      margin: EdgeInsets.only(top: 20, bottom: 20),
+      constraints: BoxConstraints(maxHeight: size.height * 0.55),
+      child: new ListView.builder(
+        shrinkWrap: true,
+        itemCount: bestellingLijst.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            onTap: null,
+            trailing: Text(bestellingLijst[index]['Aantal'].toString(),
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            leading: Image.network(
+              bestellingLijst[index]['ProductImage'],
+              height: 20,
+            ),
+            title: Text(bestellingLijst[index]['ProductTitel'],
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          );
+        },
+      ),
+    );
+  }
+
   ratingSystem(setState) {
     List ratingScoreList = bezorgerInfo['RatingScoresList'];
+
+    if (ratingScoreList == null) {
+      ratingScoreList = [];
+    }
+
     print(ratingScoreList);
     num ratingNumber;
     String ratingMessage;
@@ -961,7 +1022,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12.0))),
                   title: new Text(
-                    "TU EN PENSES QUOI ?",
+                    "GEEF UW ADVIES",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   content: Column(
@@ -970,7 +1031,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       Text(
-                        "HiTutu espère que tu as appris un tas de choses ! N’hésite pas à noter ton Tutu pour lui permettre de s’améliorer 😀",
+                        "Wij hopen dat de bezorging vlot en goed werd gedaan, geef uw advies op de bezorger 😀",
                         textAlign: TextAlign.justify,
                       ),
                       Divider(
@@ -1008,7 +1069,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                           allowHalfRating: true,
                           unratedColor: GrijsMidden,
                           itemBuilder: (context, index) => Icon(
-                            Icons.school,
+                            Icons.star,
                             color: Colors.amber,
                           ),
                           itemCount: 5,
@@ -1044,7 +1105,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                   borderSide:
                                       BorderSide(color: Colors.red, width: 2),
                                 ),
-                                labelText: 'Votre avis sur ' +
+                                labelText: 'Commentaar over ' +
                                     bezorgerInfo['Naam'].toUpperCase() +
                                     " " +
                                     bezorgerInfo['Voornaam'].toUpperCase(),
@@ -1065,7 +1126,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                               },
                             ),
                             Text(
-                              "Rester anonyme",
+                              "Anoniem blijven",
                               textAlign: TextAlign.center,
                             )
                           ],
@@ -1079,7 +1140,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                         child: RaisedButton(
                           color: Geel,
                           child: Text(
-                            "CONFIRMER",
+                            "BEVESTIGEN",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
@@ -1089,33 +1150,39 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                 ratingMessage == null ||
                                 ratingMessage.length < 5) {
                               Toast.show(
-                                  "Vous devez donner une note avant de continuer..",
-                                  context,
+                                  "Een score moet ingevoegd worden..", context,
                                   duration: Toast.LENGTH_LONG,
                                   gravity: Toast.BOTTOM,
                                   backgroundColor: GrijsDark);
                             } else {
-                              num total = 0;
+                              num total = 0.0;
+                              var firebaseEntry;
+                              if (ratingScoreList.isEmpty) {
+                                firebaseEntry = [ratingNumber];
+                                total = ratingNumber;
+                              } else {
+                                ratingScoreList.forEach((e) {
+                                  total = total + e;
+                                });
 
-                              ratingScoreList.forEach((e) {
-                                total = total + e;
-                              });
+                                total = (total + ratingNumber) /
+                                    (ratingScoreList.length + 1);
 
-                              total = (total + ratingNumber) /
-                                  (ratingScoreList.length + 1);
+                                firebaseEntry =
+                                    FieldValue.arrayUnion([ratingNumber]);
+                              }
 
                               try {
                                 await Firestore.instance
                                     .collection("Users")
-                                    .document(bestelling['TutuEmail'])
+                                    .document(bestelling['BezorgerEmail'])
                                     .updateData({
                                   'RatingScore': total,
-                                  'RatingScoresList':
-                                      FieldValue.arrayUnion([ratingNumber]),
+                                  'RatingScoresList': firebaseEntry,
                                   'RatingMessages': FieldValue.arrayUnion([
                                     {
-                                      "NomPrenom": anonyme
-                                          ? "Anonyme"
+                                      "Person": anonyme
+                                          ? "Anoniem"
                                           : connectedUserMail,
                                       "Message": ratingMessage,
                                       "Score": ratingNumber
@@ -1127,20 +1194,20 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                     .document(bestellingId)
                                     .updateData({
                                   "isBeschikbaar": false,
+                                  "ConfirmatieKlant": true,
+                                  "isBeschikbaar": false,
                                   "BestellingStatus": "BEZORGD",
                                 });
-
+/*
                                 await Firestore.instance
                                     .collection('Users')
-                                    .document(bestelling['TutuEmail'])
+                                    .document(bestelling['AankoperEmail'])
                                     .updateData({
-                                  "PrestationNonConfirmee": null,
                                   "Portefeuille": FieldValue.increment(
                                       bestelling['geldBezorger'])
                                 });
+                                */
 
-                                print(ratingNumber);
-                                print(ratingMessage);
                                 setState(() {
                                   isOk = true;
                                 });

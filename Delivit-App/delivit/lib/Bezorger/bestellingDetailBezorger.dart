@@ -2,13 +2,18 @@ import 'dart:io';
 import 'package:android_intent/android_intent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/colors.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:latlong/latlong.dart';
+
+import '../profile.dart';
 
 class BestellingDetailBezorger extends StatefulWidget {
   BestellingDetailBezorger({Key key, this.bestellingId, this.connectedUserMail})
@@ -24,6 +29,8 @@ class BestellingDetailBezorger extends StatefulWidget {
 }
 
 class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
+  Map aankoperInfo;
+
   _BestellingDetailBezorgerState(
       {Key key, @required this.bestellingId, @required this.connectedUserMail});
   String buttonText = "";
@@ -34,6 +41,9 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
   Map bestelling;
   double totalePrijs = 0.0;
   List verzameldeProducten = new List();
+
+  MapController mapController = new MapController();
+  List<Marker> opMapMarkers;
   @override
   void initState() {
     super.initState();
@@ -179,8 +189,8 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
           });
           String latitude;
           String longitude;
-          var me = await Geolocator().getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.bestForNavigation);
+          var me = await Geolocator()
+              .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
 
           latitude = me.latitude.toString();
           longitude = me.longitude.toString();
@@ -236,7 +246,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
 
       case ("BESTELLING CONFIRMATIE"):
         return floatingButton(
-            "AANKOPER MOET BEVESTIGEN", FontAwesomeIcons.solidClock, () {});
+            "DE AANKOPER MOET BEVESTIGEN", FontAwesomeIcons.solidClock, () {});
         break;
     }
   }
@@ -248,7 +258,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
         heroTag: "ButtonBestellingConfirmatie",
         splashColor: GrijsDark,
         elevation: 4.0,
-        backgroundColor: Geel,
+        backgroundColor: (bestelling['BestellingStatus'] == "BESTELLING CONFIRMATIE")? Colors.orange : Geel,
         icon: Icon(
           icon,
           color: White,
@@ -266,14 +276,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
     print(status);
     Size size = MediaQuery.of(context).size;
     switch (status) {
-      case ("ONDERWEG"):
-        return Icon(
-          Icons.directions_bike,
-          size: 30,
-          color: Geel,
-        );
-        break;
-
       case ("PRODUCTEN VERZAMELEN"):
         return Container(
           height: size.height * 0.58,
@@ -345,21 +347,102 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
         );
         break;
 
+      case ("ONDERWEG"):
+        getAankoperInfo();
+        getMarkers();
+
+        return getMapEnInfo(status);
+        break;
+
+      case ("BESTELLING CONFIRMATIE"):
+        getAankoperInfo();
+        getMarkers();
+        print("no column?");
+        return getMapEnInfo(status);
+
+        break;
       case ("BEZORGD"):
         return Lottie.asset('assets/Animations/checked.json');
         break;
-
-      case ("ONDERWEG"):
-        return Icon(
-          Icons.directions_bike,
-          size: 30,
-          color: Geel,
-        );
-        break;
-
       default:
         return Padding(padding: EdgeInsets.all(1));
         break;
+    }
+  }
+
+  getAankoperInfo() {
+    if (bestelling != null) {
+      //print(bestelling);
+      var reference = Firestore.instance
+          .collection("Users")
+          .document(bestelling['AankoperEmail'])
+          .snapshots();
+
+      reference.listen((onData) {
+        if (mounted) {
+          setState(() {
+            aankoperInfo = onData.data;
+          });
+        }
+      });
+    }
+  }
+
+  getMarkers() {
+    if (aankoperInfo != null && bestelling != null) {
+      //print(bezorgerInfo['Position']['latitude']);
+      //print(bezorgerInfo['Position']['longitude']);
+      num longitudeBezorger = aankoperInfo['Position']['longitude'];
+      num latitudeBezorger = aankoperInfo['Position']['latitude'];
+
+      num longitudeBestelling = bestelling['AdresPosition']['longitude'];
+      num latitudeBestelling = bestelling['AdresPosition']['latitude'];
+      //print(mapController);
+
+      mapController.onReady.then((result) {
+        setState(() {
+          mapController.move(LatLng(latitudeBezorger, longitudeBezorger), 15);
+
+          opMapMarkers = [
+            Marker(
+              width: 35.0,
+              height: 35.0,
+              point: new LatLng(latitudeBestelling, longitudeBestelling),
+              builder: (ctx) => new Container(
+                child: new RawMaterialButton(
+                  onPressed: null,
+                  child: Icon(
+                    Icons.home,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
+                  shape: new CircleBorder(),
+                  elevation: 1.0,
+                  fillColor: Colors.blue,
+                ),
+              ),
+            ),
+            Marker(
+              width: 35.0,
+              height: 35.0,
+              point: new LatLng(latitudeBezorger, longitudeBezorger),
+              builder: (ctx) => new Container(
+                child: new RawMaterialButton(
+                  onPressed: null,
+                  child: Icon(
+                    Icons.directions_bike,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
+                  shape: new CircleBorder(),
+                  elevation: 3.0,
+                  fillColor: Geel,
+                ),
+              ),
+            )
+          ];
+        });
+      });
     }
   }
 
@@ -390,6 +473,153 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  getMapEnInfo(status) {
+    Size size = MediaQuery.of(context).size;
+    if (aankoperInfo != null) {
+      print("mapinfo");
+      return Expanded(
+        child: Container(
+            width: size.width,
+            decoration: new BoxDecoration(
+                color: GrijsLicht,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 1.0,
+                    color: GrijsMidden,
+                    offset: Offset(0.3, 0.3),
+                  ),
+                ],
+                borderRadius: new BorderRadius.all(Radius.circular(10.0))),
+            child: Column(children: <Widget>[
+              ListTile(
+                  title: Text(
+                    (aankoperInfo['Naam'] + aankoperInfo['Voornaam'])
+                        .toUpperCase(),
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                  ),
+                  subtitle: (status == "PRODUCTEN VERZAMELEN")
+                      ? Text('Wacht op zijn bestelling..')
+                      : (status == "BEZORGD")
+                          ? Text('Heeft het goed gekregen.') : (status == "BESTELLING CONFIRMATIE")
+                          ? Text('Kijkt zorgvuldig de bestelling en gaat deze binnenkort bevestigen..')
+                          : Text('Wacht op zijn bestelling..'),
+                  trailing: Container(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Container(
+                          height: size.width * 0.10,
+                          width: size.width * 0.10,
+                          decoration: new BoxDecoration(
+                              color: Geel,
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 1.0,
+                                  color: GrijsMidden,
+                                  offset: Offset(0.3, 0.3),
+                                ),
+                              ],
+                              borderRadius:
+                                  new BorderRadius.all(Radius.circular(360.0))),
+                          child: new IconButton(
+                              icon: new Icon(
+                                Icons.person,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                print(bestelling);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Profile(
+                                              userEmail:
+                                                  bestelling['BezorgerEmail'],
+                                            ),
+                                        fullscreenDialog: true));
+                              }),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Container(
+                            height: size.width * 0.10,
+                            width: size.width * 0.10,
+                            decoration: new BoxDecoration(
+                                color: GrijsDark,
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 1.0,
+                                    color: GrijsMidden,
+                                    offset: Offset(0.3, 0.3),
+                                  ),
+                                ],
+                                borderRadius: new BorderRadius.all(
+                                    Radius.circular(360.0))),
+                            child: new IconButton(
+                                icon: new Icon(
+                                  Icons.message,
+                                  color: Colors.white,
+                                ),
+                                onPressed: null),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              (status == "BEZORGD" && mapController != null)
+                  ? Lottie.asset('assets/Animations/checked.json',
+                      width: size.width * 0.25)
+                  : (status == "BESTELLING CONFIRMATIE" &&
+                          mapController != null)
+                      ? Container(
+                        margin: EdgeInsets.all(30),
+                          child: SpinKitDoubleBounce(
+                            color: Geel,
+                            size: 100,
+                          ),
+                        )
+                      : Flexible(
+                          child: FlutterMap(
+                            mapController: mapController,
+                            options: new MapOptions(
+                              onTap: (LatLng eo) {
+                                mapController.onReady.then((result) {
+                                  mapController.move(
+                                      new LatLng(
+                                          aankoperInfo['Position']['latitude'],
+                                          aankoperInfo['Position']
+                                              ['longitude']),
+                                      15);
+                                });
+                              },
+                              center: new LatLng(53, 22),
+                              zoom: 15.0,
+                            ),
+                            layers: [
+                              new TileLayerOptions(
+                                urlTemplate: "https://api.tiles.mapbox.com/v4/"
+                                    "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
+                                additionalOptions: {
+                                  'accessToken':
+                                      '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
+                                  'id': 'mapbox.streets',
+                                },
+                              ),
+                              new MarkerLayerOptions(
+                                markers: opMapMarkers,
+                              ),
+                            ],
+                          ),
+                        )
+            ])),
+      );
+    } else {
+      return Padding(padding: EdgeInsets.all(1));
+    }
   }
 
   getCorrectInterface() {
@@ -573,7 +803,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                               },
                             ),
                           ),
-                          Column(children: getTotalePrijsWidget()),
+                          getTotalePrijsWidget(),
                           getStatusWidget(bestelling['BestellingStatus'])
                         ],
                       )
@@ -596,7 +826,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                                 fontSize: 16),
                             textAlign: TextAlign.center,
                           ),
-                          Column(children: getTotalePrijsWidget()),
+                          getTotalePrijsWidget(),
                         ],
                       ))
             : Container(
@@ -620,64 +850,79 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
   }
 
   getTotalePrijsWidget() {
-    return [
-      Divider(
-        color: GrijsDark,
-        height: 30,
-        thickness: 2,
-      ),
-      Padding(
-        padding: const EdgeInsets.only(right: 20, left: 20),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-                child: Text(
-              "Artikelen",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            )),
-            Text(
-              "€ " + getTotalePrijs(),
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            )
-          ],
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(right: 20, left: 20),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-                child: Text(
-              "Leveringskosten",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            )),
-            Text(
-              "€ " + leveringPrijs.toStringAsFixed(2),
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            )
-          ],
-        ),
-      ),
-      Divider(),
-      Padding(
-        padding: const EdgeInsets.only(right: 20, left: 20),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-                child: Text(
-              "Totale prijs",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-            )),
-            Text(
-              "€ " +
-                  (double.parse(getTotalePrijs()) + leveringPrijs)
-                      .toStringAsFixed(2),
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-            )
-          ],
-        ),
-      )
-    ];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: ExpandablePanel(
+          header: Padding(
+              padding: const EdgeInsets.only(right: 10, left: 10),
+              child: Column(
+                children: <Widget>[
+                  Divider(
+                    color: GrijsDark,
+                    height: 10,
+                    thickness: 2,
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        "Totale prijs",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900),
+                      )),
+                      Text(
+                        "€ " +
+                            (double.parse(getTotalePrijs()) + leveringPrijs)
+                                .toStringAsFixed(2),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900),
+                      )
+                    ],
+                  ),
+                ],
+              )),
+          expanded: Column(
+            children: <Widget>[
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Artikelen",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + getTotalePrijs(),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Leveringskosten",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + leveringPrijs.toStringAsFixed(2),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )),
+    );
   }
 
   checkAanbod() {

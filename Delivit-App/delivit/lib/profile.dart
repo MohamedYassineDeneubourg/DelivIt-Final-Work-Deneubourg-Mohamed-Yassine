@@ -1,5 +1,7 @@
 import 'package:delivit/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/profileUpdate.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -12,7 +14,7 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState(userEmail: this.userEmail);
 }
 
-class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
+class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   _ProfileState({Key key, @required this.userEmail});
   final String userEmail;
   num bezorgdeBestellingen = 0;
@@ -21,9 +23,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Map gebruikerData;
   List ratingMessages = [];
   TabController _tabBarController;
+  String connectedUserEmail;
+
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    setState(() {
+      connectedUserEmail = user.email;
+    });
+  }
 
   @override
   void initState() {
+    _tabBarController = TabController(length: 0, vsync: this);
     _getData();
     super.initState();
   }
@@ -40,14 +51,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           // print("Refreshed");
           gebruikerData = data.data;
           ratingMessages = data.data['RatingMessages'];
-
+          if (ratingMessages != null) {
+            setState(() {
+              _tabBarController =
+                  TabController(length: ratingMessages.length, vsync: this);
+            });
+          }
           //print(data.data);
         });
       }
     });
-
-    _tabBarController =
-        TabController(length: ratingMessages.length, vsync: this);
 
     Firestore.instance
         .collection('Commands')
@@ -76,7 +89,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget _buildCoverImage(Size screenSize) {
     return Container(
-      height: screenSize.height * 0.40,
+      height: screenSize.height * 0.60,
       decoration: BoxDecoration(
         color: Geel.withOpacity(0.7),
         image: DecorationImage(
@@ -127,9 +140,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   ],
                   fontSize: 26),
               textAlign: TextAlign.center),
-          (gebruikerData["Functie"] == "Bezorger")
-              ? _buildRatingBars()
-              : Container(),
+          _buildRatingBars()
         ],
       ),
     );
@@ -137,14 +148,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget _buildStatItem(String label, String count) {
     TextStyle _statLabelTextStyle = TextStyle(
-      color: Colors.black,
-      fontSize: 16.0,
+      color: Colors.white,
+      fontSize: 20.0,
       fontWeight: FontWeight.w200,
     );
 
     TextStyle _statCountTextStyle = TextStyle(
-      color: Colors.black54,
-      fontSize: 24.0,
+      color: Colors.white,
+      fontSize: 30.0,
       fontWeight: FontWeight.bold,
     );
 
@@ -165,10 +176,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget _buildStatContainer() {
     return Container(
-      margin: EdgeInsets.only(top: 15.0),
-      decoration: BoxDecoration(
-        color: Color(0xFFEFF4F7),
-      ),
+      margin: EdgeInsets.only(top: 20.0),
+      decoration: BoxDecoration(color: GrijsDark.withOpacity(0.2)),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -195,8 +204,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       child: RatingBarIndicator(
         rating: _ratingScore,
         itemBuilder: (context, index) => Icon(
-          Icons.school,
-          color: Colors.amber,
+          Icons.star,
+          color: GrijsDark,
         ),
         itemCount: 5,
         itemSize: 35.0,
@@ -241,9 +250,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildComments(BuildContext context) {
-
     return Container(
-        height: MediaQuery.of(context).size.height * 0.10,
+        height: MediaQuery.of(context).size.height * 0.15,
         color: Theme.of(context).scaffoldBackgroundColor,
         padding: EdgeInsets.only(top: 8.0, right: 15, left: 15),
         child: Row(
@@ -271,27 +279,36 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             side: BorderSide(color: Geel.withOpacity(0.3)),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          child: ListTile(
-                            dense: true,
-                            onTap: null,
-                            subtitle: Text(
-                                "Score: " + ratingMessage['Score'].toString(),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 10)),
-                            title: Row(
-                              children: <Widget>[
-                                Text(ratingMessage['NomPrenom'] + " : ",
-                                    style: TextStyle(
-                                        color: GrijsDark,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12)),
-                                Text(ratingMessage['Message'],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 12))
-                              ],
-                            ),
-                          ));
+                          child: Container(
+                              padding: EdgeInsets.all(15),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(ratingMessage['Person'] + " : ",
+                                      style: TextStyle(
+                                          color: GrijsDark,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12)),
+                                  Text(
+                                      "Score: " +
+                                          ratingMessage['Score'].toString(),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10)),
+                                  Expanded(
+                                    child: Text(
+                                        ratingMessage['Message'] +
+                                            "dfcghjkfvbifsdf hqdshf hdsdfbjh shjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbh",
+                                        maxLines: 12,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 12)),
+                                  )
+                                ],
+                              )));
                     }).toList())),
             IconButton(
               icon: Icon(Icons.arrow_forward_ios),
@@ -315,9 +332,37 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-          iconTheme: IconThemeData(color: White),
-          actionsIconTheme: IconThemeData(color: White),
-          backgroundColor: Colors.transparent),
+        elevation: 0,
+        iconTheme: IconThemeData(color: White),
+        actionsIconTheme: IconThemeData(color: White),
+        backgroundColor: Colors.transparent,
+        actions: <Widget>[
+          (userEmail == connectedUserEmail)
+              ? Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: FloatingActionButton(
+                      mini: true,
+                      backgroundColor: White.withOpacity(0.5),
+                      child: Icon(
+                        Icons.edit,
+                        size: 25,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ProfileUpdate(),
+                                fullscreenDialog: true));
+                      }),
+                )
+              : Container(
+                  width: 0,
+                  height: 0,
+                )
+        ],
+      ),
       body: (gebruikerData != null)
           ? Stack(
               children: <Widget>[
@@ -331,7 +376,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         _buildFullName(),
                         _buildStatContainer(),
                         Container(
-                           height: size.height * 0.45,
+                          height: size.height * 0.55,
                           color: Colors.transparent,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

@@ -318,6 +318,11 @@ class _KeuzeState extends State<Keuze> {
   }
 
   void bezorgerGekozen() {
+    var reference =
+        Firestore.instance.collection("Users").document(connectedUserMail);
+
+    reference.updateData({"Functie": "Bezorger"});
+
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomeBezorger()),

@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'package:app_settings/app_settings.dart';
+import 'package:lottie/lottie.dart';
 
 class KaartBezorger extends StatefulWidget {
   KaartBezorger({Key key, this.title}) : super(key: key);
@@ -36,8 +37,8 @@ class _KaartBezorgerState extends State<KaartBezorger> {
   @override
   initState() {
     getCurrentUser();
-    super.initState();
     _getData();
+    super.initState();
   }
 
   void getCurrentUser() async {
@@ -78,43 +79,49 @@ class _KaartBezorgerState extends State<KaartBezorger> {
     var geolocator = Geolocator();
     GeolocationStatus geolocationStatus =
         await geolocator.checkGeolocationPermissionStatus();
-    //print(geolocationStatus);
+    print(geolocationStatus);
     final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
 
-    var locationOptions = LocationOptions(
-        accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
-    //print('!GeoLocator?');
+    var locationOptions =
+        LocationOptions(accuracy: LocationAccuracy.lowest, distanceFilter: 0);
+    Position position = await geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest)
+        .catchError((e) {
+      print(e);
+    });
+    setState(() {
+      userPosition = position;
+    });
+
+    currentUserPin = [
+      new Marker(
+        width: 35.0,
+        height: 35.0,
+        point: new LatLng(userPosition.latitude, userPosition.longitude),
+        builder: (ctx) => new Container(
+          child: new RawMaterialButton(
+            onPressed: null,
+            child: Transform.rotate(
+                angle: userPosition.heading,
+                child: Icon(
+                  Icons.person_pin,
+                  color: Colors.white,
+                  size: 20.0,
+                )),
+            shape: new CircleBorder(),
+            elevation: 1.0,
+            fillColor: Colors.blue,
+          ),
+        ),
+      )
+    ];
 
     geolocator.getPositionStream(locationOptions).listen((Position position) {
-      ////print(position.heading);
       if (this.mounted) {
         setState(() {
           userPosition = position;
         });
       }
-
-      currentUserPin = [
-        new Marker(
-          width: 35.0,
-          height: 35.0,
-          point: new LatLng(userPosition.latitude, userPosition.longitude),
-          builder: (ctx) => new Container(
-            child: new RawMaterialButton(
-              onPressed: null,
-              child: Transform.rotate(
-                  angle: userPosition.heading,
-                  child: Icon(
-                    Icons.person_pin,
-                    color: Colors.white,
-                    size: 20.0,
-                  )),
-              shape: new CircleBorder(),
-              elevation: 1.0,
-              fillColor: Colors.blue,
-            ),
-          ),
-        )
-      ];
       Firestore.instance
           .collection('Users')
           .document(currentUser.email)
@@ -288,11 +295,29 @@ class _KaartBezorgerState extends State<KaartBezorger> {
           ));
     } else {
       return Container(
-        child: SpinKitDoubleBounce(
-          color: Geel,
-          size: 100,
-        ),
-      );
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+            SpinKitDoubleBounce(
+              color: Geel,
+              size: 100,
+            ),
+            Padding(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: RaisedButton.icon(
+                    onPressed: () {
+                      AppSettings.openLocationSettings();
+                    },
+                    label: Text(
+                      "Localisatie & Wifi activeren",
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                    icon: Lottie.asset('assets/Animations/settings.json',
+                        width: 30))),
+          ]));
     }
   }
 

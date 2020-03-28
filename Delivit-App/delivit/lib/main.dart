@@ -73,7 +73,10 @@ class _MainState extends State<Main> {
     if (userLoaded) {
       if (connectedUserMail != null) {
         //return getFunctie();
-        return Keuze(connectedUserMail: connectedUserMail,redirect: true,);
+        return Keuze(
+          connectedUserMail: connectedUserMail,
+          redirect: true,
+        );
       } else {
         return DelivitHomePage();
       }
@@ -314,16 +317,35 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                                     color: buttonColor,
                                   ),
                                   onPressed: () {
+                                    var loadingContext;
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        loadingContext = context;
+                                        return Container(
+                                          width: 200,
+                                          height: 200,
+                                          alignment: Alignment.center,
+                                          child: SpinKitDoubleBounce(
+                                            color: Geel,
+                                            size: 50,
+                                          ),
+                                        );
+                                      },
+                                    );
                                     if (phoneIsoCode == "BE") {
                                       if (phoneNo.length > 8) {
                                         Future.delayed(
                                             const Duration(milliseconds: 500),
                                             () {
                                           numerExists(phoneNo);
+                                        }).then((e) {
+                                          if (loadingContext != null) {
+                                            Navigator.of(loadingContext).pop();
+                                          }
                                         });
                                       }
-
-                                     
                                     }
                                   },
                                 )

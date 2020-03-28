@@ -90,37 +90,37 @@ class _KaartAankoperState extends State<KaartAankoper> {
         .catchError((e) {
       print(e);
     });
-    userPosition = position;
+    setState(() {
+      userPosition = position;
+    });
 
     var locationOptions =
         LocationOptions(accuracy: LocationAccuracy.lowest, distanceFilter: 0);
-    print('!GeoLocator?');
 
     Firestore.instance.collection('Users').snapshots().listen((querySnapshot) {
       //print("NEW ON MAP");
       opMapUsers = [
-        new Marker(
-          width: 35.0,
-          height: 35.0,
-          point: new LatLng(userPosition.latitude, userPosition.longitude),
-          builder: (ctx) => new Container(
-            child: new RawMaterialButton(
-              onPressed: () {
-                selectedUser = {"naam": "Jezelf", "email": currentUser.email};
-                isVisible = true;
-                paddingButton = 100;
-              },
-              child: new Icon(
-                Icons.person_pin,
-                color: Geel,
-                size: 30.0,
-              ),
-              shape: new CircleBorder(),
-              elevation: 2.0,
-              fillColor: Colors.white,
-            ),
+          
+      new Marker(
+        width: 35.0,
+        height: 35.0,
+        point: new LatLng(userPosition.latitude, userPosition.longitude),
+        builder: (ctx) => new Container(
+          child: new RawMaterialButton(
+            onPressed: null,
+            child: Transform.rotate(
+                angle: userPosition.heading,
+                child: Icon(
+                  Icons.person_pin,
+                  color: Colors.white,
+                  size: 20.0,
+                )),
+            shape: new CircleBorder(),
+            elevation: 1.0,
+            fillColor: Colors.blue,
           ),
-        ),
+        ),)
+
       ];
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot gebruiker = querySnapshot.documents[i];
@@ -237,6 +237,7 @@ class _KaartAankoperState extends State<KaartAankoper> {
               zoom: 15.0,
             ),
             layers: [
+            
               new TileLayerOptions(
                 urlTemplate: "https://api.tiles.mapbox.com/v4/"
                     "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",

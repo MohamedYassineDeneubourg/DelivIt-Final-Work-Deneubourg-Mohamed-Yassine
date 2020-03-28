@@ -467,20 +467,19 @@ class _LaatsteStapBestellingAankoperState
                     )),
                 contentPadding: EdgeInsets.all(20),
                 actions: <Widget>[
-                 ButtonTheme(
-                        minWidth: 400.0,
-                        child: FlatButton(
-                          color: Geel,
-                          child: new Text(
-                            "OK",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        )),
+                  ButtonTheme(
+                      minWidth: 400.0,
+                      child: FlatButton(
+                        color: Geel,
+                        child: new Text(
+                          "OK",
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      )),
                 ],
               );
             });
