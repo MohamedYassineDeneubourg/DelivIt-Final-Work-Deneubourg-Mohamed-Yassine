@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:delivit/portefeuilleKaart.dart';
 import 'package:delivit/stripeServices.dart';
 import 'package:dotted_border/dotted_border.dart';

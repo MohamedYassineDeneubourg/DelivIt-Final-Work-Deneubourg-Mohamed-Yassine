@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/bestellingConfirmAankoper.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -367,8 +367,9 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                       transitionOnUserGestures: true,
                                       tag: producten[product].documentID,
                                       child: Image.network(
-                                        producten[product].data['ProductImage'],
-                                        height: 110,
+                                        producten[product]
+                                            .data['ProductImage'],
+                                        height: 100,fit: BoxFit.cover
                                       )))),
                         ),
                         Positioned(

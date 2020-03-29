@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:android_intent/android_intent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -30,7 +30,6 @@ class BestellingDetailBezorger extends StatefulWidget {
 
 class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
   Map aankoperInfo;
-
   _BestellingDetailBezorgerState(
       {Key key, @required this.bestellingId, @required this.connectedUserMail});
   String buttonText = "";
@@ -46,6 +45,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
   List<Marker> opMapMarkers;
   @override
   void initState() {
+    getGlobals();
     super.initState();
     _getData();
   }
@@ -141,6 +141,10 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                   {
                     'EmailBezorger': connectedUserMail,
                     'TotaleAanbodPrijs': totalePrijs + leveringPrijs,
+                    'PrijsVanProducten': totalePrijs,
+                    'LeveringKosten': leveringPrijs,
+                    'ComissieAankoper':
+                        (percentageCommisie * totalePrijs).ceilToDouble()
                   }
                 ])
               });
@@ -258,7 +262,10 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
         heroTag: "ButtonBestellingConfirmatie",
         splashColor: GrijsDark,
         elevation: 4.0,
-        backgroundColor: (bestelling['BestellingStatus'] == "BESTELLING CONFIRMATIE")? Colors.orange : Geel,
+        backgroundColor:
+            (bestelling['BestellingStatus'] == "BESTELLING CONFIRMATIE")
+                ? Colors.orange
+                : Geel,
         icon: Icon(
           icon,
           color: White,
@@ -279,70 +286,75 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
       case ("PRODUCTEN VERZAMELEN"):
         return Container(
           height: size.height * 0.58,
-          child: new ListView.builder(
-            itemCount: bestellingLijst.length,
-            itemBuilder: (context, index) {
-              print(verzameldeProducten.contains(bestellingLijst[index]));
-              print(verzameldeProducten);
-              print(bestellingLijst[index]);
-              return Card(
-                  color: (verzameldeProducten
-                          .contains(bestellingLijst[index]['ProductID']))
-                      ? GrijsMidden.withOpacity(0.3)
-                      : White,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: ListTile(
-                    enabled: (verzameldeProducten
-                            .contains(bestellingLijst[index]['ProductID']))
-                        ? false
-                        : true,
-                    onTap: () async {
-                      if (verzameldeProducten
-                          .contains(bestellingLijst[index]['ProductID'])) {
-                        verzameldeProducten
-                            .remove(bestellingLijst[index]['ProductID']);
-                        await Firestore.instance
-                            .collection('Commands')
-                            .document(bestellingId)
-                            .updateData({
-                          "VerzameldeProducten": verzameldeProducten,
-                        });
-                      } else {
-                        verzameldeProducten
-                            .add(bestellingLijst[index]['ProductID']);
-                        await Firestore.instance
-                            .collection('Commands')
-                            .document(bestellingId)
-                            .updateData({
-                          "VerzameldeProducten": verzameldeProducten,
-                        });
-                      }
-                    },
-                    trailing: Text(
-                        "€ " +
-                            (bestellingLijst[index]['Aantal'] *
-                                    bestellingLijst[index]
-                                        ['ProductAveragePrijs'])
-                                .toStringAsFixed(2),
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    leading: Image.network(
-                      bestellingLijst[index]['ProductImage'],
-                      height: 40,
-                    ),
-                    title: Text(
-                        bestellingLijst[index]['Aantal'].toString() +
-                            "x : " +
-                            bestellingLijst[index]['ProductTitel'],
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(
-                        "€ " +
-                            bestellingLijst[index]['ProductAveragePrijs']
-                                .toStringAsFixed(2),
-                        style: TextStyle(fontWeight: FontWeight.w400)),
-                  ));
-            },
+          child: Column(
+            children: <Widget>[
+              new ListView.builder(
+                itemCount: bestellingLijst.length,
+                itemBuilder: (context, index) {
+                  print(verzameldeProducten.contains(bestellingLijst[index]));
+                  print(verzameldeProducten);
+                  print(bestellingLijst[index]);
+                  return Card(
+                      color: (verzameldeProducten
+                              .contains(bestellingLijst[index]['ProductID']))
+                          ? GrijsMidden.withOpacity(0.3)
+                          : White,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: ListTile(
+                        enabled: (verzameldeProducten
+                                .contains(bestellingLijst[index]['ProductID']))
+                            ? false
+                            : true,
+                        onTap: () async {
+                          if (verzameldeProducten
+                              .contains(bestellingLijst[index]['ProductID'])) {
+                            verzameldeProducten
+                                .remove(bestellingLijst[index]['ProductID']);
+                            await Firestore.instance
+                                .collection('Commands')
+                                .document(bestellingId)
+                                .updateData({
+                              "VerzameldeProducten": verzameldeProducten,
+                            });
+                          } else {
+                            verzameldeProducten
+                                .add(bestellingLijst[index]['ProductID']);
+                            await Firestore.instance
+                                .collection('Commands')
+                                .document(bestellingId)
+                                .updateData({
+                              "VerzameldeProducten": verzameldeProducten,
+                            });
+                          }
+                        },
+                        trailing: Text(
+                            "€ " +
+                                (bestellingLijst[index]['Aantal'] *
+                                        bestellingLijst[index]
+                                            ['ProductAveragePrijs'])
+                                    .toStringAsFixed(2),
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        leading: Image.network(
+                          bestellingLijst[index]['ProductImage'],
+                          height: 40,
+                        ),
+                        title: Text(
+                            bestellingLijst[index]['Aantal'].toString() +
+                                "x : " +
+                                bestellingLijst[index]['ProductTitel'],
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(
+                            "€ " +
+                                bestellingLijst[index]['ProductAveragePrijs']
+                                    .toStringAsFixed(2),
+                            style: TextStyle(fontWeight: FontWeight.w400)),
+                      ));
+                },
+              ),
+              getTotalePrijsWidget()
+            ],
           ),
         );
         break;
@@ -503,9 +515,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                   subtitle: (status == "PRODUCTEN VERZAMELEN")
                       ? Text('Wacht op zijn bestelling..')
                       : (status == "BEZORGD")
-                          ? Text('Heeft het goed gekregen.') : (status == "BESTELLING CONFIRMATIE")
-                          ? Text('Kijkt zorgvuldig de bestelling en gaat deze binnenkort bevestigen..')
-                          : Text('Wacht op zijn bestelling..'),
+                          ? Text('Heeft het goed gekregen.')
+                          : (status == "BESTELLING CONFIRMATIE")
+                              ? Text(
+                                  'Kijkt zorgvuldig de bestelling en gaat deze binnenkort bevestigen..')
+                              : Text('Wacht op zijn bestelling..'),
                   trailing: Container(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -576,7 +590,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                   : (status == "BESTELLING CONFIRMATIE" &&
                           mapController != null)
                       ? Container(
-                        margin: EdgeInsets.all(30),
+                          margin: EdgeInsets.all(30),
                           child: SpinKitDoubleBounce(
                             color: Geel,
                             size: 100,
@@ -803,7 +817,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                               },
                             ),
                           ),
-                          getTotalePrijsWidget(),
+                          // getTotalePrijsWidget(),
                           getStatusWidget(bestelling['BestellingStatus'])
                         ],
                       )
@@ -847,6 +861,80 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
     });
 
     return totalePrijs.toStringAsFixed(2);
+  } 
+
+  getAanbodPrijsWidget() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: ExpandablePanel(
+          header: Padding(
+              padding: const EdgeInsets.only(right: 10, left: 10),
+              child: Column(
+                children: <Widget>[
+                  Divider(
+                    color: GrijsDark,
+                    height: 10,
+                    thickness: 2,
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        "Totale prijs",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900),
+                      )),
+                      Text(
+                        "€ " + getTotalePrijs().toStringAsFixed(2),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900),
+                      )
+                    ],
+                  ),
+                ],
+              )),
+          expanded: Column(
+            children: <Widget>[
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Artikelen",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + getTotalePrijs().toStringAsFixed(2),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Leveringskosten",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + bestelling["LeveringKosten"].toStringAsFixed(2),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )),
+    );
   }
 
   getTotalePrijsWidget() {
@@ -871,9 +959,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                             fontSize: 20, fontWeight: FontWeight.w900),
                       )),
                       Text(
-                        "€ " +
-                            (double.parse(getTotalePrijs()) + leveringPrijs)
-                                .toStringAsFixed(2),
+                        "€ " + bestelling["TotalePrijs"].toStringAsFixed(2),
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w900),
                       )
@@ -895,7 +981,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )),
                     Text(
-                      "€ " + getTotalePrijs(),
+                      "€ " + bestelling["PrijsVanProducten"].toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )
@@ -913,7 +999,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )),
                     Text(
-                      "€ " + leveringPrijs.toStringAsFixed(2),
+                      "€ " + bestelling["LeveringKosten"].toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )

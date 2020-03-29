@@ -5,7 +5,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Aankoper/kaartAankoper.dart';
 import 'package:delivit/Aankoper/overzichtBestellingenAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:delivit/main.dart';
 import 'package:delivit/portefeuille.dart';
 import 'package:delivit/profile.dart';

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:expandable/expandable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +39,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
   @override
   void initState() {
+    getGlobals();
     getCurrentUser();
     _getData();
+    getBezorgerInfo();
     super.initState();
   }
 
@@ -99,6 +101,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                   "ProfileImage": data.data['ProfileImage'],
                   "Position": data.data['Position'],
                   "TotaleAanbodPrijs": aanbod['TotaleAanbodPrijs'],
+                  "ComissieAankoper": aanbod['ComissieAankoper'],
+                  "LeveringKosten": aanbod['LeveringKosten'],
+                  "PrijsVanProducten": aanbod['PrijsVanProducten'],
                   "RatingScore": data.data['RatingScore'],
                   "Distance": distanceInMeters / 1000
                 };
@@ -137,7 +142,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                       )),
                       Text(
                         "€ " +
-                            (double.parse(getTotalePrijs()) + leveringPrijs)
+                            bestelling["TotalePrijsAankoper"]
                                 .toStringAsFixed(2),
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w900),
@@ -160,7 +165,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )),
                     Text(
-                      "€ " + getTotalePrijs(),
+                      "€ " + bestelling["PrijsVanProducten"].toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )
@@ -178,7 +183,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )),
                     Text(
-                      "€ " + leveringPrijs.toStringAsFixed(2),
+                      "€ " +
+                          (bestelling["LeveringKosten"] +
+                                  bestelling["ComissieAankoper"])
+                              .toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )
@@ -250,11 +258,15 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: Text("Wil je " +
-                    bezorgerMap['NaamVoornaam'] +
-                    " kiezen om je bestelling te bezorgen tegen € " +
-                    bezorgerMap['TotaleAanbodPrijs'].toString() +
-                    "?"),
+                child: Text(
+                    "Wil je " +
+                        bezorgerMap['NaamVoornaam'] +
+                        " kiezen om je bestelling te bezorgen tegen \n\n€ " +
+                        (bezorgerMap['TotaleAanbodPrijs'] +
+                                bezorgerMap['ComissieAankoper'])
+                            .toStringAsFixed(2) +
+                        "?",
+                    textAlign: TextAlign.center),
               )
             ]),
             actions: <Widget>[
@@ -268,12 +280,18 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     onPressed: () {
-                      //print(bezorgerMap['EmailBezorger']);
                       Firestore.instance
                           .collection('Commands')
                           .document(bestellingId)
                           .updateData({
                         "BezorgerEmail": bezorgerMap['EmailBezorger'],
+                        "TotalePrijs": bezorgerMap['TotaleAanbodPrijs'],
+                        "TotalePrijsAankoper":
+                            (bezorgerMap['TotaleAanbodPrijs'] +
+                                bezorgerMap['ComissieAankoper']),
+                        'PrijsVanProducten': bezorgerMap['PrijsVanProducten'],
+                        'LeveringKosten': bezorgerMap['LeveringKosten'],
+                        "ComissieAankoper": bezorgerMap['ComissieAankoper'],
                         "isBeschikbaar": false,
                         "BestellingStatus": "PRODUCTEN VERZAMELEN",
                       });
@@ -380,6 +398,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                       child: new ListView.builder(
                         itemCount: aanbodLijst.length,
                         itemBuilder: (context, index) {
+                          double volledigePrijs = aanbodLijst[index]
+                                  ['TotaleAanbodPrijs'] +
+                              aanbodLijst[index]['ComissieAankoper'];
                           return Card(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -393,10 +414,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: <Widget>[
                                     Text(
-                                        "€" +
-                                            aanbodLijst[index]
-                                                    ['TotaleAanbodPrijs']
-                                                .toStringAsFixed(2),
+                                        "€" + volledigePrijs.toStringAsFixed(2),
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold)),
@@ -444,9 +462,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
         break;
 
       case ("PRODUCTEN VERZAMELEN"):
-        //print("producten verzz");
-        getBezorgerInfo();
-        getMarkers();
+        //print("producten verzz")
 
         return getMapEnInfo(status);
 
@@ -454,10 +470,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
 
       case ("ONDERWEG"):
         //print("IS ONDERWEG!");
-        setState(() {
-          getBezorgerInfo();
-          getMarkers();
-        });
+
         return getMapEnInfo(status);
 
         break;
@@ -469,7 +482,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
         break;
 
       case ("BESTELLING CONFIRMATIE"):
-        getBezorgerInfo();
         return getMapEnInfo(status);
         break;
 
@@ -501,73 +513,36 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
     }
   }
 
-  getTotalePrijs() {
-    totalePrijs = 0;
-    bestellingLijst.forEach((product) {
-      totalePrijs =
-          totalePrijs + (product['Aantal'] * product['ProductAveragePrijs']);
-    });
-
-    return totalePrijs.toStringAsFixed(2);
-  }
-
   getInfoWidget(status) {
+    print(bezorgerInfo);
+    getBezorgerInfo();
     Size size = MediaQuery.of(context).size;
-    return ListTile(
-        title: Text(
-          (bezorgerInfo['Naam'] + " " + bezorgerInfo['Voornaam']).toUpperCase(),
-          textAlign: TextAlign.left,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-        ),
-        subtitle: (status == "PRODUCTEN VERZAMELEN")
-            ? Text('Verzamelt je producten..')
-            : (status == "BEZORGD")
-                ? Text('Heeft het geleverd.')
-                : (status == "BESTELLING CONFIRMATIE")
-                    ? Text('Wacht op je bevestiging..')
-                    : Text('Is nu aan het aankomen!'),
-        trailing: Container(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Container(
-                height: size.width * 0.10,
-                width: size.width * 0.10,
-                decoration: new BoxDecoration(
-                    color: Geel,
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 1.0,
-                        color: GrijsMidden,
-                        offset: Offset(0.3, 0.3),
-                      ),
-                    ],
-                    borderRadius: new BorderRadius.all(Radius.circular(360.0))),
-                child: new IconButton(
-                    icon: new Icon(
-                      Icons.person,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      print(bestelling);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Profile(
-                                    userEmail: bestelling['BezorgerEmail'],
-                                  ),
-                              fullscreenDialog: true));
-                    }),
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Container(
+    if (bezorgerInfo != null) {
+      return ListTile(
+          title: Text(
+            (bezorgerInfo['Naam'] + " " + bezorgerInfo['Voornaam'])
+                .toUpperCase(),
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+          ),
+          subtitle: (status == "PRODUCTEN VERZAMELEN")
+              ? Text('Verzamelt je producten..')
+              : (status == "BEZORGD")
+                  ? Text('Heeft het geleverd.')
+                  : (status == "BESTELLING CONFIRMATIE")
+                      ? Text('Wacht op je bevestiging..')
+                      : Text('Is nu aan het aankomen!'),
+          trailing: Container(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Container(
                   height: size.width * 0.10,
                   width: size.width * 0.10,
                   decoration: new BoxDecoration(
-                      color: GrijsDark,
+                      color: Geel,
                       boxShadow: [
                         BoxShadow(
                           blurRadius: 1.0,
@@ -579,18 +554,58 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
                           new BorderRadius.all(Radius.circular(360.0))),
                   child: new IconButton(
                       icon: new Icon(
-                        Icons.message,
+                        Icons.person,
                         color: Colors.white,
                       ),
-                      onPressed: null),
+                      onPressed: () {
+                        print(bestelling);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Profile(
+                                      userEmail: bestelling['BezorgerEmail'],
+                                    ),
+                                fullscreenDialog: true));
+                      }),
                 ),
-              ),
-            ],
-          ),
-        ));
+                Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Container(
+                    height: size.width * 0.10,
+                    width: size.width * 0.10,
+                    decoration: new BoxDecoration(
+                        color: GrijsDark,
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 1.0,
+                            color: GrijsMidden,
+                            offset: Offset(0.3, 0.3),
+                          ),
+                        ],
+                        borderRadius:
+                            new BorderRadius.all(Radius.circular(360.0))),
+                    child: new IconButton(
+                        icon: new Icon(
+                          Icons.message,
+                          color: Colors.white,
+                        ),
+                        onPressed: null),
+                  ),
+                ),
+              ],
+            ),
+          ));
+    } else {
+      return SizedBox(height: 0);
+    }
   }
 
   getMapEnInfo(status) {
+    setState(() {
+      getBezorgerInfo();
+      getMarkers();
+    });
+
     Size size = MediaQuery.of(context).size;
     if (bezorgerInfo != null) {
       //print("mapinfo");
@@ -976,13 +991,20 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper> {
         itemBuilder: (context, index) {
           return ListTile(
             onTap: null,
-            trailing: Text(bestellingLijst[index]['Aantal'].toString(),
+            trailing: Text(
+                "€ " +
+                    (bestellingLijst[index]['Aantal'] *
+                            bestellingLijst[index]['ProductAveragePrijs'])
+                        .toString(),
                 style: TextStyle(fontWeight: FontWeight.bold)),
             leading: Image.network(
               bestellingLijst[index]['ProductImage'],
               height: 20,
             ),
-            title: Text(bestellingLijst[index]['ProductTitel'],
+            title: Text(
+                bestellingLijst[index]['Aantal'].toString() +
+                    "x " +
+                    bestellingLijst[index]['ProductTitel'],
                 style: TextStyle(fontWeight: FontWeight.bold)),
           );
         },

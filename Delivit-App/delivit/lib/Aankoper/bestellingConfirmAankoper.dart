@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/laatsteStapBestellingAankoper.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:delivit/portefeuille.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 class BestellingConfirmAankoper extends StatefulWidget {
   @override
@@ -18,6 +19,8 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
   List bestellingLijst = [];
   String connectedUserMail;
   double totalePrijs = 0.0;
+
+
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
@@ -27,6 +30,8 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       });
     }
   }
+
+
 
   void _getData() async {
     final FirebaseUser userData = await FirebaseAuth.instance.currentUser();
@@ -74,6 +79,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
 
   @override
   void initState() {
+    getGlobals();
     print("init!");
     getCurrentUser();
     _getData();
@@ -97,7 +103,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                 fontSize: 20,
                 fontFamily: "Montserrat")),
         centerTitle: true,
-        title: new Text("BEVESTIGING"),
+        title: new Text("NIEUWE BESTELLING"),
       ),
       body: new Container(
           height: size.height * 0.78,
@@ -158,8 +164,10 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                                     });
                                   }),
                             ]),
-                        leading: Image.network(
-                            bestellingLijst[index]['ProductImage']),
+                        leading: AspectRatio(
+                            aspectRatio: 1/1,
+                            child: Image.network(
+                                bestellingLijst[index]['ProductImage'])),
                         title: Text(bestellingLijst[index]['ProductTitel'],
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(
@@ -276,7 +284,8 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
     reference.then((data) {
       portefeuille = data.data['Portefeuille'];
       print(portefeuille);
-      if ((totalePrijs + leveringPrijs + 5) > (portefeuille)) {
+      if ((totalePrijs + leveringPrijs + 5) >
+          (portefeuille)) {
         print("Niet genoeg geld");
         nietGenoegSaldo();
       } else {

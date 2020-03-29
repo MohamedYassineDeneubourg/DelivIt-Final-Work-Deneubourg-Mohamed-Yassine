@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/loadingScreen.dart';
 import 'package:delivit/login.dart';
