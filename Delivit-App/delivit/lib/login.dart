@@ -1,4 +1,4 @@
-import 'package:delivit/globals.dart';
+import 'package:delivit/colors.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/loadingScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';

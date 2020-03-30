@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 
-import 'globals.dart';
+import 'colors.dart';
 
 class Register extends StatefulWidget {
   Register({Key key, this.phoneNumber}) : super(key: key);
@@ -221,7 +221,7 @@ class _RegisterState extends State<Register> {
               "Voornaam": _voornaam,
               "Email": _email,
               "RatingScore": 2.5,
-              "RatingMessages": [],
+              "RatingMessages":[],
               "PhoneNumber": phoneNumber,
               "Position": {
                 'latitude': 50.8465573,
@@ -231,7 +231,7 @@ class _RegisterState extends State<Register> {
               "MomenteleBestelling": [],
               "Portefeuille": 0.0,
               "PortefeuilleHistoriek": [],
-              "PrijsLijstBezorger": {},
+              "PrijsLijstBezorger":{},
               "Functie": "NogTeKiezen",
               "ProfileImage":
                   "https://scontent-bru2-1.xx.fbcdn.net/v/t1.0-9/74785339_3373666536006857_9010755981583319040_o.jpg?_nc_cat=108&_nc_ohc=y-IeuWV16TcAX-y7T4_&_nc_ht=scontent-bru2-1.xx&oh=8498e8a1a5555e1d985d8e732cb2c859&oe=5E9420BD",
@@ -242,8 +242,7 @@ class _RegisterState extends State<Register> {
           } on PlatformException catch (e) {
             //print(e);
             final errorToast = SnackBar(
-                content: Text('Er is iets mis gegaan.. U kan herbeginnen. \n' +
-                    e.message));
+                content: Text('Er is iets mis gegaan.. U kan herbeginnen. \n' + e.message));
             _scaffoldKey.currentState.showSnackBar(errorToast);
           } catch (e) {
             //handleError(e);
@@ -256,11 +255,7 @@ class _RegisterState extends State<Register> {
           //print("popHier!");
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                  builder: (context) => Keuze(
-                        connectedUserMail: _email,
-                        redirect: false,
-                      )),
+              MaterialPageRoute(builder: (context) => Keuze(connectedUserMail: _email,redirect: false,)),
               (Route<dynamic> route) => false);
         } else {
           Toast.show("Er is iets mis gegaan.. U kan herbeginnen.", context,

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/homeAankoper.dart';
-import 'package:delivit/globals.dart';
+import 'package:delivit/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -371,7 +371,6 @@ class _LaatsteStapBestellingAankoperState
                                                 ? "Datum moet ingevuld zijn"
                                                 : null,
                                         onSaved: (value) => datum = value,
-                                        onChanged: (value) => datum = value,
                                       )),
                                 ]))
                       ],
@@ -403,8 +402,7 @@ class _LaatsteStapBestellingAankoperState
           'AdditioneleInformatie': _additioneleInformatie,
           'BestellingLijst': bestellingLijst,
           'BezorgDatumEnTijd': datum,
-          'LeveringKosten'
-              'BestellingStatus': 'AANVRAAG',
+          'BestellingStatus': 'AANVRAAG',
           'AankoperEmail': connectedUserMail,
           'BezorgerEmail': '',
           'isBeschikbaar': true,
@@ -493,16 +491,9 @@ class _LaatsteStapBestellingAankoperState
   bool valideerEnSave() {
     final form = _formKey.currentState;
 
-    if (datum == null) {
-      return false;
-    }
     if (form.validate()) {
       form.save();
-      if (datum == null) {
-        return false;
-      }
-    
-    
+      print('Form is valid.');
       return true;
     }
 

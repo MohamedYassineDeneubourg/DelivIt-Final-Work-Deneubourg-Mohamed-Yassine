@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import 'globals.dart';
+import 'colors.dart';
 
 Widget loadingScreen = Stack(children: <Widget>[
   Container(

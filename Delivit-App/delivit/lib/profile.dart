@@ -1,6 +1,4 @@
-import 'dart:ui';
-
-import 'package:delivit/globals.dart';
+import 'package:delivit/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/profileUpdate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,14 +28,12 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
-      print(userEmail);
       connectedUserEmail = user.email;
     });
   }
 
   @override
   void initState() {
-    getCurrentUser();
     _tabBarController = TabController(length: 0, vsync: this);
     _getData();
     super.initState();
@@ -93,21 +89,17 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
 
   Widget _buildCoverImage(Size screenSize) {
     return Container(
-        height: screenSize.height * 0.50,
-        decoration: BoxDecoration(
-          color: Geel.withOpacity(0.7),
-          image: DecorationImage(
-            image: NetworkImage(gebruikerData['ProfileImage']),
-            fit: BoxFit.cover,
-            colorFilter:
-                ColorFilter.mode(Geel.withOpacity(0.6), BlendMode.srcOver),
-          ),
+      height: screenSize.height * 0.60,
+      decoration: BoxDecoration(
+        color: Geel.withOpacity(0.7),
+        image: DecorationImage(
+          image: NetworkImage(gebruikerData['ProfileImage']),
+          fit: BoxFit.cover,
+          colorFilter:
+              ColorFilter.mode(Geel.withOpacity(0.6), BlendMode.srcOver),
         ),
-        child: new BackdropFilter(
-            filter: new ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            child: new Container(
-                decoration:
-                    new BoxDecoration(color: Colors.white.withOpacity(0.0)))));
+      ),
+    );
   }
 
   Widget _buildProfileImage() {
@@ -131,8 +123,6 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   }
 
   Widget _buildFullName() {
-    Size size = MediaQuery.of(context).size;
-
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -150,34 +140,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                   ],
                   fontSize: 26),
               textAlign: TextAlign.center),
-          _buildRatingBars(),
-          Text(
-            _ratingScore.toString() + " /5",
-            style: TextStyle(fontWeight: FontWeight.bold, color: GrijsLicht),
-          ),
-          Container(
-            transform: Matrix4.translationValues(0, 15.0, 0.0),
-            height: size.width * 0.10,
-            width: size.width * 0.10,
-            decoration: new BoxDecoration(
-                color: GrijsDark,
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 1.0,
-                    color: GrijsMidden,
-                    offset: Offset(0.3, 0.3),
-                  ),
-                ],
-                borderRadius: new BorderRadius.all(Radius.circular(360.0))),
-            child: new IconButton(
-                icon: new Icon(
-                  Icons.message,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  //naar chat
-                }),
-          ),
+          _buildRatingBars()
         ],
       ),
     );
@@ -185,14 +148,14 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
 
   Widget _buildStatItem(String label, String count) {
     TextStyle _statLabelTextStyle = TextStyle(
-      color: GrijsDark,
-      fontSize: 18.0,
+      color: Colors.white,
+      fontSize: 20.0,
       fontWeight: FontWeight.w200,
     );
 
     TextStyle _statCountTextStyle = TextStyle(
-      color: GrijsDark,
-      fontSize: 25.0,
+      color: Colors.white,
+      fontSize: 30.0,
       fontWeight: FontWeight.bold,
     );
 
@@ -213,7 +176,8 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
 
   Widget _buildStatContainer() {
     return Container(
-      decoration: BoxDecoration(color: White),
+      margin: EdgeInsets.only(top: 20.0),
+      decoration: BoxDecoration(color: GrijsDark.withOpacity(0.2)),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -233,19 +197,18 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   Widget _buildRatingBars() {
     return Container(
       margin: EdgeInsets.only(top: 8.0, bottom: 8),
-      padding: EdgeInsets.only(right: 0, left: 0, top: 0, bottom: 0),
-      /* decoration: new BoxDecoration(
-          color: White.withOpacity(0.3),
-          borderRadius: BorderRadius.all(Radius.circular(15))), */
+      padding: EdgeInsets.only(right: 8, left: 8),
+      decoration: new BoxDecoration(
+          color: White.withOpacity(0.5),
+          borderRadius: BorderRadius.all(Radius.circular(15))),
       child: RatingBarIndicator(
-        itemPadding: EdgeInsets.all(10),
         rating: _ratingScore,
         itemBuilder: (context, index) => Icon(
           Icons.star,
           color: GrijsDark,
         ),
         itemCount: 5,
-        itemSize: 45.0,
+        itemSize: 35.0,
         direction: Axis.horizontal,
       ),
     );
@@ -322,32 +285,21 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                                 mainAxisSize: MainAxisSize.max,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Text(ratingMessage['Person'],
+                                  Text(ratingMessage['Person'] + " : ",
                                       style: TextStyle(
                                           color: GrijsDark,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 12)),
-                                  Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Icon(
-                                              Icons.star,
-                                              size: 12,
-                                              color: Colors.amber,
-                                            ),
-                                            Text(
-                                              ratingMessage['Score'].toString(),
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: GrijsDark,
-                                                  fontSize: 12),
-                                            )
-                                          ])),
+                                  Text(
+                                      "Score: " +
+                                          ratingMessage['Score'].toString(),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10)),
                                   Expanded(
-                                    child: Text(ratingMessage['Message'],
+                                    child: Text(
+                                        ratingMessage['Message'] +
+                                            "dfcghjkfvbifsdf hqdshf hdsdfbjh shjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbhjdfj sjfhbhsq dfsbjhf qsfhjbqs dhfhj fbh",
                                         maxLines: 12,
                                         overflow: TextOverflow.ellipsis,
                                         softWrap: true,
@@ -390,11 +342,11 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(10.0),
                   child: FloatingActionButton(
                       mini: true,
-                      backgroundColor: White.withOpacity(0.6),
+                      backgroundColor: White.withOpacity(0.5),
                       child: Icon(
                         Icons.edit,
                         size: 25,
-                        color: GrijsDark,
+                        color: Colors.white,
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -412,47 +364,43 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
         ],
       ),
       body: (gebruikerData != null)
-          ? SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Stack(
-                    children: <Widget>[
-                      _buildCoverImage(size),
-                      SafeArea(
-                        child: Column(
-                          children: <Widget>[
-                            _buildProfileImage(),
-                            SizedBox(height: 10.0),
-                            _buildFullName(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  _buildStatContainer(),
-                  Container(
-                    height: size.height * 0.35,
-                    color: Colors.transparent,
+          ? Stack(
+              children: <Widget>[
+                _buildCoverImage(size),
+                SafeArea(
+                  child: SingleChildScrollView(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        (ratingMessages.length != 0)
-                            ? Text(
-                                "Commentaar beoordeling aankopers..",
-                                textAlign: TextAlign.start,
-                              )
-                            : Text(
-                                "Er is geen beoordeling gemaakt..",
-                                textAlign: TextAlign.start,
-                              ),
-                        (ratingMessages.length != 0)
-                            ? _buildComments(context)
-                            : Container(),
+                        _buildProfileImage(),
+                        SizedBox(height: 10.0),
+                        _buildFullName(),
+                        _buildStatContainer(),
+                        Container(
+                          height: size.height * 0.55,
+                          color: Colors.transparent,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              (ratingMessages.length != 0)
+                                  ? Text(
+                                      "Commentaar beoordeling aankopers..",
+                                      textAlign: TextAlign.start,
+                                    )
+                                  : Text(
+                                      "Er is geen beoordeling gemaakt..",
+                                      textAlign: TextAlign.start,
+                                    ),
+                              (ratingMessages.length != 0)
+                                  ? _buildComments(context)
+                                  : Container(),
+                            ],
+                          ),
+                        )
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                ),
+              ],
             )
           : Container(
               child: SpinKitDoubleBounce(
