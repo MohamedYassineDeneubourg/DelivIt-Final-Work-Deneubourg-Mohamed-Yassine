@@ -4,7 +4,7 @@ import 'package:delivit/Bezorger/homeBezorger.dart';
 import 'package:flutter/material.dart';
 import 'package:icon_shadow/icon_shadow.dart';
 
-import 'colors.dart';
+import 'globals.dart';
 
 class Keuze extends StatefulWidget {
   Keuze({Key key, this.connectedUserMail, this.redirect}) : super(key: key);
@@ -44,9 +44,11 @@ class _KeuzeState extends State<Keuze> {
           }
         }
       }
-      setState(() {
-        //print("Waiting..");
-      });
+      if (this.mounted) {
+        setState(() {
+          //print("Waiting..");
+        });
+      }
     });
   }
 

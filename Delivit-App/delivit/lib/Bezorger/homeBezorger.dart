@@ -5,11 +5,12 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
 //import 'package:delivit/Bezorger/overzichtBestellingenBezorger.dart';
 //import 'package:delivit/Bezorger/productenLijstBezorger.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/main.dart';
 import 'package:delivit/portefeuille.dart';
 import 'package:delivit/profile.dart';
+import 'package:delivit/test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -78,7 +79,8 @@ class _HomeBezorgerState extends State<HomeBezorger> {
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (snapshot.hasData) {
+                print("Hasdata? " + snapshot.hasData.toString());
+            
               return Column(
                 children: <Widget>[
                   UserAccountsDrawerHeader(
@@ -88,7 +90,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                             colorFilter: ColorFilter.mode(
                                 GrijsDark.withOpacity(0.7), BlendMode.srcOver),
                             image: NetworkImage(
-                              snapshot.data['ProfileImage'],
+                              (snapshot.hasData) ? snapshot.data['ProfileImage']: "",
                             ),
                             fit: BoxFit.cover)),
                     arrowColor: GrijsDark,
@@ -104,16 +106,16 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                         backgroundColor: White,
                         child: ClipOval(
                             child: Image.network(
-                          snapshot.data['ProfileImage'],
+                         (snapshot.hasData) ? snapshot.data['ProfileImage'] : "",
                           fit: BoxFit.cover,
                         ))),
                     accountName: new Text(
-                        snapshot.data['Voornaam'] + " " + snapshot.data['Naam'],
+                        (snapshot.hasData) ? snapshot.data['Voornaam'] + " " + snapshot.data['Naam'] : "",
                         style: TextStyle(
                             color: White,
                             fontWeight: FontWeight.w700,
                             fontSize: 18)),
-                    accountEmail: new Text(snapshot.data['Email'],
+                    accountEmail: new Text((snapshot.hasData) ?snapshot.data['Email'] : "",
                         style: TextStyle(color: White)),
                   ),
                   ListTile(
@@ -138,9 +140,9 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                       color: Geel,
                       size: 22,
                     ),
-                    title: Text('Portefeuille (€' +
+                    title: Text((snapshot.hasData) ? 'Portefeuille (€' +
                         snapshot.data['Portefeuille'].toString() +
-                        ")"),
+                        ")" : "Portefeuille"),
                     onTap: () {
                       Navigator.push(
                           context,
@@ -157,12 +159,12 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                     ),
                     title: Text('Berichten'),
                     onTap: () {
-                      /* Navigator.push(
+                       Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            ChatPage(isTutu: true),
-                                        fullscreenDialog: true)); */
+                                            MovingMarkersPage(),
+                                        fullscreenDialog: true)); 
                     },
                   ),
                   ListTile(
@@ -221,9 +223,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                   )
                 ],
               );
-            } else {
-              return Text('Loading');
-            }
+          
           },
         ),
       ),

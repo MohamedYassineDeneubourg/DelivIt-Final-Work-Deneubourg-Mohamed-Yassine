@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -19,16 +21,32 @@ class KaartAankoper extends StatefulWidget {
   State<StatefulWidget> createState() => new _KaartAankoperState();
 }
 
-class _KaartAankoperState extends State<KaartAankoper> {
-  String userEmail;
+class _KaartAankoperState extends State<KaartAankoper>
+    with TickerProviderStateMixin {
+  String connectedUserMail;
   Position userPosition;
   bool isVisible = false;
   double paddingButton = 0;
   List<Marker> opMapUsers = [];
   Map selectedUser = {'naam': " ", "email": 'test@test.be'};
   MapController mapController = new MapController();
+  DateTime startTimerForUpdate;
+  bool followUser = false;
+
+  void getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    //print(user);
+    if (user != null) {
+      setState(() {
+        connectedUserMail = user.email;
+      });
+    }
+  }
+
   @override
   initState() {
+    getCurrentUser();
+    startTimerForUpdate = DateTime.now();
     super.initState();
     _getData();
   }
@@ -86,7 +104,7 @@ class _KaartAankoperState extends State<KaartAankoper> {
     print(userPosition);
 
     Position position = await geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest)
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation)
         .catchError((e) {
       print(e);
     });
@@ -94,34 +112,11 @@ class _KaartAankoperState extends State<KaartAankoper> {
       userPosition = position;
     });
 
-    var locationOptions =
-        LocationOptions(accuracy: LocationAccuracy.lowest, distanceFilter: 0);
+    var locationOptions = LocationOptions(
+        accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
 
     Firestore.instance.collection('Users').snapshots().listen((querySnapshot) {
-      //print("NEW ON MAP");
-      opMapUsers = [
-          
-      new Marker(
-        width: 35.0,
-        height: 35.0,
-        point: new LatLng(userPosition.latitude, userPosition.longitude),
-        builder: (ctx) => new Container(
-          child: new RawMaterialButton(
-            onPressed: null,
-            child: Transform.rotate(
-                angle: userPosition.heading,
-                child: Icon(
-                  Icons.person_pin,
-                  color: Colors.white,
-                  size: 20.0,
-                )),
-            shape: new CircleBorder(),
-            elevation: 1.0,
-            fillColor: Colors.blue,
-          ),
-        ),)
-
-      ];
+      //print("NEW ON MAP")
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot gebruiker = querySnapshot.documents[i];
         Map positionMap = gebruiker['Position'];
@@ -144,6 +139,11 @@ class _KaartAankoperState extends State<KaartAankoper> {
                       };
                       isVisible = true;
                       paddingButton = 100;
+                      print('Follow user?');
+                      print(followUser);
+                      setState(() {
+                        followUser = false;
+                      });
                     },
                     child: new Icon(
                       Icons.motorcycle,
@@ -168,15 +168,29 @@ class _KaartAankoperState extends State<KaartAankoper> {
           userPosition = position;
         });
       }
-      Firestore.instance
-          .collection('Users')
-          .document(currentUser.email)
-          .updateData({
-        "Position": {
-          'latitude': position.latitude,
-          'longitude': position.longitude,
-        }
-      });
+      if (followUser) {
+        verplaatsKaart(mapController,
+            LatLng(position.latitude, position.longitude), 18, this);
+      }
+      //Hier print ik de timer:
+      //  print(DateTime.now().difference(startTimerForUpdate).inSeconds);
+
+//Wanneer 10seconden gepasseerd zijn, ga ik updaten
+      if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
+        //   print('10seconds passed');
+        Firestore.instance
+            .collection('Users')
+            .document(connectedUserMail)
+            .updateData({
+          "Position": {
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+          }
+        });
+        setState(() {
+          startTimerForUpdate = DateTime.now();
+        });
+      }
     });
   }
 
@@ -211,16 +225,21 @@ class _KaartAankoperState extends State<KaartAankoper> {
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: FloatingActionButton(
-                      backgroundColor: Colors.white,
+                      backgroundColor: followUser ? Colors.blue : Colors.white,
                       onPressed: () {
-                        mapController.move(
+                        setState(() {
+                          followUser = !followUser;
+                        });
+                        verplaatsKaart(
+                            mapController,
                             LatLng(
                                 userPosition.latitude, userPosition.longitude),
-                            18);
+                            18,
+                            this);
                       },
                       child: Icon(
                         FontAwesomeIcons.crosshairs,
-                        color: GrijsDark,
+                        color: followUser ? Colors.white : GrijsDark,
                       ),
                     ),
                   )),
@@ -230,6 +249,8 @@ class _KaartAankoperState extends State<KaartAankoper> {
             mapController: mapController,
             options: new MapOptions(
               onTap: (LatLng eo) {
+
+                followUser = false;
                 isVisible = false;
                 paddingButton = 0;
               },
@@ -237,7 +258,6 @@ class _KaartAankoperState extends State<KaartAankoper> {
               zoom: 15.0,
             ),
             layers: [
-            
               new TileLayerOptions(
                 urlTemplate: "https://api.tiles.mapbox.com/v4/"
                     "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
@@ -246,6 +266,31 @@ class _KaartAankoperState extends State<KaartAankoper> {
                       '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
                   'id': 'mapbox.streets',
                 },
+              ),
+              new MarkerLayerOptions(
+                markers: [
+                  new Marker(
+                    width: 35.0,
+                    height: 35.0,
+                    point: new LatLng(
+                        userPosition.latitude, userPosition.longitude),
+                    builder: (ctx) => new Container(
+                      child: new RawMaterialButton(
+                        onPressed: null,
+                        child: Transform.rotate(
+                            angle: userPosition.heading,
+                            child: Icon(
+                              Icons.person_pin,
+                              color: Colors.white,
+                              size: 20.0,
+                            )),
+                        shape: new CircleBorder(),
+                        elevation: 1.0,
+                        fillColor: Colors.blue,
+                      ),
+                    ),
+                  )
+                ],
               ),
               new MarkerLayerOptions(
                 markers: opMapUsers,

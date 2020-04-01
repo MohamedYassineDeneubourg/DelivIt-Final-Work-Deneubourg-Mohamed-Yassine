@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -20,23 +22,31 @@ class KaartBezorger extends StatefulWidget {
   State<StatefulWidget> createState() => new _KaartBezorgerState();
 }
 
-class _KaartBezorgerState extends State<KaartBezorger> {
+class _KaartBezorgerState extends State<KaartBezorger>
+    with TickerProviderStateMixin {
   String connectedUserMail;
   Position userPosition;
   bool isVisible = false;
   double paddingButton = 0;
   List<Marker> opMapBestellingen = [];
-  List<Marker> currentUserPin = [];
+
+  DateTime startTimerForUpdate;
+
   Map selectedBestelling = {
     "documentID": null,
     'AantalProducten': " ",
     "Adres": 'Geen adres gevonden...',
     "Distance": "0"
   };
+
   MapController mapController = new MapController();
+
+  bool followUser = false;
   @override
   initState() {
     getCurrentUser();
+    startTimerForUpdate = DateTime.now();
+
     _getData();
     super.initState();
   }
@@ -80,12 +90,10 @@ class _KaartBezorgerState extends State<KaartBezorger> {
     GeolocationStatus geolocationStatus =
         await geolocator.checkGeolocationPermissionStatus();
     print(geolocationStatus);
-    final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
-
-    var locationOptions =
-        LocationOptions(accuracy: LocationAccuracy.lowest, distanceFilter: 0);
+    var locationOptions = LocationOptions(
+        accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
     Position position = await geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest)
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation)
         .catchError((e) {
       print(e);
     });
@@ -93,44 +101,31 @@ class _KaartBezorgerState extends State<KaartBezorger> {
       userPosition = position;
     });
 
-    currentUserPin = [
-      new Marker(
-        width: 35.0,
-        height: 35.0,
-        point: new LatLng(userPosition.latitude, userPosition.longitude),
-        builder: (ctx) => new Container(
-          child: new RawMaterialButton(
-            onPressed: null,
-            child: Transform.rotate(
-                angle: userPosition.heading,
-                child: Icon(
-                  Icons.person_pin,
-                  color: Colors.white,
-                  size: 20.0,
-                )),
-            shape: new CircleBorder(),
-            elevation: 1.0,
-            fillColor: Colors.blue,
-          ),
-        ),
-      )
-    ];
-
     geolocator.getPositionStream(locationOptions).listen((Position position) {
       if (this.mounted) {
         setState(() {
           userPosition = position;
         });
-      }
-      Firestore.instance
-          .collection('Users')
-          .document(currentUser.email)
-          .updateData({
-        "Position": {
-          'latitude': position.latitude,
-          'longitude': position.longitude,
+        if (followUser) {
+          verplaatsKaart(mapController,
+              LatLng(position.latitude, position.longitude), 18, this);
         }
-      });
+        //Hier print ik de timer:
+        //  print(DateTime.now().difference(startTimerForUpdate).inSeconds);
+
+//Wanneer 10seconden gepasseerd zijn, ga ik updaten
+        if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
+          Firestore.instance
+              .collection('Users')
+              .document(connectedUserMail)
+              .updateData({
+            "Position": {
+              'latitude': position.latitude,
+              'longitude': position.longitude,
+            }
+          });
+        }
+      }
     });
 
     Firestore.instance
@@ -198,101 +193,131 @@ class _KaartBezorgerState extends State<KaartBezorger> {
   Widget build(BuildContext context) {
     if (userPosition != null) {
       return Scaffold(
-          floatingActionButton: Stack(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(left: 31),
-                child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Visibility(
-                        visible: isVisible,
-                        child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
+        floatingActionButton: Stack(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(left: 31),
+              child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Visibility(
+                      visible: isVisible,
+                      child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.only(
+                                top: 4, right: 0, left: 15, bottom: 4),
+                            onTap: () {
+                              naarDetailBestelling(
+                                  selectedBestelling['documentID']);
+                            },
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text(selectedBestelling['Distance'] + "km",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                IconButton(
+                                    icon: Icon(Icons.arrow_forward_ios),
+                                    onPressed: () {
+                                      naarDetailBestelling(
+                                          selectedBestelling['documentID']);
+                                    })
+                              ],
                             ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.only(
-                                  top: 4, right: 0, left: 15, bottom: 4),
-                              onTap: () {
-                                naarDetailBestelling(
-                                    selectedBestelling['documentID']);
-                              },
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  Text(selectedBestelling['Distance'] + "km",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  IconButton(
-                                      icon: Icon(Icons.arrow_forward_ios),
-                                      onPressed: () {
-                                        naarDetailBestelling(
-                                            selectedBestelling['documentID']);
-                                      })
-                                ],
+                            leading: CircleAvatar(
+                              child: Icon(
+                                Icons.shopping_cart,
+                                color: GrijsDark,
+                                size: 20,
                               ),
-                              leading: CircleAvatar(
-                                child: Icon(
-                                  Icons.shopping_cart,
-                                  color: GrijsDark,
-                                  size: 20,
-                                ),
-                                backgroundColor: GeelAccent,
-                              ),
-                              title: Text(selectedBestelling['AantalProducten'],
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text(selectedBestelling['Adres']),
-                            )))),
-              ),
-              Padding(
-                  padding: EdgeInsets.only(bottom: paddingButton),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: FloatingActionButton(
-                      backgroundColor: Colors.white,
-                      onPressed: () {
-                        mapController.move(
-                            LatLng(
-                                userPosition.latitude, userPosition.longitude),
-                            18);
-                      },
-                      child: Icon(
-                        FontAwesomeIcons.crosshairs,
-                        color: GrijsDark,
-                      ),
-                    ),
-                  )),
-            ],
-          ),
-          body: new FlutterMap(
-            mapController: mapController,
-            options: new MapOptions(
-              onTap: (LatLng eo) {
-                setState(() {
-                  isVisible = false;
-                  paddingButton = 0;
-                  selectedBestelling['documentID'] = "";
-                });
-              },
-              center: new LatLng(userPosition.latitude, userPosition.longitude),
-              zoom: 15.0,
+                              backgroundColor: GeelAccent,
+                            ),
+                            title: Text(selectedBestelling['AantalProducten'],
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Text(selectedBestelling['Adres']),
+                          )))),
             ),
-            layers: [
-              new TileLayerOptions(
-                urlTemplate: "https://api.tiles.mapbox.com/v4/"
-                    "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
-                additionalOptions: {
-                  'accessToken':
-                      '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
-                  'id': 'mapbox.streets',
-                },
-              ),
-              new MarkerLayerOptions(
-                markers: currentUserPin..addAll(opMapBestellingen),
-              ),
-            ],
-          ));
+            Padding(
+                padding: EdgeInsets.only(bottom: paddingButton),
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: FloatingActionButton(
+                    backgroundColor: followUser ? Colors.blue : Colors.white,
+                    onPressed: () {
+                      verplaatsKaart(
+                          mapController,
+                          LatLng(userPosition.latitude, userPosition.longitude),
+                          18,
+                          this);
+                    },
+                    child: Icon(
+                      FontAwesomeIcons.crosshairs,
+                      color: followUser ? Colors.white : GrijsDark,
+                    ),
+                  ),
+                )),
+          ],
+        ),
+        body: new FlutterMap(
+          mapController: mapController,
+          options: new MapOptions(
+            onTap: (LatLng eo) {
+              setState(() {
+                followUser = false;
+                isVisible = false;
+                paddingButton = 0;
+                selectedBestelling['documentID'] = "";
+              });
+            },
+            center: new LatLng(userPosition.latitude, userPosition.longitude),
+            zoom: 15.0,
+          ),
+          layers: [
+            new TileLayerOptions(
+              urlTemplate: "https://api.tiles.mapbox.com/v4/"
+                  "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
+              additionalOptions: {
+                'accessToken':
+                    '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
+                'id': 'mapbox.streets',
+              },
+            ),
+            new MarkerLayerOptions(
+              markers: opMapBestellingen,
+            ),
+            new MarkerLayerOptions(
+              markers: [
+                new Marker(
+                  anchorPos: AnchorPos.align(AnchorAlign.center),
+                  width: 35.0,
+                  height: 35.0,
+                  point: new LatLng(
+                    userPosition.latitude,
+                    userPosition.longitude,
+                  ),
+                  builder: (ctx) => new Container(
+                    child: new RawMaterialButton(
+                      onPressed: null,
+                      child: Transform.rotate(
+                          angle: userPosition.heading,
+                          child: Icon(
+                            Icons.person_pin,
+                            color: Colors.white,
+                            size: 20.0,
+                          )),
+                      shape: new CircleBorder(),
+                      elevation: 1.0,
+                      fillColor: Colors.blue,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
+      );
     } else {
       return Container(
           child: Column(

@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/homeAankoper.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:geolocator/geolocator.dart';
@@ -142,7 +143,7 @@ class _LaatsteStapBestellingAankoperState
                                       Geolocator()
                                           .getCurrentPosition(
                                               desiredAccuracy: LocationAccuracy
-                                                  .bestForNavigation)
+                                                 .bestForNavigation)
                                           .then((e) async {
                                         var positieAdres = await Geolocator()
                                             .placemarkFromCoordinates(
@@ -159,9 +160,9 @@ class _LaatsteStapBestellingAankoperState
                                       });
                                     },
                                     label: Text(
-                                      "Huidig positie",
+                                      "Huidig positie gebruiken",
                                       style: TextStyle(
-                                          color: GrijsDark,
+                                          color: Geel,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     icon: Icon(
@@ -322,6 +323,7 @@ class _LaatsteStapBestellingAankoperState
                                       padding: EdgeInsets.only(
                                           top: 20, bottom: 50.0),
                                       child: DateTimeField(
+                                        autovalidate: false,
                                         onShowPicker:
                                             (context, currentValue) async {
                                           final date = await showDatePicker(
@@ -366,11 +368,11 @@ class _LaatsteStapBestellingAankoperState
                                             ),
                                             labelText: 'Datum & Tijd',
                                             hintText: 'E.g 24/02/2020 13:00'),
-                                        validator: (value) =>
-                                            value.toString().isEmpty
-                                                ? "Datum moet ingevuld zijn"
-                                                : null,
+                                        validator: (datum) => datum == null
+                                            ? 'Datum & tijd moet ingevuld zijn'
+                                            : null,
                                         onSaved: (value) => datum = value,
+                                        onChanged: (value) => datum = value,
                                       )),
                                 ]))
                       ],
@@ -383,10 +385,46 @@ class _LaatsteStapBestellingAankoperState
 
   void finalisatieBestelling() async {
     if (valideerEnSave()) {
+      var loadingContext;
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          loadingContext = context;
+          return Container(
+            width: 200,
+            height: 200,
+            alignment: Alignment.center,
+            child: SpinKitDoubleBounce(
+              color: Geel,
+              size: 50,
+            ),
+          );
+        },
+      );
       String volledigAdres =
           _straat + " " + _nummer + ", " + _postcode + " Belgium";
+
       print(volledigAdres);
       try {
+        double leveringprijsOk = 3.5;
+        await Firestore.instance
+            .collection("Globals")
+            .document("Globals")
+            .get()
+            .then((e) {
+          DateTime beginNachtijd = e.data['BeginNachtTijd'].toDate();
+          DateTime eindeNachtTijd = e.data['EindeNachtTijd'].toDate();
+
+          if (datum.hour < beginNachtijd.hour &&
+              datum.hour > eindeNachtTijd.hour) {
+            //Dag-leveringkosten:
+            leveringprijsOk = e.data['LeveringKosten'].toDouble();
+          } else {
+            leveringprijsOk = e.data['NachtLeveringKosten'].toDouble();
+          }
+        });
+
         var geoQuery = await Geolocator()
             .placemarkFromAddress(volledigAdres, localeIdentifier: 'nl_BE');
         //  print(geoQuery.first.position.longitude);
@@ -402,6 +440,7 @@ class _LaatsteStapBestellingAankoperState
           'AdditioneleInformatie': _additioneleInformatie,
           'BestellingLijst': bestellingLijst,
           'BezorgDatumEnTijd': datum,
+          'LeveringKosten': leveringprijsOk,
           'BestellingStatus': 'AANVRAAG',
           'AankoperEmail': connectedUserMail,
           'BezorgerEmail': '',
@@ -413,6 +452,7 @@ class _LaatsteStapBestellingAankoperState
               .document(connectedUserMail);
 
           reference.updateData({"MomenteleBestelling": [], "ShoppingBag": []});
+          Navigator.of(loadingContext).pop();
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => HomeAankoper()));
           showDialog(
@@ -450,6 +490,9 @@ class _LaatsteStapBestellingAankoperState
               });
         });
       } catch (e) {
+        if (this.mounted) {
+          Navigator.of(loadingContext).pop();
+        }
         showDialog(
             context: context,
             barrierDismissible: false,
@@ -493,7 +536,10 @@ class _LaatsteStapBestellingAankoperState
 
     if (form.validate()) {
       form.save();
-      print('Form is valid.');
+      if (datum == null) {
+        return false;
+      }
+
       return true;
     }
 

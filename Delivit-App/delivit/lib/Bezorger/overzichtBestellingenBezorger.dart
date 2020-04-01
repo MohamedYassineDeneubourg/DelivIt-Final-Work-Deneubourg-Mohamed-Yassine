@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
-import 'package:delivit/colors.dart';
+import 'package:delivit/globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 
 class OverzichtBestellingenBezorger extends StatefulWidget {
   @override
@@ -135,19 +136,26 @@ class _OverzichtBestellingenBezorgerState
                       trailing: getIcon(bestellingStatus),
                       title: Text("Bestelling: " + datum + " - " + tijd,
                           style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(bestellingStatus),
+                      subtitle: Text((bestellingStatus == "AANBIEDING GEKREGEN")
+                          ? "AANBIEDING GESTUURD"
+                          : bestellingStatus),
                     ));
               },
             )),
           );
         } else {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 40.0, left: 40),
-              child: Text(
-                "Je hebt nog geen bestellingen gemaakt. Je kan nu een nieuwe aanmaken! ",
-                textAlign: TextAlign.center,
-              ),
+          return Padding(
+            padding: const EdgeInsets.only(right: 40.0, left: 40),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Lottie.asset('assets/Animations/empty.json'),
+                Text(
+                  "Je hebt nog geen bestellingen genomen. \n Bekijk de interactieve map! ",
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           );
         }

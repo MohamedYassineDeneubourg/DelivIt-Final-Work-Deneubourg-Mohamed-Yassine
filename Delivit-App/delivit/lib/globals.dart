@@ -1,7 +1,7 @@
-library delivit.globals;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong/latlong.dart';
 
 const Geel = Color(0xFFF3D511);
 const GeelAccent = Color(0xFFF7E710);
@@ -36,4 +36,35 @@ getGlobals() {
     leveringPrijs = leveringprijsOk;
     leveringGlobals = e.data;
   });
+}
+
+void verplaatsKaart(MapController mapController, LatLng destLocation,
+    double destZoom, var vsync) {
+  final _latTween = Tween<double>(
+      begin: mapController.center.latitude, end: destLocation.latitude);
+  final _lngTween = Tween<double>(
+      begin: mapController.center.longitude, end: destLocation.longitude);
+  final _zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
+
+  var controller = AnimationController(
+      duration: const Duration(milliseconds: 500), vsync: vsync);
+
+  Animation<double> animation =
+      CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+  controller.addListener(() {
+    mapController.move(
+        LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
+        _zoomTween.evaluate(animation));
+  });
+
+  animation.addStatusListener((status) {
+    if (status == AnimationStatus.completed) {
+      controller.dispose();
+    } else if (status == AnimationStatus.dismissed) {
+      controller.dispose();
+    }
+  });
+
+  controller.forward();
 }
