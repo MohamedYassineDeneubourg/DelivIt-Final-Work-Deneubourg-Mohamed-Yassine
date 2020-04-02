@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/globals.dart';
@@ -108,9 +107,11 @@ class _KaartAankoperState extends State<KaartAankoper>
         .catchError((e) {
       print(e);
     });
-    setState(() {
-      userPosition = position;
-    });
+    if (this.mounted) {
+      setState(() {
+        userPosition = position;
+      });
+    }
 
     var locationOptions = LocationOptions(
         accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
@@ -140,10 +141,11 @@ class _KaartAankoperState extends State<KaartAankoper>
                       isVisible = true;
                       paddingButton = 100;
                       print('Follow user?');
-                      print(followUser);
-                      setState(() {
-                        followUser = false;
-                      });
+                      if (this.mounted) {
+                        setState(() {
+                          followUser = false;
+                        });
+                      }
                     },
                     child: new Icon(
                       Icons.motorcycle,
@@ -187,9 +189,11 @@ class _KaartAankoperState extends State<KaartAankoper>
             'longitude': position.longitude,
           }
         });
-        setState(() {
-          startTimerForUpdate = DateTime.now();
-        });
+        if (this.mounted) {
+          setState(() {
+            startTimerForUpdate = DateTime.now();
+          });
+        }
       }
     });
   }
@@ -249,7 +253,6 @@ class _KaartAankoperState extends State<KaartAankoper>
             mapController: mapController,
             options: new MapOptions(
               onTap: (LatLng eo) {
-
                 followUser = false;
                 isVisible = false;
                 paddingButton = 0;

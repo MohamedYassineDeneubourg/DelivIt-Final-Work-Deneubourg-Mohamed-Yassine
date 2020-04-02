@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
 import 'package:delivit/globals.dart';
@@ -97,9 +95,11 @@ class _KaartBezorgerState extends State<KaartBezorger>
         .catchError((e) {
       print(e);
     });
-    setState(() {
-      userPosition = position;
-    });
+    if (this.mounted) {
+      setState(() {
+        userPosition = position;
+      });
+    }
 
     geolocator.getPositionStream(locationOptions).listen((Position position) {
       if (this.mounted) {
@@ -154,10 +154,15 @@ class _KaartBezorgerState extends State<KaartBezorger>
                       ? EdgeInsets.all(10)
                       : EdgeInsets.all(2),
                   onPressed: () async {
+                    _toonPopupMarker(context, bestelling);
+                    /*
                     String distance =
                         await getDistance(bestelling['AdresPosition']);
                     //print("yo");
                     // //print(distance);
+                        if(this.mounted){
+
+             
                     setState(() {
                       selectedBestelling = {
                         "AantalProducten":
@@ -166,11 +171,11 @@ class _KaartBezorgerState extends State<KaartBezorger>
                         "Adres": bestelling['Adres'],
                         "Distance": distance,
                         "documentID": bestelling.documentID
-                      };
+                      }; 
                       //print(bestelling['AdresPosition']);
                       isVisible = true;
                       paddingButton = 100;
-                    });
+                    });  }*/
                   },
                   child: new Icon(
                     Icons.shopping_cart,
@@ -264,12 +269,14 @@ class _KaartBezorgerState extends State<KaartBezorger>
           mapController: mapController,
           options: new MapOptions(
             onTap: (LatLng eo) {
-              setState(() {
-                followUser = false;
-                isVisible = false;
-                paddingButton = 0;
-                selectedBestelling['documentID'] = "";
-              });
+              if (this.mounted) {
+                setState(() {
+                  followUser = false;
+                  isVisible = false;
+                  paddingButton = 0;
+                  selectedBestelling['documentID'] = "";
+                });
+              }
             },
             center: new LatLng(userPosition.latitude, userPosition.longitude),
             zoom: 15.0,
@@ -344,6 +351,63 @@ class _KaartBezorgerState extends State<KaartBezorger>
                         width: 30))),
           ]));
     }
+  }
+
+  _toonPopupMarker(context, DocumentSnapshot selectedBestelling) async {
+    String distance = await getDistance(selectedBestelling['AdresPosition']);
+    print(distance);
+    showModalBottomSheet(
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(
+                color: White,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20))),
+            child: Card(
+              elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.only(
+                      top: 4, right: 0, left: 15, bottom: 4),
+                  onTap: () {
+                    naarDetailBestelling(
+                        selectedBestelling.documentID);
+                  },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(distance.toString() + "km",
+                          style:
+                              TextStyle(fontWeight: FontWeight.bold)),
+                      IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          onPressed: () {
+                            naarDetailBestelling(
+                                selectedBestelling.documentID);
+                          })
+                    ],
+                  ),
+                  leading: CircleAvatar(
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: GrijsDark,
+                      size: 20,
+                    ),
+                    backgroundColor: GeelAccent,
+                  ),
+                  title: Text((selectedBestelling['BestellingLijst'].length).toString() +
+                      " producten te bezorgen",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(selectedBestelling['Adres']),
+                )),
+          );
+        });
   }
 
   getDistance(adresPosition) async {

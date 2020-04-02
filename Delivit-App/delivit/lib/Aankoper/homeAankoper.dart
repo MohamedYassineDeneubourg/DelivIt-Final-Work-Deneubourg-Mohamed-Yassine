@@ -148,9 +148,11 @@ class _HomeAankoperState extends State<HomeAankoper> {
                     color: Geel,
                     size: 22,
                   ),
-                title: Text((snapshot.hasData) ? 'Portefeuille (€' +
-                        snapshot.data['Portefeuille'].toString() +
-                        ")" : "Portefeuille"),
+                  title: Text((snapshot.hasData)
+                      ? 'Portefeuille (€' +
+                          snapshot.data['Portefeuille'].toString() +
+                          ")"
+                      : "Portefeuille"),
                   onTap: () {
                     Navigator.push(
                         context,

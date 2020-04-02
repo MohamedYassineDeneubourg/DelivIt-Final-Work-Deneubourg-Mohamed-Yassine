@@ -10,7 +10,6 @@ import 'package:delivit/keuze.dart';
 import 'package:delivit/main.dart';
 import 'package:delivit/portefeuille.dart';
 import 'package:delivit/profile.dart';
-import 'package:delivit/test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -79,151 +78,157 @@ class _HomeBezorgerState extends State<HomeBezorger> {
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                print("Hasdata? " + snapshot.hasData.toString());
-            
-              return Column(
-                children: <Widget>[
-                  UserAccountsDrawerHeader(
-                    decoration: BoxDecoration(
-                        color: Geel.withOpacity(0.7),
-                        image: DecorationImage(
-                            colorFilter: ColorFilter.mode(
-                                GrijsDark.withOpacity(0.7), BlendMode.srcOver),
-                            image: NetworkImage(
-                              (snapshot.hasData) ? snapshot.data['ProfileImage']: "",
-                            ),
-                            fit: BoxFit.cover)),
-                    arrowColor: GrijsDark,
-                    otherAccountsPictures: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.close, color: White),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
-                    currentAccountPicture: CircleAvatar(
-                        backgroundColor: White,
-                        child: ClipOval(
-                            child: Image.network(
-                         (snapshot.hasData) ? snapshot.data['ProfileImage'] : "",
-                          fit: BoxFit.cover,
-                        ))),
-                    accountName: new Text(
-                        (snapshot.hasData) ? snapshot.data['Voornaam'] + " " + snapshot.data['Naam'] : "",
-                        style: TextStyle(
-                            color: White,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18)),
-                    accountEmail: new Text((snapshot.hasData) ?snapshot.data['Email'] : "",
-                        style: TextStyle(color: White)),
+            print("Hasdata? " + snapshot.hasData.toString());
+
+            return Column(
+              children: <Widget>[
+                UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(
+                      color: Geel.withOpacity(0.7),
+                      image: DecorationImage(
+                          colorFilter: ColorFilter.mode(
+                              GrijsDark.withOpacity(0.7), BlendMode.srcOver),
+                          image: NetworkImage(
+                            (snapshot.hasData)
+                                ? snapshot.data['ProfileImage']
+                                : "",
+                          ),
+                          fit: BoxFit.cover)),
+                  arrowColor: GrijsDark,
+                  otherAccountsPictures: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.close, color: White),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                  currentAccountPicture: CircleAvatar(
+                      backgroundColor: White,
+                      child: ClipOval(
+                          child: Image.network(
+                        (snapshot.hasData) ? snapshot.data['ProfileImage'] : "",
+                        fit: BoxFit.cover,
+                      ))),
+                  accountName: new Text(
+                      (snapshot.hasData)
+                          ? snapshot.data['Voornaam'] +
+                              " " +
+                              snapshot.data['Naam']
+                          : "",
+                      style: TextStyle(
+                          color: White,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18)),
+                  accountEmail: new Text(
+                      (snapshot.hasData) ? snapshot.data['Email'] : "",
+                      style: TextStyle(color: White)),
+                ),
+                ListTile(
+                  leading: Icon(FontAwesomeIcons.userAlt, color: Geel),
+                  title: Text(
+                    'Profiel',
+                    style: TextStyle(color: GrijsDark),
                   ),
-                  ListTile(
-                    leading: Icon(FontAwesomeIcons.userAlt, color: Geel),
-                    title: Text(
-                      'Profiel',
-                      style: TextStyle(color: GrijsDark),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Profile(
-                                    userEmail: connectedUserMail,
-                                  ),
-                              fullscreenDialog: true));
-                    },
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Profile(
+                                  userEmail: connectedUserMail,
+                                ),
+                            fullscreenDialog: true));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    FontAwesomeIcons.wallet,
+                    color: Geel,
+                    size: 22,
                   ),
-                  ListTile(
-                    leading: Icon(
-                      FontAwesomeIcons.wallet,
-                      color: Geel,
-                      size: 22,
-                    ),
-                    title: Text((snapshot.hasData) ? 'Portefeuille (€' +
-                        snapshot.data['Portefeuille'].toString() +
-                        ")" : "Portefeuille"),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Portefeuille(),
-                              fullscreenDialog: true));
-                    },
+                  title: Text((snapshot.hasData)
+                      ? 'Portefeuille (€' +
+                          snapshot.data['Portefeuille'].toString() +
+                          ")"
+                      : "Portefeuille"),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Portefeuille(),
+                            fullscreenDialog: true));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    FontAwesomeIcons.facebookMessenger,
+                    color: Geel,
+                    size: 23,
                   ),
-                  ListTile(
-                    leading: Icon(
-                      FontAwesomeIcons.facebookMessenger,
-                      color: Geel,
-                      size: 23,
-                    ),
-                    title: Text('Berichten'),
-                    onTap: () {
-                       Navigator.push(
+                  title: Text('Berichten'),
+                  onTap: () {
+                    /* Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             MovingMarkersPage(),
-                                        fullscreenDialog: true)); 
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.school, color: Geel),
-                    title: Text('Aankoper-modus'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Keuze(
-                                    connectedUserMail: connectedUserMail,
-                                    redirect: false,
-                                  )));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(FontAwesomeIcons.solidQuestionCircle,
-                        color: GrijsDark),
-                    title: Text('Aide'),
-                    onTap: () {
-                      print('Launch mail..');
-                      launch(
-                          "mailto:contact@delivit.be?subject=HELP:%20Application&body=Hallo%20L'équipe%20Hitutu,");
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Expanded(
-                    flex: MediaQuery.of(context).size.height.toInt(),
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 70,
-                        child: FlatButton(
-                          child: Text(
-                            "Zich Uitloggen",
-                            style: TextStyle(
-                              color: White,
-                              fontWeight: FontWeight.w700,
-                            ),
+                                        fullscreenDialog: true));  */
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.school, color: Geel),
+                  title: Text('Aankoper-modus'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Keuze(
+                                  connectedUserMail: connectedUserMail,
+                                  redirect: false,
+                                )));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(FontAwesomeIcons.solidQuestionCircle,
+                      color: GrijsDark),
+                  title: Text('Aide'),
+                  onTap: () {
+                    print('Launch mail..');
+                    launch(
+                        "mailto:contact@delivit.be?subject=HELP:%20Application&body=Hallo%20L'équipe%20Hitutu,");
+                    Navigator.pop(context);
+                  },
+                ),
+                Expanded(
+                  flex: MediaQuery.of(context).size.height.toInt(),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 70,
+                      child: FlatButton(
+                        child: Text(
+                          "Zich Uitloggen",
+                          style: TextStyle(
+                            color: White,
+                            fontWeight: FontWeight.w700,
                           ),
-                          onPressed: () {
-                            FirebaseAuth.instance.signOut();
-                            Navigator.pop(context);
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Main()));
-                            print("uitlogg");
-                          },
-                          color: GrijsDark.withOpacity(0.7),
                         ),
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut();
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) => Main()));
+                          print("uitlogg");
+                        },
+                        color: GrijsDark.withOpacity(0.7),
                       ),
                     ),
-                  )
-                ],
-              );
-          
+                  ),
+                )
+              ],
+            );
           },
         ),
       ),

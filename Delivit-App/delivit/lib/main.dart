@@ -317,25 +317,25 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                                     color: buttonColor,
                                   ),
                                   onPressed: () {
-                                    var loadingContext;
-                                    showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        loadingContext = context;
-                                        return Container(
-                                          width: 200,
-                                          height: 200,
-                                          alignment: Alignment.center,
-                                          child: SpinKitDoubleBounce(
-                                            color: Geel,
-                                            size: 50,
-                                          ),
-                                        );
-                                      },
-                                    );
                                     if (phoneIsoCode == "BE") {
                                       if (phoneNo.length > 8) {
+                                        var loadingContext;
+                                        showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            loadingContext = context;
+                                            return Container(
+                                              width: 200,
+                                              height: 200,
+                                              alignment: Alignment.center,
+                                              child: SpinKitDoubleBounce(
+                                                color: Geel,
+                                                size: 50,
+                                              ),
+                                            );
+                                          },
+                                        );
                                         Future.delayed(
                                             const Duration(milliseconds: 500),
                                             () {
