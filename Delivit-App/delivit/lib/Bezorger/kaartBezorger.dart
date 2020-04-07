@@ -24,7 +24,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
     with TickerProviderStateMixin {
   String connectedUserMail;
   Position userPosition;
-  bool isVisible = false;
   double paddingButton = 0;
   List<Marker> opMapBestellingen = [];
 
@@ -201,50 +200,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
         floatingActionButton: Stack(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(left: 31),
-              child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Visibility(
-                      visible: isVisible,
-                      child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.only(
-                                top: 4, right: 0, left: 15, bottom: 4),
-                            onTap: () {
-                              naarDetailBestelling(
-                                  selectedBestelling['documentID']);
-                            },
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Text(selectedBestelling['Distance'] + "km",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                IconButton(
-                                    icon: Icon(Icons.arrow_forward_ios),
-                                    onPressed: () {
-                                      naarDetailBestelling(
-                                          selectedBestelling['documentID']);
-                                    })
-                              ],
-                            ),
-                            leading: CircleAvatar(
-                              child: Icon(
-                                Icons.shopping_cart,
-                                color: GrijsDark,
-                                size: 20,
-                              ),
-                              backgroundColor: GeelAccent,
-                            ),
-                            title: Text(selectedBestelling['AantalProducten'],
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(selectedBestelling['Adres']),
-                          )))),
-            ),
-            Padding(
                 padding: EdgeInsets.only(bottom: paddingButton),
                 child: Align(
                   alignment: Alignment.bottomRight,
@@ -256,6 +211,9 @@ class _KaartBezorgerState extends State<KaartBezorger>
                           LatLng(userPosition.latitude, userPosition.longitude),
                           18,
                           this);
+                      if (this.mounted) {
+                        followUser = !followUser;
+                      }
                     },
                     child: Icon(
                       FontAwesomeIcons.crosshairs,
@@ -272,7 +230,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
               if (this.mounted) {
                 setState(() {
                   followUser = false;
-                  isVisible = false;
                   paddingButton = 0;
                   selectedBestelling['documentID'] = "";
                 });
@@ -368,28 +325,25 @@ class _KaartBezorgerState extends State<KaartBezorger>
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20))),
             child: Card(
-              elevation: 0,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: ListTile(
-                  contentPadding: EdgeInsets.only(
-                      top: 4, right: 0, left: 15, bottom: 4),
+                  contentPadding:
+                      EdgeInsets.only(top: 4, right: 0, left: 15, bottom: 4),
                   onTap: () {
-                    naarDetailBestelling(
-                        selectedBestelling.documentID);
+                    naarDetailBestelling(selectedBestelling.documentID);
                   },
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(distance.toString() + "km",
-                          style:
-                              TextStyle(fontWeight: FontWeight.bold)),
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       IconButton(
                           icon: Icon(Icons.arrow_forward_ios),
                           onPressed: () {
-                            naarDetailBestelling(
-                                selectedBestelling.documentID);
+                            naarDetailBestelling(selectedBestelling.documentID);
                           })
                     ],
                   ),
@@ -401,8 +355,10 @@ class _KaartBezorgerState extends State<KaartBezorger>
                     ),
                     backgroundColor: GeelAccent,
                   ),
-                  title: Text((selectedBestelling['BestellingLijst'].length).toString() +
-                      " producten te bezorgen",
+                  title: Text(
+                      (selectedBestelling['BestellingLijst'].length)
+                              .toString() +
+                          " producten te bezorgen",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(selectedBestelling['Adres']),
                 )),

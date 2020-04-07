@@ -136,6 +136,7 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
   String connectedUserMail;
   Animation<double> animation;
   AnimationController animationController;
+  BuildContext loadingContext;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     //print(user);
@@ -169,9 +170,20 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
 
   void onPhoneNumberChange(
       String number, String internationalizedPhoneNumber, String isoCode) {
+    //VERWIJDER DE 0 ALS ER EEN IS IN HET BEGIN :
+    if (number != "") {
+      if (number[0] == "0" && number.length > 9) {
+        print(number.substring(1));
+        print(number[0]);
+        number = number.substring(1);
+        print(number);
+      }
+    }
+    print(number);
     if (this.mounted) {
       setState(() {
         phoneNumber = number;
+
         phoneIsoCode = isoCode;
         if (phoneIsoCode == "BE") {
           phoneNo = "+32" + phoneNumber;
@@ -198,6 +210,11 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
       setState(() {
         isLoading = false;
       });
+      print(phoneNo);
+      if (loadingContext != null) {
+        Navigator.of(loadingContext).pop();
+        loadingContext = null;
+      }
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -217,7 +234,10 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
       setState(() {
         isLoading = false;
       });
-
+      if (loadingContext != null) {
+        Navigator.of(loadingContext).pop();
+        loadingContext = null;
+      }
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -317,9 +337,11 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                                     color: buttonColor,
                                   ),
                                   onPressed: () {
+                                    print(phoneNo);
                                     if (phoneIsoCode == "BE") {
                                       if (phoneNo.length > 8) {
-                                        var loadingContext;
+                                        print(phoneNo);
+
                                         showDialog(
                                           barrierDismissible: false,
                                           context: context,
@@ -340,10 +362,6 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                                             const Duration(milliseconds: 500),
                                             () {
                                           numerExists(phoneNo);
-                                        }).then((e) {
-                                          if (loadingContext != null) {
-                                            Navigator.of(loadingContext).pop();
-                                          }
                                         });
                                       }
                                     }

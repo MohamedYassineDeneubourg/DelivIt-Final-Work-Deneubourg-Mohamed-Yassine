@@ -1,9 +1,9 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -24,10 +24,7 @@ class _KaartAankoperState extends State<KaartAankoper>
     with TickerProviderStateMixin {
   String connectedUserMail;
   Position userPosition;
-  bool isVisible = false;
-  double paddingButton = 0;
   List<Marker> opMapUsers = [];
-  Map selectedUser = {'naam': " ", "email": 'test@test.be'};
   MapController mapController = new MapController();
   DateTime startTimerForUpdate;
   bool followUser = false;
@@ -134,12 +131,10 @@ class _KaartAankoperState extends State<KaartAankoper>
                   Text(gebruiker['Naam']),
                   new RawMaterialButton(
                     onPressed: () {
-                      selectedUser = {
-                        "naam": gebruiker['Naam'],
-                        "email": gebruiker.documentID
-                      };
-                      isVisible = true;
-                      paddingButton = 100;
+                      print("click");
+                      _toonPopupMarker(context, gebruiker);
+//TODO: ICI UN TODO
+
                       print('Follow user?');
                       if (this.mounted) {
                         setState(() {
@@ -202,60 +197,28 @@ class _KaartAankoperState extends State<KaartAankoper>
   Widget build(BuildContext context) {
     if (userPosition != null) {
       return Scaffold(
-          floatingActionButton: Stack(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(left: 31),
-                child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Visibility(
-                        visible: isVisible,
-                        child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: GeelAccent,
-                              ),
-                              title: Text(selectedUser['naam'],
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text(selectedUser['email']),
-                            )))),
-              ),
-              Padding(
-                  padding: EdgeInsets.only(bottom: paddingButton),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: FloatingActionButton(
-                      backgroundColor: followUser ? Colors.blue : Colors.white,
-                      onPressed: () {
-                        setState(() {
-                          followUser = !followUser;
-                        });
-                        verplaatsKaart(
-                            mapController,
-                            LatLng(
-                                userPosition.latitude, userPosition.longitude),
-                            18,
-                            this);
-                      },
-                      child: Icon(
-                        FontAwesomeIcons.crosshairs,
-                        color: followUser ? Colors.white : GrijsDark,
-                      ),
-                    ),
-                  )),
-            ],
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: followUser ? Colors.blue : Colors.white,
+            onPressed: () {
+              setState(() {
+                followUser = !followUser;
+              });
+              verplaatsKaart(
+                  mapController,
+                  LatLng(userPosition.latitude, userPosition.longitude),
+                  18,
+                  this);
+            },
+            child: Icon(
+              FontAwesomeIcons.crosshairs,
+              color: followUser ? Colors.white : GrijsDark,
+            ),
           ),
           body: new FlutterMap(
             mapController: mapController,
             options: new MapOptions(
               onTap: (LatLng eo) {
                 followUser = false;
-                isVisible = false;
-                paddingButton = 0;
               },
               center: new LatLng(userPosition.latitude, userPosition.longitude),
               zoom: 15.0,
@@ -326,5 +289,69 @@ class _KaartAankoperState extends State<KaartAankoper>
                         width: 30))),
           ]));
     }
+  }
+
+  _toonPopupMarker(context, DocumentSnapshot persoon) async {
+    String distance = await getDistance(persoon['Position']);
+    print(distance);
+    showModalBottomSheet(
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(
+                color: White,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20))),
+            child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.only(top: 4, right: 0, left: 15, bottom: 4),
+                  onTap: () {
+                    //naar profiel pagina
+                  },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(distance.toString() + "km",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          onPressed: () {
+                            //NAAR PROFIEL PAGINA
+                          })
+                    ],
+                  ),
+                  leading: Image.network(
+                    persoon['ProfileImage'],
+                    height: 40,
+                  ),
+                  title: Text((persoon['Naam']) + (persoon['Voornaam']),
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: RatingBarIndicator(
+                    rating: persoon['RatingScore'],
+                    itemBuilder: (context, index) => Icon(
+                      Icons.star,
+                      color: Geel,
+                    ),
+                    itemCount: 5,
+                    itemSize: 20.0,
+                    direction: Axis.horizontal,
+                  ),
+                )),
+          );
+        });
+  }
+
+  getDistance(position) async {
+    double distance = await Geolocator().distanceBetween(position['latitude'],
+        position['longitude'], userPosition.latitude, userPosition.longitude);
+    return (distance / 1000).toStringAsFixed(1);
   }
 }
