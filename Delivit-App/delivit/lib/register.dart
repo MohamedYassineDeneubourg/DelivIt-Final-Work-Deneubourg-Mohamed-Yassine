@@ -3,6 +3,8 @@ import 'package:delivit/keuze.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:toast/toast.dart';
 
 import 'globals.dart';
@@ -34,6 +36,7 @@ class _RegisterState extends State<Register> {
   String phoneNumber;
   bool emailIsOK = false;
   FirebaseAuth _auth = FirebaseAuth.instance;
+  final ScrollController _scrollController = ScrollController();
 
   Future<void> verifyPhone() async {
     if (valideerEnSave()) {
@@ -316,67 +319,93 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
-        key: _scaffoldKey,
-        resizeToAvoidBottomPadding: false,
-        body: Stack(children: <Widget>[
-          ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                  Colors.white.withOpacity(0.5), BlendMode.srcOver),
-              child: Image.asset(
-                'assets/images/backgroundLogin.jpg',
-                width: size.width,
-                height: size.height,
-                fit: BoxFit.cover,
-              )),
-          Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
-              Widget>[
-            //Box met titel BEGIN
-            Padding(
-                padding: EdgeInsets.only(top: 75),
-                child: Container(
-                    width: size.width * 0.90,
-                    decoration: new BoxDecoration(
-                        color: Geel,
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 1.0,
-                            color: GrijsMidden,
-                            offset: Offset(0.3, 0.3),
-                          ),
-                        ],
-                        borderRadius:
-                            new BorderRadius.all(Radius.circular(10.0))),
-                    child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          children: <Widget>[
-                            Text("Vul uw gegevens in",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 30),
-                                textAlign: TextAlign.center),
-                            Text(
-                              "Deze zullen beschermd worden",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                  fontSize: 16),
+    return KeyboardAvoider(
+      child: Scaffold(
+          key: _scaffoldKey,
+          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomPadding: false,
+          floatingActionButton: (MediaQuery.of(context).viewInsets.bottom != 0)
+              ? null
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: FloatingActionButton.extended(
+                    heroTag: "INSCHRIJVING",
+                    splashColor: GrijsDark,
+                    elevation: 4.0,
+                    backgroundColor: Geel,
+                    icon: const Icon(
+                      FontAwesomeIcons.check,
+                      color: White,
+                    ),
+                    label: Text(
+                      "ZICH INSCHRIJVEN",
+                      style:
+                          TextStyle(color: White, fontWeight: FontWeight.w800),
+                    ),
+                    onPressed: () {
+                      checkIfEmailExists();
+                    },
+                  ),
+                ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          body: Stack(children: <Widget>[
+            ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                    Colors.white.withOpacity(0.5), BlendMode.srcOver),
+                child: Image.asset(
+                  'assets/images/backgroundLogin.jpg',
+                  width: size.width,
+                  height: size.height,
+                  fit: BoxFit.cover,
+                )),
+            Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
+                Widget>[
+              //Box met titel BEGIN
+              Padding(
+                  padding: EdgeInsets.only(top: 75),
+                  child: Container(
+                      width: size.width * 0.90,
+                      decoration: new BoxDecoration(
+                          color: Geel,
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 1.0,
+                              color: GrijsMidden,
+                              offset: Offset(0.3, 0.3),
                             ),
                           ],
-                        )))),
-            // EINDE box met titel
-            //BEGIN TEXTVELDEN
-
-            Form(
-                key: _formKey,
-                child: Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Expanded(
+                          borderRadius:
+                              new BorderRadius.all(Radius.circular(10.0))),
                       child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            children: <Widget>[
+                              Text("Vul uw gegevens in",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 30),
+                                  textAlign: TextAlign.center),
+                              Text(
+                                "Deze zullen beschermd worden",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                    fontSize: 16),
+                              ),
+                            ],
+                          )))),
+              // EINDE box met titel
+              //BEGIN TEXTVELDEN
+
+              Form(
+                  key: _formKey,
+                  child: Expanded(
+                      child: ListView(
+                    controller: _scrollController,
+                    children: <Widget>[
+                      Padding(
                           padding: EdgeInsets.only(right: 20, left: 20, top: 0),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -592,25 +621,12 @@ class _RegisterState extends State<Register> {
                                           _herhaalWachtwoord = value,
                                     )),
                               ])),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(
-                            top: 10.0, bottom: 60, right: 20, left: 20),
-                        child: RaisedButton(
-                          child: new Text('SCHRIJF JE IN',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
-                          color: Geel,
-                          onPressed: () {
-                            checkIfEmailExists();
-                          },
-                        ))
-                  ],
-                ))),
+                    ],
+                  ))),
 
-            //EINDE TEXTVELDEN
-          ])
-        ]));
+              //EINDE TEXTVELDEN
+            ])
+          ])),
+    );
   }
 }
