@@ -31,8 +31,8 @@ class _HomeBezorgerState extends State<HomeBezorger> {
   double tabHeight = 50;
   final List<Widget> _children = [
     KaartBezorger(),
-    //OverzichtBestellingenBezorger()
-    OverzichtBestellingenBezorger()
+    // TODO: ajouter une nouvelle page pour commende finie
+    TabBarView(children: [OverzichtBestellingenBezorger(), KaartBezorger()]),
   ];
 
   String connectedUserMail;
@@ -63,208 +63,229 @@ class _HomeBezorgerState extends State<HomeBezorger> {
     super.initState();
   }
 
+//TODO: ameliorer ton tabbar
   @override
   Widget build(BuildContext context) {
     //_getData();
     //Size size = MediaQuery.of(context).size;
-    return new Scaffold(
-      drawerScrimColor: Geel.withOpacity(0.3),
-      endDrawer: Drawer(
-        semanticLabel: "Menu",
-        child: StreamBuilder<DocumentSnapshot>(
-          stream: Firestore.instance
-              .collection('Users')
-              .document(connectedUserMail)
-              .snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            print("Hasdata? " + snapshot.hasData.toString());
+    return new DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          endDrawer: Drawer(
+            semanticLabel: "Menu",
+            child: StreamBuilder<DocumentSnapshot>(
+              stream: Firestore.instance
+                  .collection('Users')
+                  .document(connectedUserMail)
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                print("Hasdata? " + snapshot.hasData.toString());
 
-            return Column(
-              children: <Widget>[
-                UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                      color: Geel.withOpacity(0.7),
-                      image: DecorationImage(
-                          colorFilter: ColorFilter.mode(
-                              GrijsDark.withOpacity(0.7), BlendMode.srcOver),
-                          image: NetworkImage(
+                return Column(
+                  children: <Widget>[
+                    UserAccountsDrawerHeader(
+                      decoration: BoxDecoration(
+                          color: Geel.withOpacity(0.7),
+                          image: DecorationImage(
+                              colorFilter: ColorFilter.mode(
+                                  GrijsDark.withOpacity(0.7),
+                                  BlendMode.srcOver),
+                              image: NetworkImage(
+                                (snapshot.hasData)
+                                    ? snapshot.data['ProfileImage']
+                                    : "",
+                              ),
+                              fit: BoxFit.cover)),
+                      arrowColor: GrijsDark,
+                      otherAccountsPictures: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.close, color: White),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        )
+                      ],
+                      currentAccountPicture: CircleAvatar(
+                          backgroundColor: White,
+                          child: ClipOval(
+                              child: Image.network(
                             (snapshot.hasData)
                                 ? snapshot.data['ProfileImage']
                                 : "",
-                          ),
-                          fit: BoxFit.cover)),
-                  arrowColor: GrijsDark,
-                  otherAccountsPictures: <Widget>[
-                    IconButton(
-                      icon: Icon(Icons.close, color: White),
-                      onPressed: () {
-                        Navigator.pop(context);
+                            fit: BoxFit.cover,
+                          ))),
+                      accountName: new Text(
+                          (snapshot.hasData)
+                              ? snapshot.data['Voornaam'] +
+                                  " " +
+                                  snapshot.data['Naam']
+                              : "",
+                          style: TextStyle(
+                              color: White,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18)),
+                      accountEmail: new Text(
+                          (snapshot.hasData) ? snapshot.data['Email'] : "",
+                          style: TextStyle(color: White)),
+                    ),
+                    ListTile(
+                      leading: Icon(FontAwesomeIcons.userAlt, color: Geel),
+                      title: Text(
+                        'Profiel',
+                        style: TextStyle(color: GrijsDark),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            SlideTopRoute(
+                              page: Profile(
+                                userEmail: connectedUserMail,
+                              ),
+                            ));
                       },
-                    )
-                  ],
-                  currentAccountPicture: CircleAvatar(
-                      backgroundColor: White,
-                      child: ClipOval(
-                          child: Image.network(
-                        (snapshot.hasData) ? snapshot.data['ProfileImage'] : "",
-                        fit: BoxFit.cover,
-                      ))),
-                  accountName: new Text(
-                      (snapshot.hasData)
-                          ? snapshot.data['Voornaam'] +
-                              " " +
-                              snapshot.data['Naam']
-                          : "",
-                      style: TextStyle(
-                          color: White,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18)),
-                  accountEmail: new Text(
-                      (snapshot.hasData) ? snapshot.data['Email'] : "",
-                      style: TextStyle(color: White)),
-                ),
-                ListTile(
-                  leading: Icon(FontAwesomeIcons.userAlt, color: Geel),
-                  title: Text(
-                    'Profiel',
-                    style: TextStyle(color: GrijsDark),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        SlideTopRoute(
-                          page: Profile(
-                            userEmail: connectedUserMail,
-                          ),
-                        ));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(
-                    FontAwesomeIcons.wallet,
-                    color: Geel,
-                    size: 22,
-                  ),
-                  title: Text((snapshot.hasData)
-                      ? 'Portefeuille (€' +
-                          snapshot.data['Portefeuille'].toString() +
-                          ")"
-                      : "Portefeuille"),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        SlideTopRoute(
-                          page: Portefeuille(),
-                        ));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(
-                    FontAwesomeIcons.facebookMessenger,
-                    color: Geel,
-                    size: 23,
-                  ),
-                  title: Text('Berichten'),
-                  onTap: () {
-                    /* Navigator.push(
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        FontAwesomeIcons.wallet,
+                        color: Geel,
+                        size: 22,
+                      ),
+                      title: Text((snapshot.hasData)
+                          ? 'Portefeuille (€' +
+                              snapshot.data['Portefeuille'].toString() +
+                              ")"
+                          : "Portefeuille"),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            SlideTopRoute(
+                              page: Portefeuille(),
+                            ));
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        FontAwesomeIcons.facebookMessenger,
+                        color: Geel,
+                        size: 23,
+                      ),
+                      title: Text('Berichten'),
+                      onTap: () {
+                        /* Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             MovingMarkersPage(),
                                         ));  */
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.school, color: Geel),
-                  title: Text('Aankoper-modus'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                        context,
-                        SlideTopRoute(
-                            page: Keuze(
-                          connectedUserMail: connectedUserMail,
-                          redirect: false,
-                        )));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(FontAwesomeIcons.solidQuestionCircle,
-                      color: GrijsDark),
-                  title: Text('Help'),
-                  onTap: () {
-                    print('Launch mail..');
-                    launch(
-                        "mailto:contact@delivit.be?subject=HELP:%20Application&body=Hallo%20L'équipe%20Hitutu,");
-                    Navigator.pop(context);
-                  },
-                ),
-                Expanded(
-                  flex: MediaQuery.of(context).size.height.toInt(),
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 70,
-                      child: FlatButton(
-                        child: Text(
-                          "Zich Uitloggen",
-                          style: TextStyle(
-                            color: White,
-                            fontWeight: FontWeight.w700,
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.school, color: Geel),
+                      title: Text('Aankoper-modus'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                            context,
+                            SlideTopRoute(
+                                page: Keuze(
+                              connectedUserMail: connectedUserMail,
+                              redirect: false,
+                            )));
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(FontAwesomeIcons.solidQuestionCircle,
+                          color: GrijsDark),
+                      title: Text('Help'),
+                      onTap: () {
+                        print('Launch mail..');
+                        launch(
+                            "mailto:contact@delivit.be?subject=HELP:%20Application&body=Hallo%20L'équipe%20Hitutu,");
+                        Navigator.pop(context);
+                      },
+                    ),
+                    Expanded(
+                      flex: MediaQuery.of(context).size.height.toInt(),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 70,
+                          child: FlatButton(
+                            child: Text(
+                              "Zich Uitloggen",
+                              style: TextStyle(
+                                color: White,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut();
+                              Navigator.pop(context);
+                              Navigator.pushReplacement(
+                                  context, SlideTopRoute(page: Main()));
+                              print("uitlogg");
+                            },
+                            color: Geel.withOpacity(0.75),
                           ),
                         ),
-                        onPressed: () {
-                          FirebaseAuth.instance.signOut();
-                          Navigator.pop(context);
-                          Navigator.pushReplacement(
-                              context, SlideTopRoute(page: Main()));
-                          print("uitlogg");
-                        },
-                        color: GrijsDark.withOpacity(0.7),
                       ),
-                    ),
-                  ),
-                )
-              ],
-            );
-          },
-        ),
-      ),
-      appBar: new AppBar(
-        backgroundColor: White,
-        textTheme: TextTheme(
-            headline6: TextStyle(
-                color: Geel,
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
-                fontFamily: "Montserrat")),
-        centerTitle: true,
-        title: new Text((() {
-          if (this._cIndex == 0) {
-            return "OVERZICHT KAART ";
-          } else if (this._cIndex == 1) {
-            return "Bestellingen";
-          }
+                    )
+                  ],
+                );
+              },
+            ),
+          ),
+          appBar: new AppBar(
+            bottom: this._cIndex == 1
+                ? TabBar(
+                    indicatorColor: Geel,
+                    labelColor: Geel,
+                    unselectedLabelColor: GrijsDark,
+                    labelPadding: EdgeInsets.zero,
+                    tabs: <Widget>[
+                      Tab(
+                        text: "en cours",
+                      ),
+                      Tab(
+                        text: "fini",
+                      )
+                    ],
+                  )
+                : null,
+            backgroundColor: White,
+            textTheme: TextTheme(
+                headline6: TextStyle(
+                    color: Geel,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    fontFamily: "Montserrat")),
+            centerTitle: true,
+            title: new Text((() {
+              if (this._cIndex == 0) {
+                return "OVERZICHT KAART ";
+              } else if (this._cIndex == 1) {
+                return "Bestellingen";
+              }
 
-          return "Chat";
-        })()),
-      ),
-      body: _children[_cIndex],
-      bottomNavigationBar: CurvedNavigationBar(
-        height: tabHeight,
-        backgroundColor: Geel,
-        animationDuration: Duration(seconds: 1),
-        animationCurve: Curves.easeOutCirc,
-        items: <Widget>[
-          Icon(FontAwesomeIcons.globeEurope, size: 30),
-          Icon(Icons.list, size: 30),
-        ],
-        onTap: (index) {
-          _incrementTab(index);
-        },
-      ),
-    );
+              return "Chat";
+            })()),
+          ),
+          body: _children[_cIndex],
+          bottomNavigationBar: CurvedNavigationBar(
+            height: tabHeight,
+            backgroundColor: Geel,
+            animationDuration: Duration(seconds: 1),
+            animationCurve: Curves.easeOutCirc,
+            items: <Widget>[
+              Icon(FontAwesomeIcons.globeEurope, size: 30),
+              Icon(Icons.list, size: 30),
+            ],
+            onTap: (index) {
+              _incrementTab(index);
+            },
+          ),
+        ));
   }
 }

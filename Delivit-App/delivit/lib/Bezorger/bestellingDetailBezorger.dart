@@ -298,6 +298,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                   print(verzameldeProducten);
                   print(bestellingLijst[index]);
                   return Card(
+                    // TODO: add checkbutton - verzamel
                       color: (verzameldeProducten
                               .contains(bestellingLijst[index]['ProductID']))
                           ? GrijsMidden.withOpacity(0.3)
@@ -386,6 +387,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   }
 
   getAankoperInfo() {
+    //TODO: quand je retourne sur la liste --> bug!
     if (bestelling != null) {
       //print(bestelling);
       var reference = Firestore.instance
@@ -556,10 +558,9 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 Navigator.push(
                                     context,
                                     SlideTopRoute(
-                                page:Profile(
-                                              userEmail:
-                                                  bestelling['BezorgerEmail'],
-                                            )));
+                                        page: Profile(
+                                      userEmail: bestelling['BezorgerEmail'],
+                                    )));
                               }),
                         ),
                         Padding(
@@ -590,6 +591,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                     ),
                   )),
               (status == "BEZORGD" && mapController != null)
+              //TODO: enlever cette icone de merde, ajouter prix 
                   ? Lottie.asset('assets/Animations/checked.json',
                       width: size.width * 0.25)
                   : (status == "BESTELLING CONFIRMATIE" &&
@@ -747,7 +749,8 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                       padding: EdgeInsets.all(20),
                                       child: Column(
                                         children: <Widget>[
-                                          Text(getDatum(),
+                                          //TODO: faire comprendre que ca doit etre livrer pour cette date la genre :
+                                          Text("prevu pour " + getDatum(),
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.w900,
@@ -759,26 +762,28 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                                 color: Colors.white,
                                                 fontSize: 16),
                                           ),
-                                          Divider(
-                                            color: White,
-                                            thickness: 2,
-                                          ),
-                                          Text(
-                                            "Status:",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white,
-                                                fontSize: 16),
-                                          ),
-                                          Text(
-                                            bestelling['BestellingStatus'],
-                                            style: TextStyle(
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.w900,
-                                              fontSize: 26,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
+                                          //TODO: pourquoi ecrire aanvraag, je le sais en tant qeu bezorger
+                                          // Divider(
+                                          //   color: White,
+                                          //   thickness: 2,
+                                          // ),
+                                          // Text(
+
+                                          //   "Status:",
+                                          //   style: TextStyle(
+                                          //       fontWeight: FontWeight.w600,
+                                          //       color: Colors.white,
+                                          //       fontSize: 16),
+                                          // ),
+                                          // Text(
+                                          //   bestelling['BestellingStatus'],
+                                          //   style: TextStyle(
+                                          //     color: Colors.black87,
+                                          //     fontWeight: FontWeight.w900,
+                                          //     fontSize: 26,
+                                          //   ),
+                                          //   textAlign: TextAlign.center,
+                                          // ),
                                         ],
                                       )))),
                           Container(

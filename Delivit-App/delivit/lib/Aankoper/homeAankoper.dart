@@ -71,7 +71,6 @@ class _HomeAankoperState extends State<HomeAankoper> {
     //_getData();
     //Size size = MediaQuery.of(context).size;
     return new Scaffold(
-      drawerScrimColor: Geel.withOpacity(0.3),
       endDrawer: Drawer(
         semanticLabel: "Menu",
         child: StreamBuilder<DocumentSnapshot>(
@@ -219,9 +218,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                           Navigator.pop(context);
                           Navigator.pushReplacement(
                               context, SlideTopRoute(page: Main()));
-                          print("uitlogg");
                         },
-                        color: GrijsDark.withOpacity(0.7),
+                        color: Geel.withOpacity(0.75),
                       ),
                     ),
                   ),

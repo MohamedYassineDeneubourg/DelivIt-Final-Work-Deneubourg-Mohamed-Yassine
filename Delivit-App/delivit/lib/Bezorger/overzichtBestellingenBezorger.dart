@@ -27,9 +27,11 @@ class _OverzichtBestellingenBezorgerState
     }
   }
 
+  //TODO: montrer la commande qui est en attendre de reponse, meme si c'est refusé - aanbieding
+
   @override
   Widget build(BuildContext context) {
-    return new StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('Commands')
           .where("BezorgerEmail", isEqualTo: connectedUserMail)
@@ -95,7 +97,6 @@ class _OverzichtBestellingenBezorgerState
               break;
           }
         }
-
         if (snapshot.hasData && snapshot.data.documents.length != 0) {
           return Padding(
             padding: const EdgeInsets.only(top: 20.0, right: 15, left: 15),
@@ -185,7 +186,6 @@ class _OverzichtBestellingenBezorgerState
 
   @override
   void initState() {
-    print("init!");
     getCurrentUser();
     setState(() {});
 

@@ -16,6 +16,8 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState(userEmail: this.userEmail);
 }
 
+//TODO: change moi cette merde
+
 class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   _ProfileState({Key key, @required this.userEmail});
   final String userEmail;
@@ -231,6 +233,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   }
 
   Widget _buildRatingBars() {
+    //TODO: arranger le rating sur profiel
     return Container(
       margin: EdgeInsets.only(top: 8.0, bottom: 8),
       padding: EdgeInsets.only(right: 0, left: 0, top: 0, bottom: 0),

@@ -15,6 +15,8 @@ import 'package:toast/toast.dart';
 
 import '../profile.dart';
 
+//TODO: annuleer aanbieding pour les autres
+
 class BestellingDetailAankoper extends StatefulWidget {
   BestellingDetailAankoper({Key key, this.bestellingId}) : super(key: key);
   final String bestellingId;
@@ -486,6 +488,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
       case ("BEZORGD"):
         //  getBezorgerInfo();
+        //TODO: sur le site de lotie tu peux enlever le repeat
         return Lottie.asset('assets/Animations/checked.json',
             width: size.width * 0.25);
         break;
@@ -532,6 +535,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
             textAlign: TextAlign.left,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
           ),
+          //TODO: status is true!!
           subtitle: (status == "PRODUCTEN VERZAMELEN")
               ? Text('Verzamelt je producten..')
               : (status == "BEZORGD")
@@ -817,8 +821,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                               )))),
                   (bestelling['BestellingStatus'] == "BEZORGD")
                       ? Column(children: [
+                        //TODO: meetre le getInfoWidget en desous du ticket de caisse
                           getInfoWidget(
-                              bestelling['BestellingStatus'] == "BEZORGD"),
+                              bestelling['BestellingStatus']),
                           getBestellingOverzicht()
                         ])
                       : Container(
