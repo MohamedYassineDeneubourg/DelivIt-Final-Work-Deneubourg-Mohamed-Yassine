@@ -505,8 +505,7 @@ class _LaatsteStapBestellingAankoperState
                     height: 85,
                     child: SingleChildScrollView(
                       child: Text(
-                          "Je adres is onjuist, kijk deze goed na en probeer opnieuw.. \n \n" +
-                              e.toString()),
+                          "Je adres is onjuist, kijk deze goed na en probeer opnieuw.."),
                     )),
                 contentPadding: EdgeInsets.all(20),
                 actions: <Widget>[

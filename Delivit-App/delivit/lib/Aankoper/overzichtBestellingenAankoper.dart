@@ -194,14 +194,11 @@ class _OverzichtBestellingenAankoperState
                             ),
                             child: ListTile(
                               onTap: () {
+                                //TODO: bug quand je clique, sur iphone
                                 Navigator.push(
                                     context,
-                                    SlideTopRoute(
-                                page:
-                                            BestellingDetailAankoper(
-                                              bestellingId:
-                                                  bestelling.documentID,
-                                            )));
+                                    SlideTopRoute( page: BestellingDetailAankoper(
+                                              bestellingId: bestelling.documentID)));
                               },
                               trailing: getIcon(bestellingStatus),
                               title: Text("Bestelling: " + datum + " - " + tijd,

@@ -93,7 +93,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
                               GrijsDark.withOpacity(0.7), BlendMode.srcOver),
                           image: (snapshot.hasData)
                               ? NetworkImage(snapshot.data['ProfileImage'])
-                              : null,
+                              : "",
                           fit: BoxFit.cover)),
                   arrowColor: GrijsDark,
                   otherAccountsPictures: <Widget>[

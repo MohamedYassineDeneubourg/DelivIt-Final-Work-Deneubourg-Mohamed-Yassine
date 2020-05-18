@@ -20,6 +20,8 @@ class _LoginState extends State<Login> {
   bool wachtwoordOk = false;
   FirebaseAuth _auth = FirebaseAuth.instance;
 
+  bool showPassword = true;
+
   _LoginState({Key key, @required this.email});
 
   String email;
@@ -92,6 +94,7 @@ class _LoginState extends State<Login> {
                                       EdgeInsets.only(top: size.height / 10),
                                   width: size.width * 0.90,
                                   decoration: new BoxDecoration(
+                                      //TODO: trop de jaune!
                                       color: Geel.withOpacity(0.8),
                                       borderRadius: new BorderRadius.all(
                                           Radius.circular(10.0))),
@@ -172,6 +175,25 @@ class _LoginState extends State<Login> {
                                                                         .no_encryption,
                                                                     color: Geel,
                                                                   ),
+                                                                  suffixIcon:
+                                                                      IconButton(
+                                                                    icon: showPassword
+                                                                        ? Icon(FontAwesomeIcons.eye, size: 20)
+                                                                        : Icon(FontAwesomeIcons.eyeSlash, size: 20),
+                                                                    color:
+                                                                        GrijsMidden,
+                                                                    onPressed:
+                                                                        () {
+                                                                      if (this
+                                                                          .mounted) {
+                                                                        setState(
+                                                                            () {
+                                                                          showPassword =
+                                                                              !showPassword;
+                                                                        });
+                                                                      }
+                                                                    },
+                                                                  ),
                                                                   fillColor:
                                                                       Colors
                                                                           .white,
@@ -198,7 +220,8 @@ class _LoginState extends State<Login> {
                                                                       'Uw wachtwoord',
                                                                   hintText:
                                                                       '***'),
-                                                          obscureText: true,
+                                                          obscureText:
+                                                              showPassword,
                                                           validator: (value) {
                                                             if (value.isEmpty) {
                                                               return "Wachtwoord moet ingevuld zijn";

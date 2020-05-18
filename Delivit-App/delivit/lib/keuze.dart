@@ -67,7 +67,7 @@ class _KeuzeState extends State<Keuze> {
         body: Stack(children: <Widget>[
           ColorFiltered(
               colorFilter: ColorFilter.mode(
-                  Colors.white.withOpacity(0.9), BlendMode.srcOver),
+                  Colors.white.withOpacity(1), BlendMode.srcOver),
               child: Image.asset(
                 'assets/images/backgroundLogin.jpg',
                 color: Geel.withOpacity(0.75),
@@ -87,14 +87,8 @@ class _KeuzeState extends State<Keuze> {
                     child: Container(
                         width: size.width * 0.90,
                         decoration: new BoxDecoration(
-                            color: Geel,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 1.0,
-                                color: GrijsMidden,
-                                offset: Offset(0.3, 0.3),
-                              ),
-                            ],
+                            color: White,
+                            
                             borderRadius:
                                 new BorderRadius.all(Radius.circular(10.0))),
                         child: Padding(
@@ -104,21 +98,27 @@ class _KeuzeState extends State<Keuze> {
                               children: <Widget>[
                                 Text("Kies een functie",
                                     style: TextStyle(
-                                        color: Colors.white,
+                                        color: Geel,
                                         fontWeight: FontWeight.w900,
                                         fontSize: 30),
                                     textAlign: TextAlign.center),
                                 Text(
                                     "Dit kan je later in je instellingen wijzigen",
                                     style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
+                                        color: GrijsDark, fontSize: 16),
                                     textAlign: TextAlign.center),
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      height: 2,
+                                      width: 50,
+                                      color: Geel,
+                                    )
                               ],
                             )))),
 
                 // EINDE box met titel
                 Padding(
-                  padding: EdgeInsets.only(top: 50, right: 20.0, left: 20.0),
+                  padding: EdgeInsets.only(top: 20, right: 20.0, left: 20.0),
                   child: ButtonTheme(
                     minWidth: size.width * 0.90,
                     height: 100.0,
@@ -131,7 +131,7 @@ class _KeuzeState extends State<Keuze> {
                         ClipRRect(
                           child: Image.asset(
                             'assets/images/aankoperChoice.png',
-                            color: Geel.withOpacity(0.5),
+                            color: Geel.withOpacity(0.2),
                             colorBlendMode: BlendMode.srcOver,
                             width: size.width,
                             height: size.height / 3.5,
@@ -223,7 +223,7 @@ class _KeuzeState extends State<Keuze> {
                                 ClipRRect(
                                   child: Image.asset(
                                     'assets/images/bezorgerChoice.png',
-                                    color: Geel.withOpacity(0.75),
+                                    color: Geel.withOpacity(0.2),
                                     colorBlendMode: BlendMode.srcOver,
                                     width: size.width,
                                     height: size.height / 3.5,
