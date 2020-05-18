@@ -158,7 +158,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
               actionsIconTheme: IconThemeData(color: Geel),
               iconTheme: IconThemeData(color: Geel),
               textTheme: TextTheme(
-                  title: TextStyle(
+                  headline6: TextStyle(
                       color: Geel,
                       fontWeight: FontWeight.w700,
                       fontSize: 20,
@@ -244,12 +244,10 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                                           Navigator.of(context).pop();
                                           Navigator.push(
                                               context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => Profile(
-                                                        userEmail:
-                                                            connectedUserMail,
-                                                      ),
-                                                  fullscreenDialog: true));
+                                              SlideTopRoute(
+                                                  page: Profile(
+                                                userEmail: connectedUserMail,
+                                              )));
                                         },
                                       ))
                                 ],

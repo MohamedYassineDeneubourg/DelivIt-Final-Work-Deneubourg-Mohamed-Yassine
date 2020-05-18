@@ -46,8 +46,7 @@ class _PortefeuilleState extends State<Portefeuille> {
           email: connectedUserMail,
           userId: connectedUserMail.replaceFirst(RegExp('@'), 'AT'));
     } else if (gebruikerData['stripeCard'] == null) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => PortefeuilleKaart()));
+      Navigator.push(context, SlideTopRoute(page: PortefeuilleKaart()));
       // kaartToevoegen();
     } else {
       portefeuilleAanvullen();
@@ -174,21 +173,22 @@ class _PortefeuilleState extends State<Portefeuille> {
                                     ['payment_method']);
                           },
                         )),
-                 isLoading
+                isLoading
                     ? null
                     : ButtonTheme(
-                    minWidth: 400.0,
-                    child: FlatButton(
-                      color: GrijsDark,
-                      child: new Text(
-                        "ANNULEREN",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ))
+                        minWidth: 400.0,
+                        child: FlatButton(
+                          color: GrijsDark,
+                          child: new Text(
+                            "ANNULEREN",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ))
               ],
             );
           });
@@ -222,7 +222,7 @@ class _PortefeuilleState extends State<Portefeuille> {
       appBar: AppBar(
           backgroundColor: White,
           textTheme: TextTheme(
-              title: TextStyle(
+              headline6: TextStyle(
                   color: Geel,
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
@@ -518,9 +518,8 @@ class _PortefeuilleState extends State<Portefeuille> {
                                       }
                                       Navigator.push(
                                           context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PortefeuilleKaart()));
+                                          SlideTopRoute(
+                                              page: PortefeuilleKaart()));
                                     },
                                     title: Text("KAART TOEVOEGEN",
                                         textAlign: TextAlign.center,

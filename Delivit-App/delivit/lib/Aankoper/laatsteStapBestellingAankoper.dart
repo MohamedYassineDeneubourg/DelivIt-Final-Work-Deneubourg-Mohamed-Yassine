@@ -65,7 +65,7 @@ class _LaatsteStapBestellingAankoperState
         appBar: AppBar(
           backgroundColor: White,
           textTheme: TextTheme(
-              title: TextStyle(
+              headline6: TextStyle(
                   color: Geel,
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
@@ -143,7 +143,7 @@ class _LaatsteStapBestellingAankoperState
                                       Geolocator()
                                           .getCurrentPosition(
                                               desiredAccuracy: LocationAccuracy
-                                                 .bestForNavigation)
+                                                  .bestForNavigation)
                                           .then((e) async {
                                         var positieAdres = await Geolocator()
                                             .placemarkFromCoordinates(
@@ -454,7 +454,7 @@ class _LaatsteStapBestellingAankoperState
           reference.updateData({"MomenteleBestelling": [], "ShoppingBag": []});
           Navigator.of(loadingContext).pop();
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomeAankoper()));
+              context, SlideTopRoute(page: HomeAankoper()));
           showDialog(
               context: context,
               barrierDismissible: false,

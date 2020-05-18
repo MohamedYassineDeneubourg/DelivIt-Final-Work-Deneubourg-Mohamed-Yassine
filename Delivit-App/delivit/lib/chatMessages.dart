@@ -83,11 +83,10 @@ class _ChatMessagesState extends State<ChatMessages> {
                       onTap: () {
                         Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => Profile(
-                                      userEmail: emailPartner,
-                                    ),
-                                fullscreenDialog: true));
+                            SlideTopRoute(
+                                page: Profile(
+                              userEmail: emailPartner,
+                            )));
                       }),
                   Padding(
                     padding: EdgeInsets.only(right: size.width * 0.15),

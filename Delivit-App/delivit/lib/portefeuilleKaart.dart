@@ -63,7 +63,7 @@ class _PortefeuilleKaartState extends State<PortefeuilleKaart> {
       appBar: AppBar(
           backgroundColor: White,
           textTheme: TextTheme(
-              title: TextStyle(
+              headline6: TextStyle(
                   color: Geel,
                   fontWeight: FontWeight.w700,
                   fontSize: 20,

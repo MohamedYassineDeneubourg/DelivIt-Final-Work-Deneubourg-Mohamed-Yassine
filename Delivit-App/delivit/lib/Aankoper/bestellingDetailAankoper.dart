@@ -246,11 +246,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                 onPressed: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => Profile(
-                                userEmail: bezorgerMap['EmailBezorger'],
-                              ),
-                          fullscreenDialog: true));
+                      SlideTopRoute(
+                          page: Profile(
+                        userEmail: bezorgerMap['EmailBezorger'],
+                      )));
                 },
                 label: Text(
                   "Profiel bekijken",
@@ -570,11 +569,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                         print(bestelling);
                         Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => Profile(
-                                      userEmail: bestelling['BezorgerEmail'],
-                                    ),
-                                fullscreenDialog: true));
+                            SlideTopRoute(
+                                page: Profile(
+                              userEmail: bestelling['BezorgerEmail'],
+                            )));
                       }),
                 ),
                 Padding(
@@ -746,7 +744,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       appBar: AppBar(
           backgroundColor: White,
           textTheme: TextTheme(
-              title: TextStyle(
+              headline6: TextStyle(
                   color: Geel,
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
@@ -1253,7 +1251,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                     .updateData({
                                   "isBeschikbaar": false,
                                   "ConfirmatieKlant": true,
-                                  "isBeschikbaar": false,
                                   "BestellingStatus": "BEZORGD",
                                 });
 /*

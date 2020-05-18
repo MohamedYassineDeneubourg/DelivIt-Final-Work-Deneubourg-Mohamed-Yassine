@@ -379,11 +379,11 @@ class _KaartBezorgerState extends State<KaartBezorger>
     //print(connectedUserMail);
     Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => BestellingDetailBezorger(
-                  bestellingId: bestellingId,
-                  connectedUserMail: connectedUserMail,
-                ),
-            fullscreenDialog: true));
+        SlideTopRoute(
+          page: BestellingDetailBezorger(
+            bestellingId: bestellingId,
+            connectedUserMail: connectedUserMail,
+          ),
+        ));
   }
 }

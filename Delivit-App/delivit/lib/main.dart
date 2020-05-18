@@ -217,8 +217,8 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
       }
       Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => Register(
+          SlideTopRoute(
+            page: Register(
               phoneNumber: phoneNo,
             ),
           ));
@@ -240,8 +240,8 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
       }
       Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => Login(
+          SlideTopRoute(
+            page: Login(
               email: emailVoorLogin,
             ),
           ));

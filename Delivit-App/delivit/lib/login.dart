@@ -299,9 +299,7 @@ class _LoginState extends State<Login> {
       //print("USER LOGGED IN !");
       Navigator.pop(context);
       //print("popHier!");
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => Keuze()),
+      Navigator.pushAndRemoveUntil(context, SlideTopRoute(page: Keuze()),
           (Route<dynamic> route) => false);
     }
   }

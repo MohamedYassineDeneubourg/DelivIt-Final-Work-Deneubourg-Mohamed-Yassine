@@ -133,11 +133,11 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                   onTap: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => Profile(
-                                  userEmail: connectedUserMail,
-                                ),
-                            fullscreenDialog: true));
+                        SlideTopRoute(
+                          page: Profile(
+                            userEmail: connectedUserMail,
+                          ),
+                        ));
                   },
                 ),
                 ListTile(
@@ -154,9 +154,9 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                   onTap: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => Portefeuille(),
-                            fullscreenDialog: true));
+                        SlideTopRoute(
+                          page: Portefeuille(),
+                        ));
                   },
                 ),
                 ListTile(
@@ -172,7 +172,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             MovingMarkersPage(),
-                                        fullscreenDialog: true));  */
+                                        ));  */
                   },
                 ),
                 ListTile(
@@ -182,11 +182,11 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                     Navigator.pop(context);
                     Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => Keuze(
-                                  connectedUserMail: connectedUserMail,
-                                  redirect: false,
-                                )));
+                        SlideTopRoute(
+                            page: Keuze(
+                          connectedUserMail: connectedUserMail,
+                          redirect: false,
+                        )));
                   },
                 ),
                 ListTile(
@@ -218,8 +218,8 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                         onPressed: () {
                           FirebaseAuth.instance.signOut();
                           Navigator.pop(context);
-                          Navigator.pushReplacement(context,
-                              MaterialPageRoute(builder: (context) => Main()));
+                          Navigator.pushReplacement(
+                              context, SlideTopRoute(page: Main()));
                           print("uitlogg");
                         },
                         color: GrijsDark.withOpacity(0.7),
@@ -235,7 +235,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
       appBar: new AppBar(
         backgroundColor: White,
         textTheme: TextTheme(
-            title: TextStyle(
+            headline6: TextStyle(
                 color: Geel,
                 fontWeight: FontWeight.w700,
                 fontSize: 20,

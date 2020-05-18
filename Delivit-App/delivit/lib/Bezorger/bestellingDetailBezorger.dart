@@ -470,7 +470,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
       appBar: AppBar(
           backgroundColor: White,
           textTheme: TextTheme(
-              title: TextStyle(
+              headline6: TextStyle(
                   color: Geel,
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
@@ -555,12 +555,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 print(bestelling);
                                 Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Profile(
+                                    SlideTopRoute(
+                                page:Profile(
                                               userEmail:
                                                   bestelling['BezorgerEmail'],
-                                            ),
-                                        fullscreenDialog: true));
+                                            )));
                               }),
                         ),
                         Padding(

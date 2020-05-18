@@ -133,8 +133,6 @@ class _KaartAankoperState extends State<KaartAankoper>
                     onPressed: () {
                       print("click");
                       _toonPopupMarker(context, gebruiker);
-//TODO: ICI UN TODO
-
                       print('Follow user?');
                       if (this.mounted) {
                         setState(() {

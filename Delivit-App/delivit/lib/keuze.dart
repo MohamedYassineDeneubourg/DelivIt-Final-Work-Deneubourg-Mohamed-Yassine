@@ -313,9 +313,7 @@ class _KeuzeState extends State<Keuze> {
 
     reference.updateData({"Functie": "Aankoper"});
 
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomeAankoper()),
+    Navigator.pushAndRemoveUntil(context, SlideTopRoute(page: HomeAankoper()),
         (Route<dynamic> route) => false);
   }
 
@@ -325,9 +323,7 @@ class _KeuzeState extends State<Keuze> {
 
     reference.updateData({"Functie": "Bezorger"});
 
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomeBezorger()),
+    Navigator.pushAndRemoveUntil(context, SlideTopRoute(page: HomeBezorger()),
         (Route<dynamic> route) => false);
   }
 }

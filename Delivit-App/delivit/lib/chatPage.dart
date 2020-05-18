@@ -124,7 +124,7 @@ class _ChatPageState extends State<ChatPage> {
           actionsIconTheme: IconThemeData(color: Geel),
           iconTheme: IconThemeData(color: Geel),
           textTheme: TextTheme(
-              title: TextStyle(
+              headline6: TextStyle(
                   color: Geel,
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
@@ -210,22 +210,21 @@ SI IL ES EN LIGNE : FONCTIONNEL !
       print("EersteCreatie");
     } else {
       Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ChatMessages(
-                  conversationId: theDocument.documentID.toString(),
-                  connectedUserEmail: connectedUserEmail,
-                  emailPartner: emailPartner,
-                  naamVoornaam: naamVoornaam,
-                  fotoUrl: fotoUrl,
-                ),
-            fullscreenDialog: true),
-      );
+          context,
+          SlideTopRoute(
+            page: ChatMessages(
+              conversationId: theDocument.documentID.toString(),
+              connectedUserEmail: connectedUserEmail,
+              emailPartner: emailPartner,
+              naamVoornaam: naamVoornaam,
+              fotoUrl: fotoUrl,
+            ),
+          ));
     }
   }
 
-  createConversationAndGo(String emailPartner, String userId, String naamVoornaam,
-      String fotoUrl) async {
+  createConversationAndGo(String emailPartner, String userId,
+      String naamVoornaam, String fotoUrl) async {
     try {
       await Firestore.instance.collection("Conversations").document().setData({
         'Users': [userId, emailPartner],

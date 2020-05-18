@@ -399,10 +399,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                       onPressed: () {
                         Navigator.pop(context);
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ProfileUpdate(),
-                                fullscreenDialog: true));
+                            context, SlideTopRoute(page: ProfileUpdate()));
                       }),
                 )
               : Container(

@@ -53,7 +53,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
     } else {
       FirebaseAuth.instance.signOut();
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Main()));
+          context, SlideTopRoute(
+                                page: Main()));
     }
   }
 
@@ -90,11 +91,9 @@ class _HomeAankoperState extends State<HomeAankoper> {
                       image: DecorationImage(
                           colorFilter: ColorFilter.mode(
                               GrijsDark.withOpacity(0.7), BlendMode.srcOver),
-                          image: NetworkImage(
-                            (snapshot.hasData)
-                                ? snapshot.data['ProfileImage']
-                                : "",
-                          ),
+                          image: (snapshot.hasData)
+                              ? NetworkImage(snapshot.data['ProfileImage'])
+                              : null,
                           fit: BoxFit.cover)),
                   arrowColor: GrijsDark,
                   otherAccountsPictures: <Widget>[
@@ -135,11 +134,11 @@ class _HomeAankoperState extends State<HomeAankoper> {
                   onTap: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => Profile(
+                        SlideTopRoute(
+                                page:Profile(
                                   userEmail: connectedUserMail,
                                 ),
-                            fullscreenDialog: true));
+                            ));
                   },
                 ),
                 ListTile(
@@ -156,9 +155,9 @@ class _HomeAankoperState extends State<HomeAankoper> {
                   onTap: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => Portefeuille(),
-                            fullscreenDialog: true));
+                        SlideTopRoute(
+                                page:Portefeuille(),
+                            ));
                   },
                 ),
                 ListTile(
@@ -174,7 +173,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             ChatPage(isTutu: true),
-                                        fullscreenDialog: true)); */
+                                        )); */
                   },
                 ),
                 ListTile(
@@ -184,8 +183,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                     Navigator.pop(context);
                     Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => Keuze(
+                        SlideTopRoute(
+                                page:Keuze(
                                   connectedUserMail: connectedUserMail,
                                   redirect: false,
                                 )));
@@ -221,7 +220,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                           FirebaseAuth.instance.signOut();
                           Navigator.pop(context);
                           Navigator.pushReplacement(context,
-                              MaterialPageRoute(builder: (context) => Main()));
+                              SlideTopRoute(
+                                page: Main()));
                           print("uitlogg");
                         },
                         color: GrijsDark.withOpacity(0.7),
@@ -237,7 +237,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
       appBar: new AppBar(
         backgroundColor: White,
         textTheme: TextTheme(
-            title: TextStyle(
+            headline6: TextStyle(
                 color: Geel,
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
@@ -266,9 +266,9 @@ class _HomeAankoperState extends State<HomeAankoper> {
               print("PRODUCTENLIJST");
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => ProductenLijstAankoper(),
-                    fullscreenDialog: true),
+                SlideTopRoute(
+                                page:ProductenLijstAankoper(),
+                    ),
               );
             },
             child: Icon(

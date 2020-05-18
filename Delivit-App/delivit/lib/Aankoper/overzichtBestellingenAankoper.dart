@@ -196,8 +196,8 @@ class _OverzichtBestellingenAankoperState
                               onTap: () {
                                 Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
+                                    SlideTopRoute(
+                                page:
                                             BestellingDetailAankoper(
                                               bestellingId:
                                                   bestelling.documentID,

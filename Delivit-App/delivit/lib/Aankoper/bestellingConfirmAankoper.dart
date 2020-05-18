@@ -93,7 +93,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       appBar: AppBar(
         backgroundColor: White,
         textTheme: TextTheme(
-            title: TextStyle(
+            headline6: TextStyle(
                 color: Geel,
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
@@ -289,9 +289,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
         print("genoeg geld");
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) => LaatsteStapBestellingAankoper(),
-              fullscreenDialog: true),
+          SlideTopRoute(page: LaatsteStapBestellingAankoper()),
         );
       }
     });
@@ -379,8 +377,8 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                   onPressed: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => Portefeuille()));
+                        SlideTopRoute(
+                                page:Portefeuille()));
                     print("Naar portefeuille!");
 
                     //  signIn();

@@ -108,7 +108,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
       appBar: AppBar(
         backgroundColor: White,
         textTheme: TextTheme(
-            title: TextStyle(
+            headline6: TextStyle(
                 color: Geel,
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
@@ -245,9 +245,9 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => BestellingConfirmAankoper(),
-                    fullscreenDialog: true),
+                SlideTopRoute(
+                  page: BestellingConfirmAankoper(),
+                ),
               ).then((e) {
                 setState(() {
                   bestellingProducten = [];
@@ -367,10 +367,10 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                       transitionOnUserGestures: true,
                                       tag: producten[product].documentID,
                                       child: Image.network(
-                                        producten[product]
-                                            .data['ProductImage'],
-                                        height: 100,fit: BoxFit.cover
-                                      )))),
+                                          producten[product]
+                                              .data['ProductImage'],
+                                          height: 100,
+                                          fit: BoxFit.cover)))),
                         ),
                         Positioned(
                           top: 15,
