@@ -52,9 +52,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
       });
     } else {
       FirebaseAuth.instance.signOut();
-      Navigator.pushReplacement(
-          context, SlideTopRoute(
-                                page: Main()));
+      Navigator.pushReplacement(context, SlideTopRoute(page: Main()));
     }
   }
 
@@ -67,9 +65,9 @@ class _HomeAankoperState extends State<HomeAankoper> {
     super.initState();
   }
 
+//TODO: CHANGER DRAWER PAS DE STRAMBUILDER
   @override
   Widget build(BuildContext context) {
-    print("Drawer??");
     //_getData();
     //Size size = MediaQuery.of(context).size;
     return new Scaffold(
@@ -135,10 +133,10 @@ class _HomeAankoperState extends State<HomeAankoper> {
                     Navigator.push(
                         context,
                         SlideTopRoute(
-                                page:Profile(
-                                  userEmail: connectedUserMail,
-                                ),
-                            ));
+                          page: Profile(
+                            userEmail: connectedUserMail,
+                          ),
+                        ));
                   },
                 ),
                 ListTile(
@@ -156,8 +154,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                     Navigator.push(
                         context,
                         SlideTopRoute(
-                                page:Portefeuille(),
-                            ));
+                          page: Portefeuille(),
+                        ));
                   },
                 ),
                 ListTile(
@@ -184,10 +182,10 @@ class _HomeAankoperState extends State<HomeAankoper> {
                     Navigator.pushReplacement(
                         context,
                         SlideTopRoute(
-                                page:Keuze(
-                                  connectedUserMail: connectedUserMail,
-                                  redirect: false,
-                                )));
+                            page: Keuze(
+                          connectedUserMail: connectedUserMail,
+                          redirect: false,
+                        )));
                   },
                 ),
                 ListTile(
@@ -219,9 +217,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                         onPressed: () {
                           FirebaseAuth.instance.signOut();
                           Navigator.pop(context);
-                          Navigator.pushReplacement(context,
-                              SlideTopRoute(
-                                page: Main()));
+                          Navigator.pushReplacement(
+                              context, SlideTopRoute(page: Main()));
                           print("uitlogg");
                         },
                         color: GrijsDark.withOpacity(0.7),
@@ -267,8 +264,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
               Navigator.push(
                 context,
                 SlideTopRoute(
-                                page:ProductenLijstAankoper(),
-                    ),
+                  page: ProductenLijstAankoper(),
+                ),
               );
             },
             child: Icon(

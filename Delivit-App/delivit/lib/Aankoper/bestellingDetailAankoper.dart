@@ -77,9 +77,11 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
             bestellingLijst = []..addAll(data.data['BestellingLijst']);
           }
         });
-
-        getBezorgerInfo();
-
+        if ((bestelling['BestellingStatus'] != "AANBIEDING GEKREGEN" ||
+                bestelling['BestellingStatus'] != "AANVRAAG") &&
+            (bestelling['BezorgerEmail'] != "")) {
+          getBezorgerInfo();
+        }
         if (bestelling['BestellingStatus'] == "AANBIEDING GEKREGEN") {
           bestelling['AanbodLijst'].forEach((aanbod) {
             double distanceInMeters;
@@ -504,7 +506,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   getBezorgerInfo() {
     if (bestelling != null) {
-      print(bestelling['BezorgerEmail']);
       var reference = Firestore.instance
           .collection("Users")
           .document(bestelling['BezorgerEmail'])
@@ -522,8 +523,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   getInfoWidget(status) {
     //getBezorgerInfo();
-
-    print("yso");
     Size size = MediaQuery.of(context).size;
     if (bezorgerInfo != null) {
       return ListTile(
@@ -566,7 +565,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        print(bestelling);
                         Navigator.push(
                             context,
                             SlideTopRoute(
@@ -612,10 +610,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       //getBezorgerInfo();
       getMarkers();
     });
-    print("nono");
     Size size = MediaQuery.of(context).size;
     if (bezorgerInfo != null) {
-      //print("mapinfo");
       return Expanded(
         child: Container(
             width: size.width,
@@ -679,7 +675,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
   }
 
   getMarkers() {
-    print(bezorgerInfo);
     if (bezorgerInfo != null && bestelling != null) {
       //print(bezorgerInfo['Position']['latitude']);
       //print(bezorgerInfo['Position']['longitude']);
@@ -1040,7 +1035,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       ratingScoreList = [];
     }
 
-    print(ratingScoreList);
     num ratingNumber;
     String ratingMessage;
     bool anonyme = false;
@@ -1131,7 +1125,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                             padding: EdgeInsets.only(top: 15.0),
                             child: TextFormField(
                               onTap: () {
-                                print("tap");
                                 scrollController.animateTo(
                                   0.0,
                                   curve: Curves.easeOut,
