@@ -46,8 +46,8 @@ void verplaatsKaart(MapController mapController, LatLng destLocation,
       begin: mapController.center.longitude, end: destLocation.longitude);
   final _zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
 
-  var controller = AnimationController(
-      duration: const Duration(milliseconds: 500), vsync: vsync);
+  var controller =
+      AnimationController(duration: Duration(milliseconds: 500), vsync: vsync);
 
   Animation<double> animation =
       CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);

@@ -194,7 +194,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
                 ListTile(
                   leading: Icon(FontAwesomeIcons.solidQuestionCircle,
                       color: GrijsDark),
-                  title: Text('Aide'),
+                  title: Text('Help'),
                   onTap: () {
                     print('Launch mail..');
                     launch(

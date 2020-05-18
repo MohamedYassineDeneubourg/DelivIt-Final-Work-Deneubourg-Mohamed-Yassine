@@ -192,7 +192,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                 ListTile(
                   leading: Icon(FontAwesomeIcons.solidQuestionCircle,
                       color: GrijsDark),
-                  title: Text('Aide'),
+                  title: Text('Help'),
                   onTap: () {
                     print('Launch mail..');
                     launch(

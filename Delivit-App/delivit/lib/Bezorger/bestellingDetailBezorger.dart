@@ -28,7 +28,8 @@ class BestellingDetailBezorger extends StatefulWidget {
           connectedUserMail: connectedUserMail);
 }
 
-class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
+class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
+    with TickerProviderStateMixin {
   Map aankoperInfo;
   _BestellingDetailBezorgerState(
       {Key key, @required this.bestellingId, @required this.connectedUserMail});
@@ -414,48 +415,51 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger> {
       //print(mapController);
 
       mapController.onReady.then((result) {
-        verplaatsKaart(mapController,
-            LatLng(latitudeBezorger, longitudeBezorger), 15, this);
-        setState(() {
-          opMapMarkers = [
-            Marker(
-              width: 35.0,
-              height: 35.0,
-              point: new LatLng(latitudeBestelling, longitudeBestelling),
-              builder: (ctx) => new Container(
-                child: new RawMaterialButton(
-                  onPressed: null,
-                  child: Icon(
-                    Icons.home,
-                    color: Colors.white,
-                    size: 20.0,
+        if (this.mounted) {
+          verplaatsKaart(mapController,
+              LatLng(latitudeBezorger, longitudeBezorger), 15, this);
+
+          setState(() {
+            opMapMarkers = [
+              Marker(
+                width: 35.0,
+                height: 35.0,
+                point: new LatLng(latitudeBestelling, longitudeBestelling),
+                builder: (ctx) => new Container(
+                  child: new RawMaterialButton(
+                    onPressed: null,
+                    child: Icon(
+                      Icons.home,
+                      color: Colors.white,
+                      size: 20.0,
+                    ),
+                    shape: new CircleBorder(),
+                    elevation: 1.0,
+                    fillColor: Colors.blue,
                   ),
-                  shape: new CircleBorder(),
-                  elevation: 1.0,
-                  fillColor: Colors.blue,
                 ),
               ),
-            ),
-            Marker(
-              width: 35.0,
-              height: 35.0,
-              point: new LatLng(latitudeBezorger, longitudeBezorger),
-              builder: (ctx) => new Container(
-                child: new RawMaterialButton(
-                  onPressed: null,
-                  child: Icon(
-                    Icons.directions_bike,
-                    color: Colors.white,
-                    size: 20.0,
+              Marker(
+                width: 35.0,
+                height: 35.0,
+                point: new LatLng(latitudeBezorger, longitudeBezorger),
+                builder: (ctx) => new Container(
+                  child: new RawMaterialButton(
+                    onPressed: null,
+                    child: Icon(
+                      Icons.directions_bike,
+                      color: Colors.white,
+                      size: 20.0,
+                    ),
+                    shape: new CircleBorder(),
+                    elevation: 3.0,
+                    fillColor: Geel,
                   ),
-                  shape: new CircleBorder(),
-                  elevation: 3.0,
-                  fillColor: Geel,
                 ),
-              ),
-            )
-          ];
-        });
+              )
+            ];
+          });
+        }
       });
     }
   }
