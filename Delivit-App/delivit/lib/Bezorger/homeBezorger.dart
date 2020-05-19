@@ -1,11 +1,8 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
-import 'package:delivit/Bezorger/overzichtBestellingenBesteldeBezorger.dart';
-//import 'package:delivit/Bezorger/overzichtBestellingenBezorger.dart';
-//import 'package:delivit/Bezorger/productenLijstBezorger.dart';
+import 'package:delivit/Bezorger/overzichtBesteldeBestellingenBezorger.dart';
 import 'package:delivit/globals.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/main.dart';
@@ -255,7 +252,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                           children: <Widget>[
                             Icon(Icons.sync),
                             Text(
-                              "BESTELLINGEN",
+                              "TE BEZORGEN",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -267,7 +264,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                           children: <Widget>[
                             Icon(Icons.check),
                             Text(
-                              "BESTELD",
+                              "BEZORGD",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],

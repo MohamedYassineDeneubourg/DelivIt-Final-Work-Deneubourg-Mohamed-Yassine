@@ -31,11 +31,12 @@ class _OverzichtBesteldeBestellingenBezorgerState
 
   @override
   Widget build(BuildContext context) {
+    print(connectedUserMail);
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('Commands')
           .where("BezorgerEmail", isEqualTo: connectedUserMail)
-          .where("BestellingStatus", whereIn: ["BEZORGD", "GEANNULEERD"])
+          .where("BestellingStatus", isEqualTo: "BEZORGD")
           .orderBy("BezorgDatumEnTijd", descending: true)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -107,6 +108,7 @@ class _OverzichtBesteldeBestellingenBezorgerState
               itemCount: snapshot.data.documents.length,
               itemBuilder: (_, index) {
                 var bestelling = snapshot.data.documents[index];
+                print(bestelling["BezorgerEmail"]);
                 String bestellingStatus = bestelling['BestellingStatus'];
                 String datum = new DateFormat.d()
                         .format(bestelling['BezorgDatumEnTijd'].toDate())
@@ -168,14 +170,14 @@ class _OverzichtBesteldeBestellingenBezorgerState
           );
         } else {
           return Padding(
-            padding: const EdgeInsets.only(right: 40.0, left: 40),
+            padding: const EdgeInsets.only(right: 40.0, left: 40, bottom: 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Lottie.asset('assets/Animations/empty.json'),
                 Text(
-                  "Je hebt nog geen bestellingen genomen. \n Bekijk de interactieve map! ",
+                  "Je hebt nog geen bestellingen bezorgd...",
                   textAlign: TextAlign.center,
                 ),
               ],

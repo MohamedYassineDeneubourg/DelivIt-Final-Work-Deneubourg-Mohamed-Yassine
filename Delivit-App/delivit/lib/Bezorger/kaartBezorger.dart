@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
 import 'package:delivit/globals.dart';
@@ -137,24 +138,34 @@ class _KaartBezorgerState extends State<KaartBezorger>
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot bestelling = querySnapshot.documents[i];
         Map positionMap = bestelling['AdresPosition'];
-        //print("NEW ON " + i.toString());
-        opMapBestellingen.add(
-          new Marker(
-            width: 100.0,
-            height: 100.0,
-            point:
-                new LatLng(positionMap['latitude'], positionMap['longitude']),
-            builder: (ctx) => new Container(
-                child: Column(
-              children: <Widget>[
-                new RawMaterialButton(
-                  padding: (selectedBestelling['documentID'] ==
-                          bestelling.documentID)
-                      ? EdgeInsets.all(10)
-                      : EdgeInsets.all(2),
-                  onPressed: () async {
-                    _toonPopupMarker(context, bestelling);
-                    /*
+
+        if (connectedUserMail != bestelling['AankoperEmail']) {
+          if (opMapBestellingen != null) {
+            opMapBestellingen.add(
+              new Marker(
+                width: 100.0,
+                height: 100.0,
+                point: new LatLng(
+                    positionMap['latitude'], positionMap['longitude']),
+                builder: (ctx) => new Container(
+                    child: Column(
+                  children: <Widget>[
+                    new RawMaterialButton(
+                      padding: (selectedBestelling['documentID'] ==
+                              bestelling.documentID)
+                          ? EdgeInsets.all(10)
+                          : EdgeInsets.all(2),
+                      onPressed: () async {
+                        print(selectedBestelling);
+
+                        _toonPopupMarker(context, bestelling);
+                        setState(() {
+                          selectedBestelling['documentID'] =
+                              bestelling.documentID;
+                        });
+                        print(selectedBestelling);
+
+                        /*
                     String distance =
                         await getDistance(bestelling['AdresPosition']);
                     //print("yo");
@@ -175,20 +186,25 @@ class _KaartBezorgerState extends State<KaartBezorger>
                       isVisible = true;
                       paddingButton = 100;
                     });  }*/
-                  },
-                  child: new Icon(
-                    Icons.shopping_cart,
-                    color: Geel,
-                    size: 25.0,
-                  ),
-                  shape: new CircleBorder(),
-                  elevation: 2.0,
-                  fillColor: Colors.white,
-                )
-              ],
-            )),
-          ),
-        );
+                      },
+                      child: new Icon(
+                        Icons.shopping_cart,
+                        color: Geel,
+                        size: 25.0,
+                      ),
+                      shape: new CircleBorder(),
+                      elevation: 2.0,
+                      fillColor: Colors.white,
+                    )
+                  ],
+                )),
+              ),
+            );
+          }
+          setState(() {
+            opMapBestellingen = opMapBestellingen;
+          });
+        }
       }
     });
   }
@@ -319,49 +335,64 @@ class _KaartBezorgerState extends State<KaartBezorger>
         context: context,
         builder: (BuildContext context) {
           return Container(
+            padding: EdgeInsets.only(top: 10, bottom: 30),
             decoration: BoxDecoration(
                 color: White,
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20))),
-            child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: ListTile(
-                  contentPadding:
-                      EdgeInsets.only(top: 4, right: 0, left: 15, bottom: 4),
-                  onTap: () {
-                    naarDetailBestelling(selectedBestelling.documentID);
-                  },
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(distance.toString() + "km",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      IconButton(
-                          icon: Icon(Icons.arrow_forward_ios),
-                          onPressed: () {
-                            naarDetailBestelling(selectedBestelling.documentID);
-                          })
-                    ],
-                  ),
-                  leading: CircleAvatar(
-                    child: Icon(
-                      Icons.shopping_cart,
-                      color: GrijsDark,
-                      size: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
                     ),
-                    backgroundColor: GeelAccent,
-                  ),
-                  title: Text(
-                      (selectedBestelling['BestellingLijst'].length)
-                              .toString() +
-                          " producten te bezorgen",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(selectedBestelling['Adres']),
-                )),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.only(
+                          top: 4, right: 0, left: 15, bottom: 4),
+                      onTap: () {
+                        naarDetailBestelling(selectedBestelling.documentID);
+                      },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(distance.toString() + "km",
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          IconButton(
+                              icon: Icon(Icons.arrow_forward_ios),
+                              onPressed: () {
+                                naarDetailBestelling(
+                                    selectedBestelling.documentID);
+                              })
+                        ],
+                      ),
+                      leading: CircleAvatar(
+                        child: Icon(
+                          Icons.shopping_cart,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                        backgroundColor: GeelAccent,
+                      ),
+                      title: Text(
+                        getDatumToString(
+                            selectedBestelling['BezorgDatumEnTijd']),
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(selectedBestelling['Adres']),
+                    )),
+                AutoSizeText(
+                    (selectedBestelling['BestellingLijst'].length).toString() +
+                        " PRODUCTEN TE BEZORGEN",
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    )),
+              ],
+            ),
           );
         });
   }

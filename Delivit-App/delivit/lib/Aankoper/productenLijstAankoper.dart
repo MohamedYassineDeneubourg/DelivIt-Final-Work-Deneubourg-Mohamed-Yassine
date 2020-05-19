@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:toast/toast.dart';
 
 class ProductenLijstAankoper extends StatefulWidget {
   @override
@@ -227,35 +228,47 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
     }
 
     return Scaffold(
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
-        child: FloatingActionButton.extended(
-            heroTag: "ButtonBestelling",
-            splashColor: GrijsDark,
-            elevation: 4.0,
-            backgroundColor: Geel,
-            icon: const Icon(
-              Icons.shopping_cart,
-              color: White,
+      floatingActionButton: (bestellingProducten.length < 1)
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: FloatingActionButton.extended(
+                  heroTag: "ButtonBestelling",
+                  splashColor: GrijsDark,
+                  elevation: 4.0,
+                  backgroundColor: Geel,
+                  icon: const Icon(
+                    Icons.shopping_cart,
+                    color: White,
+                  ),
+                  label: Text(
+                    "BESTELLEN (" +
+                        (bestellingProducten.length).toString() +
+                        ")",
+                    style: TextStyle(color: White, fontWeight: FontWeight.w800),
+                  ),
+                  onPressed: () {
+                    if (bestellingProducten.length < 1) {
+                      Toast.show(
+                          "Je moet minstens 1 product selecteren.", context,
+                          duration: Toast.LENGTH_SHORT,
+                          gravity: Toast.BOTTOM,
+                          backgroundColor: Colors.red);
+                    } else {
+                      Navigator.push(
+                        context,
+                        SlideTopRoute(
+                          page: BestellingConfirmAankoper(),
+                        ),
+                      ).then((e) {
+                        setState(() {
+                          bestellingProducten = [];
+                          getShoppingBag();
+                        });
+                      });
+                    }
+                  }),
             ),
-            label: Text(
-              "BESTELLEN (" + (bestellingProducten.length).toString() + ")",
-              style: TextStyle(color: White, fontWeight: FontWeight.w800),
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                SlideTopRoute(
-                  page: BestellingConfirmAankoper(),
-                ),
-              ).then((e) {
-                setState(() {
-                  bestellingProducten = [];
-                  getShoppingBag();
-                });
-              });
-            }),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Column(
         children: <Widget>[

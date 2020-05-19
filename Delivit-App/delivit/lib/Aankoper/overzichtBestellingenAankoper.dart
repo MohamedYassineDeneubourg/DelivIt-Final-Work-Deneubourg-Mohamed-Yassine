@@ -92,9 +92,17 @@ class _OverzichtBestellingenAankoperState
 
             case ("BEZORGD"):
               return Icon(
-                Icons.assignment_turned_in,
+                Icons.check,
                 size: 30,
                 color: Geel,
+              );
+              break;
+
+            case ("GEANNULEERD"):
+              return Icon(
+                Icons.delete,
+                size: 30,
+                color: Colors.redAccent.withOpacity(0.4),
               );
               break;
 
@@ -194,17 +202,31 @@ class _OverzichtBestellingenAankoperState
                             ),
                             child: ListTile(
                               onTap: () {
-                                //TODO: bug quand je clique, sur iphone
                                 Navigator.push(
                                     context,
-                                    SlideTopRoute( page: BestellingDetailAankoper(
-                                              bestellingId: bestelling.documentID)));
+                                    SlideTopRoute(
+                                        page: BestellingDetailAankoper(
+                                            bestellingId:
+                                                bestelling.documentID)));
                               },
                               trailing: getIcon(bestellingStatus),
                               title: Text("Bestelling: " + datum + " - " + tijd,
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text( bestellingStatus),
+                                  style: TextStyle(
+                                      color: (bestellingStatus == "BEZORGD" ||
+                                              bestellingStatus == "GEANNULEERD")
+                                          ? GrijsMidden
+                                          : Colors.black,
+                                      fontWeight: FontWeight.bold)),
+                              subtitle: Text(
+                                (bestellingStatus == "AANBIEDING GEKREGEN")
+                                    ? "AANBIEDING GESTUURD"
+                                    : bestellingStatus,
+                                style: TextStyle(
+                                    color: (bestellingStatus == "BEZORGD" ||
+                                            bestellingStatus == "GEANNULEERD")
+                                        ? GrijsDark
+                                        : Colors.black),
+                              ),
                             ));
                       },
                     ),

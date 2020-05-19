@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/Aankoper/homeAankoper.dart';
 import 'package:delivit/globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -436,6 +435,7 @@ class _LaatsteStapBestellingAankoperState
         await Firestore.instance.collection("Commands").document().setData({
           'AdresPosition': adresPosition,
           'AanbodLijst': [],
+          'AanbodEmailLijst': [],
           'Adres': _straat + " " + _nummer + ", " + _postcode,
           'AdditioneleInformatie': _additioneleInformatie,
           'BestellingLijst': bestellingLijst,
@@ -453,8 +453,15 @@ class _LaatsteStapBestellingAankoperState
 
           reference.updateData({"MomenteleBestelling": [], "ShoppingBag": []});
           Navigator.of(loadingContext).pop();
-          Navigator.pushReplacement(
-              context, SlideTopRoute(page: HomeAankoper()));
+          if (context != null) {
+            Navigator.pop(context);
+          }
+          if (context != null) {
+            Navigator.pop(context);
+          }
+          if (context != null) {
+            Navigator.pop(context);
+          }
           showDialog(
               context: context,
               barrierDismissible: false,

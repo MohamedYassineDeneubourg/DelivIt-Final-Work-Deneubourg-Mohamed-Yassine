@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
 import 'package:delivit/globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +36,7 @@ class _OverzichtBestellingenBezorgerState
       stream: Firestore.instance
           .collection('Commands')
           .where("BezorgerEmail", isEqualTo: connectedUserMail)
+          .where("AanbodEmailLijst", arrayContains: connectedUserMail)
           .orderBy("BezorgDatumEnTijd", descending: true)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -72,6 +74,13 @@ class _OverzichtBestellingenBezorgerState
               );
               break;
 
+            case ("BESTELLING CONFIRMATIE"):
+              return Icon(
+                Icons.access_time,
+                size: 30,
+                color: Colors.orange,
+              );
+              break;
             case ("BEZORGD"):
               return Icon(
                 Icons.check,
@@ -84,7 +93,7 @@ class _OverzichtBestellingenBezorgerState
               return Icon(
                 Icons.delete,
                 size: 30,
-                color: Colors.redAccent.withOpacity(0.7),
+                color: Colors.redAccent.withOpacity(0.4),
               );
               break;
 

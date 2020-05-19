@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
+import 'package:intl/intl.dart';
 
 const Geel = Color(0xFFF3D511);
 const GeelAccent = Color(0xFFF7E710);
@@ -95,4 +96,16 @@ class SlideTopRoute extends PageRouteBuilder {
             child: child,
           ),
         );
+}
+
+getDatumToString(timestamp) {
+  String datum = new DateFormat.d().format(timestamp.toDate()).toString() +
+      "/" +
+      DateFormat.M().format(timestamp.toDate()).toString() +
+      "/" +
+      DateFormat.y().format(timestamp.toDate()).toString();
+
+  String tijd = new DateFormat.Hm().format(timestamp.toDate()).toString();
+
+  return datum + " - " + tijd;
 }

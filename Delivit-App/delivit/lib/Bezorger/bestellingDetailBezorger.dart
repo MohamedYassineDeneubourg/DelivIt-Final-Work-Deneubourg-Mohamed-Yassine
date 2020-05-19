@@ -31,6 +31,8 @@ class BestellingDetailBezorger extends StatefulWidget {
 class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
     with TickerProviderStateMixin {
   Map aankoperInfo;
+
+  int aanbodBezorgingTijd = 0;
   _BestellingDetailBezorgerState(
       {Key key, @required this.bestellingId, @required this.connectedUserMail});
   String buttonText = "";
@@ -125,29 +127,151 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
     return datum + " - " + tijd;
   }
 
+  maakAanbod() {
+    bool isLoading = false;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12.0))),
+              title: new Text(
+                "AANBOD MAKEN",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: isLoading
+                  ? Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: SpinKitDoubleBounce(
+                          color: Geel,
+                          size: 30,
+                        ),
+                      )
+                    ])
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                            "Hoeveel tijd zal dit je kosten om deze bestelling te bezorgen?"),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 25, bottom: 25.0),
+                          child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.remove_circle,
+                                    size: 35,
+                                  ),
+                                  onPressed: () {
+                                    if (aanbodBezorgingTijd > 10) {
+                                      setState(() {
+                                        aanbodBezorgingTijd =
+                                            aanbodBezorgingTijd - 10;
+                                      });
+                                    }
+                                  },
+                                ),
+                                Text(
+                                  aanbodBezorgingTijd.toString() + " min",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 30),
+                                ),
+                                IconButton(
+                                    icon: Icon(
+                                      Icons.add_circle,
+                                      color: Geel,
+                                      size: 35,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        aanbodBezorgingTijd =
+                                            aanbodBezorgingTijd + 10;
+                                      });
+                                    }),
+                              ]),
+                        ),
+                        Text("€ " +
+                            (getTotalePrijs() + bestelling['LeveringKosten'])
+                                .toStringAsFixed(2)),
+                      ],
+                    ),
+              actions: <Widget>[
+                isLoading
+                    ? null
+                    : ButtonTheme(
+                        minWidth: 400.0,
+                        child: FlatButton(
+                          color: isLoading ? GrijsDark : Geel,
+                          child: new Text(
+                            "AANBOD STUREN",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            Firestore.instance
+                                .collection('Commands')
+                                .document(bestellingId)
+                                .updateData({
+                              "BestellingStatus": "AANBIEDING GEKREGEN",
+                              "AanbodEmailLijst":
+                                  FieldValue.arrayUnion([connectedUserMail]),
+                              "AanbodLijst": FieldValue.arrayUnion([
+                                {
+                                  'EmailBezorger': connectedUserMail,
+                                  "AanbodBezorgingTijd": aanbodBezorgingTijd,
+                                  'TotaleAanbodPrijs': getTotalePrijs() +
+                                      bestelling["LeveringKosten"],
+                                  'PrijsVanProducten': getTotalePrijs(),
+                                  'LeveringKosten':
+                                      bestelling["LeveringKosten"],
+                                  'ComissieAankoper':
+                                      (percentageCommisie * getTotalePrijs())
+                                          .ceilToDouble()
+                                }
+                              ])
+                            });
+                            setState(() {
+                              isLoading = false;
+                            });
+                          },
+                        )),
+                isLoading
+                    ? null
+                    : ButtonTheme(
+                        minWidth: 400.0,
+                        child: FlatButton(
+                          color: GrijsDark,
+                          child: new Text(
+                            "TERUG",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ))
+              ],
+            );
+          });
+        });
+  }
+
   getFloatingButtonWidget(status) {
     switch (status) {
       case ("AANVRAAG"):
         if (!checkAanbod()) {
           return floatingButton(
               "AANBOD MAKEN", FontAwesomeIcons.solidArrowAltCircleUp, () {
-            Firestore.instance
-                .collection('Commands')
-                .document(bestellingId)
-                .updateData({
-              "BestellingStatus": "AANBIEDING GEKREGEN",
-              "AanbodLijst": FieldValue.arrayUnion([
-                {
-                  'EmailBezorger': connectedUserMail,
-                  'TotaleAanbodPrijs':
-                      getTotalePrijs() + bestelling["LeveringKosten"],
-                  'PrijsVanProducten': getTotalePrijs(),
-                  'LeveringKosten': bestelling["LeveringKosten"],
-                  'ComissieAankoper':
-                      (percentageCommisie * getTotalePrijs()).ceilToDouble()
-                }
-              ])
-            });
+            maakAanbod();
           });
         } else {
           return null;
@@ -163,6 +287,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                 .document(bestellingId)
                 .updateData({
               "BestellingStatus": "AANBIEDING GEKREGEN",
+              "AanbodEmailLijst": FieldValue.arrayUnion([connectedUserMail]),
               "AanbodLijst": FieldValue.arrayUnion([
                 {
                   'EmailBezorger': connectedUserMail,
@@ -387,7 +512,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   }
 
   getAankoperInfo() {
-    //TODO: quand je retourne sur la liste --> bug!
     if (bestelling != null) {
       //print(bestelling);
       var reference = Firestore.instance
@@ -753,8 +877,16 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                       padding: EdgeInsets.all(20),
                                       child: Column(
                                         children: <Widget>[
-                                          //TODO: faire comprendre que ca doit etre livrer pour cette date la genre :
-                                          Text("prevu pour " + getDatum(),
+                                          Text(
+                                            "MOET WORDEN BEZORGD VOOR",
+                                            style: TextStyle(
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 13,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          Text(getDatum(),
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.w900,
@@ -767,27 +899,26 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                                 fontSize: 16),
                                           ),
                                           //TODO: pourquoi ecrire aanvraag, je le sais en tant qeu bezorger
-                                          // Divider(
-                                          //   color: White,
-                                          //   thickness: 2,
-                                          // ),
-                                          // Text(
-
-                                          //   "Status:",
-                                          //   style: TextStyle(
-                                          //       fontWeight: FontWeight.w600,
-                                          //       color: Colors.white,
-                                          //       fontSize: 16),
-                                          // ),
-                                          // Text(
-                                          //   bestelling['BestellingStatus'],
-                                          //   style: TextStyle(
-                                          //     color: Colors.black87,
-                                          //     fontWeight: FontWeight.w900,
-                                          //     fontSize: 26,
-                                          //   ),
-                                          //   textAlign: TextAlign.center,
-                                          // ),
+                                          Divider(
+                                            color: White,
+                                            thickness: 2,
+                                          ),
+                                          Text(
+                                            "Status:",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                                fontSize: 14),
+                                          ),
+                                          Text(
+                                            bestelling['BestellingStatus'],
+                                            style: TextStyle(
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 16,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
                                         ],
                                       )))),
                           Container(
@@ -863,33 +994,35 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                               ),
                             ],
                           )
-                        : Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: MediaQuery.of(context).size.height *
-                                        0.30,
-                                    bottom: 20),
-                                child: SpinKitDoubleBounce(
-                                  color: Geel,
-                                  size: 30,
+                        : Container(
+                            child: Column(
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: MediaQuery.of(context).size.height *
+                                          0.30,
+                                      bottom: 20),
+                                  child: SpinKitDoubleBounce(
+                                    color: Geel,
+                                    size: 30,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "Je aanbod werd gestuurd, eventjes wachten op de bevestiging..",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                    fontSize: 16),
-                                textAlign: TextAlign.center,
-                              ),
-                              (bestelling['BestellingStatus'] == "AANVRAAG")
-                                  ? getAanbodPrijsWidget()
-                                  : (bestelling['BestellingStatus'] ==
-                                          "AANBIEDING GEKREGEN")
-                                      ? getAanbodPrijsWidget()
-                                      : getTotalePrijsWidget(),
-                            ],
+                                Text(
+                                  "Je aanbod werd gestuurd, eventjes wachten op de bevestiging..",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                      fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ),
+                                (bestelling['BestellingStatus'] == "AANVRAAG")
+                                    ? getAanbodPrijsWidget()
+                                    : (bestelling['BestellingStatus'] ==
+                                            "AANBIEDING GEKREGEN")
+                                        ? getAanbodPrijsWidget()
+                                        : getTotalePrijsWidget(),
+                              ],
+                            ),
                           ))
             : Container(
                 child: SpinKitDoubleBounce(
@@ -996,7 +1129,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
               child: Column(
                 children: <Widget>[
                   Divider(
-                    color: GrijsDark,
+                    color: GrijsMidden,
                     height: 10,
                     thickness: 2,
                   ),
