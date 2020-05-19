@@ -59,6 +59,8 @@ void verplaatsKaart(MapController mapController, LatLng destLocation,
   });
 
   animation.addStatusListener((status) {
+    print("STATUS------");
+    print(status);
     if (status == AnimationStatus.completed) {
       controller.dispose();
     } else if (status == AnimationStatus.dismissed) {

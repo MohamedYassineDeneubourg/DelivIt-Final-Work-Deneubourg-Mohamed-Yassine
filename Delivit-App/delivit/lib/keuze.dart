@@ -74,7 +74,6 @@ class _KeuzeState extends State<Keuze> {
                   padding: EdgeInsets.only(top: 50),
                   child: Container(
                       width: size.width * 0.90,
-                      
                       child: Padding(
                           padding: EdgeInsets.only(
                               bottom: 20, top: 10, right: 15, left: 15),
@@ -88,15 +87,15 @@ class _KeuzeState extends State<Keuze> {
                                   textAlign: TextAlign.center),
                               Text(
                                   "Dit kan je later in je instellingen wijzigen",
-                                  style: TextStyle(
-                                      color: GrijsDark, fontSize: 16),
+                                  style:
+                                      TextStyle(color: GrijsDark, fontSize: 16),
                                   textAlign: TextAlign.center),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 10),
-                                    height: 2,
-                                    width: 50,
-                                    color: Geel,
-                                  )
+                              Container(
+                                margin: EdgeInsets.only(top: 10),
+                                height: 2,
+                                width: 50,
+                                color: Geel,
+                              )
                             ],
                           )))),
               // EINDE titel
@@ -114,7 +113,7 @@ class _KeuzeState extends State<Keuze> {
                       ClipRRect(
                         child: Image.asset(
                           'assets/images/aankoperChoice.png',
-                          color: Geel.withOpacity(0.2),
+                          color: Geel.withOpacity(0.25),
                           colorBlendMode: BlendMode.srcOver,
                           width: size.width,
                           height: size.height / 3.5,
@@ -206,7 +205,7 @@ class _KeuzeState extends State<Keuze> {
                               ClipRRect(
                                 child: Image.asset(
                                   'assets/images/bezorgerChoice.png',
-                                  color: Geel.withOpacity(0.2),
+                                  color: Geel.withOpacity(0.25),
                                   colorBlendMode: BlendMode.srcOver,
                                   width: size.width,
                                   height: size.height / 3.5,
@@ -231,8 +230,7 @@ class _KeuzeState extends State<Keuze> {
                                                     Shadow(
                                                       blurRadius: 20.0,
                                                       color: Colors.black,
-                                                      offset:
-                                                          Offset(3.0, 3.0),
+                                                      offset: Offset(3.0, 3.0),
                                                     ),
                                                   ]),
                                               textAlign: TextAlign.center))),
@@ -290,6 +288,7 @@ class _KeuzeState extends State<Keuze> {
   }
 
   Future<void> aankoperGekozen() async {
+    print(connectedUserMail);
     var reference =
         Firestore.instance.collection("Users").document(connectedUserMail);
 

@@ -298,7 +298,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                   print(verzameldeProducten);
                   print(bestellingLijst[index]);
                   return Card(
-                    // TODO: add checkbutton - verzamel
+                      // TODO: add checkbutton - verzamel
                       color: (verzameldeProducten
                               .contains(bestellingLijst[index]['ProductID']))
                           ? GrijsMidden.withOpacity(0.3)
@@ -489,7 +489,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
           )),
       body: getCorrectInterface(),
       floatingActionButton: (bestelling != null)
-          ? getFloatingButtonWidget(bestelling['BestellingStatus'])
+          ? ((bestelling['BezorgerEmail'] != connectedUserMail) &&
+                  (bestelling['BestellingStatus'] != "AANBIEDING GEKREGEN") &&
+                  (bestelling['BestellingStatus'] != "AANVRAAG"))
+              ? null
+              : getFloatingButtonWidget(bestelling['BestellingStatus'])
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -591,7 +595,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                     ),
                   )),
               (status == "BEZORGD" && mapController != null)
-              //TODO: enlever cette icone de merde, ajouter prix 
+                  //TODO: enlever cette icone de merde, ajouter prix
                   ? Lottie.asset('assets/Animations/checked.json',
                       width: size.width * 0.25)
                   : (status == "BESTELLING CONFIRMATIE" &&
@@ -833,33 +837,60 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                           getStatusWidget(bestelling['BestellingStatus'])
                         ],
                       )
-                    : Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(
-                                top: MediaQuery.of(context).size.height * 0.30,
-                                bottom: 20),
-                            child: SpinKitDoubleBounce(
-                              color: Geel,
-                              size: 30,
-                            ),
-                          ),
-                          Text(
-                            "Je aanbod werd gestuurd, eventjes wachten op de bevestiging..",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                                fontSize: 16),
-                            textAlign: TextAlign.center,
-                          ),
-                          (bestelling['BestellingStatus'] == "AANVRAAG")
-                              ? getAanbodPrijsWidget()
-                              : (bestelling['BestellingStatus'] ==
-                                      "AANBIEDING GEKREGEN")
+                    : (bestelling['BezorgerEmail'] != connectedUserMail &&
+                            (bestelling['BestellingStatus'] !=
+                                "AANBIEDING GEKREGEN") &&
+                            (bestelling['BestellingStatus'] != "AANVRAAG"))
+                        ? Column(
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.height *
+                                        0.30,
+                                    bottom: 20),
+                                child: Icon(
+                                  Icons.error,
+                                  size: 50,
+                                ),
+                              ),
+                              Text(
+                                "Deze bestelling werd door een andere bezorger genomen...",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.height *
+                                        0.30,
+                                    bottom: 20),
+                                child: SpinKitDoubleBounce(
+                                  color: Geel,
+                                  size: 30,
+                                ),
+                              ),
+                              Text(
+                                "Je aanbod werd gestuurd, eventjes wachten op de bevestiging..",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                              (bestelling['BestellingStatus'] == "AANVRAAG")
                                   ? getAanbodPrijsWidget()
-                                  : getTotalePrijsWidget(),
-                        ],
-                      ))
+                                  : (bestelling['BestellingStatus'] ==
+                                          "AANBIEDING GEKREGEN")
+                                      ? getAanbodPrijsWidget()
+                                      : getTotalePrijsWidget(),
+                            ],
+                          ))
             : Container(
                 child: SpinKitDoubleBounce(
                   color: Geel,

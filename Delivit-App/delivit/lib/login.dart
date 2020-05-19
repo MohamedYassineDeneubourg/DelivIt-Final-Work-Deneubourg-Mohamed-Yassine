@@ -178,8 +178,16 @@ class _LoginState extends State<Login> {
                                                                   suffixIcon:
                                                                       IconButton(
                                                                     icon: showPassword
-                                                                        ? Icon(FontAwesomeIcons.eye, size: 20)
-                                                                        : Icon(FontAwesomeIcons.eyeSlash, size: 20),
+                                                                        ? Icon(
+                                                                            FontAwesomeIcons
+                                                                                .eye,
+                                                                            size:
+                                                                                20)
+                                                                        : Icon(
+                                                                            FontAwesomeIcons
+                                                                                .eyeSlash,
+                                                                            size:
+                                                                                20),
                                                                     color:
                                                                         GrijsMidden,
                                                                     onPressed:
@@ -322,7 +330,13 @@ class _LoginState extends State<Login> {
       //print("USER LOGGED IN !");
       Navigator.pop(context);
       //print("popHier!");
-      Navigator.pushAndRemoveUntil(context, SlideTopRoute(page: Keuze()),
+      Navigator.pushAndRemoveUntil(
+          context,
+          SlideTopRoute(
+              page: Keuze(
+            connectedUserMail: email,
+            redirect: false,
+          )),
           (Route<dynamic> route) => false);
     }
   }

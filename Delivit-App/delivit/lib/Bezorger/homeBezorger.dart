@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
+import 'package:delivit/Bezorger/overzichtBestellingenBesteldeBezorger.dart';
 //import 'package:delivit/Bezorger/overzichtBestellingenBezorger.dart';
 //import 'package:delivit/Bezorger/productenLijstBezorger.dart';
 import 'package:delivit/globals.dart';
@@ -32,7 +33,10 @@ class _HomeBezorgerState extends State<HomeBezorger> {
   final List<Widget> _children = [
     KaartBezorger(),
     // TODO: ajouter une nouvelle page pour commende finie
-    TabBarView(children: [OverzichtBestellingenBezorger(), KaartBezorger()]),
+    TabBarView(children: [
+      OverzichtBestellingenBezorger(),
+      OverzichtBesteldeBestellingenBezorger()
+    ]),
   ];
 
   String connectedUserMail;
@@ -246,11 +250,29 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                     labelPadding: EdgeInsets.zero,
                     tabs: <Widget>[
                       Tab(
-                        text: "en cours",
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.sync),
+                            Text(
+                              "BESTELLINGEN",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
                       Tab(
-                        text: "fini",
-                      )
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.check),
+                            Text(
+                              "BESTELD",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   )
                 : null,

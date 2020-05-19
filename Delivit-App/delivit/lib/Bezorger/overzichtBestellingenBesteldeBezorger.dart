@@ -7,14 +7,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
-class OverzichtBestellingenBezorger extends StatefulWidget {
+class OverzichtBesteldeBestellingenBezorger extends StatefulWidget {
   @override
-  _OverzichtBestellingenBezorgerState createState() =>
-      _OverzichtBestellingenBezorgerState();
+  _OverzichtBesteldeBestellingenBezorgerState createState() =>
+      _OverzichtBesteldeBestellingenBezorgerState();
 }
 
-class _OverzichtBestellingenBezorgerState
-    extends State<OverzichtBestellingenBezorger> {
+class _OverzichtBesteldeBestellingenBezorgerState
+    extends State<OverzichtBesteldeBestellingenBezorger> {
   List bestellingenLijst = [];
   String connectedUserMail;
   void getCurrentUser() async {
@@ -35,6 +35,7 @@ class _OverzichtBestellingenBezorgerState
       stream: Firestore.instance
           .collection('Commands')
           .where("BezorgerEmail", isEqualTo: connectedUserMail)
+          .where("BestellingStatus", whereIn: ["BEZORGD", "GEANNULEERD"])
           .orderBy("BezorgDatumEnTijd", descending: true)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -122,49 +123,46 @@ class _OverzichtBestellingenBezorgerState
                 String tijd = new DateFormat.Hm()
                     .format(bestelling['BezorgDatumEnTijd'].toDate())
                     .toString();
-                if (bestellingStatus != "BEZORGD") {
-                  return Card(
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: bestelling != null
-                                ? (bestellingStatus == "AANBIEDING GEKREGEN")
-                                    ? Geel
-                                    : GrijsLicht
-                                : GrijsLicht),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              SlideTopRoute(
-                                  page: BestellingDetailBezorger(
-                                bestellingId: bestelling.documentID,
-                                connectedUserMail: connectedUserMail,
-                              )));
-                        },
-                        trailing: getIcon(bestellingStatus),
-                        title: Text("Bestelling: " + datum + " - " + tijd,
-                            style: TextStyle(
-                                color: (bestellingStatus == "BEZORGD" ||
-                                        bestellingStatus == "GEANNULEERD")
-                                    ? GrijsDark
-                                    : Colors.black,
-                                fontWeight: FontWeight.bold)),
-                        subtitle: Text(
-                          (bestellingStatus == "AANBIEDING GEKREGEN")
-                              ? "AANBIEDING GESTUURD"
-                              : bestellingStatus,
+
+                return Card(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                          color: bestelling != null
+                              ? (bestellingStatus == "AANBIEDING GEKREGEN")
+                                  ? Geel
+                                  : GrijsLicht
+                              : GrijsLicht),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            SlideTopRoute(
+                                page: BestellingDetailBezorger(
+                              bestellingId: bestelling.documentID,
+                              connectedUserMail: connectedUserMail,
+                            )));
+                      },
+                      trailing: getIcon(bestellingStatus),
+                      title: Text("Bestelling: " + datum + " - " + tijd,
                           style: TextStyle(
                               color: (bestellingStatus == "BEZORGD" ||
                                       bestellingStatus == "GEANNULEERD")
                                   ? GrijsDark
-                                  : Colors.black),
-                        ),
-                      ));
-                } else {
-                  return Container();
-                }
+                                  : Colors.black,
+                              fontWeight: FontWeight.bold)),
+                      subtitle: Text(
+                        (bestellingStatus == "AANBIEDING GEKREGEN")
+                            ? "AANBIEDING GESTUURD"
+                            : bestellingStatus,
+                        style: TextStyle(
+                            color: (bestellingStatus == "BEZORGD" ||
+                                    bestellingStatus == "GEANNULEERD")
+                                ? GrijsDark
+                                : Colors.black),
+                      ),
+                    ));
               },
             )),
           );

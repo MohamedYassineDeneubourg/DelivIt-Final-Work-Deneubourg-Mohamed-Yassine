@@ -47,13 +47,21 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
     getGlobals();
     getCurrentUser();
     _getData();
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   void getCurrentUser() async {
     final FirebaseUser userData = await FirebaseAuth.instance.currentUser();
     if (userData != null) {
       setState(() {
+        print("6");
         connectedUserMail = userData.email;
       });
     }
@@ -69,6 +77,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       aanbodLijst = [];
       if (this.mounted) {
         setState(() {
+          print("1");
           bestelling = data.data;
           //print(data.data);
           if (data != null) {
@@ -121,6 +130,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                 };
 
                 setState(() {
+                  print("2");
                   aanbodLijst.add(bezorgerMap);
                 });
               });
@@ -473,8 +483,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
         break;
 
       case ("PRODUCTEN VERZAMELEN"):
-        //print("producten verzz")
-
         return getMapEnInfo(status);
 
         break;
@@ -489,8 +497,14 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       case ("BEZORGD"):
         //  getBezorgerInfo();
         //TODO: sur le site de lotie tu peux enlever le repeat
-        return Lottie.asset('assets/Animations/checked.json',
-            width: size.width * 0.25);
+        return Column(
+          children: <Widget>[
+            Divider(),
+            getInfoWidget(bestelling['BestellingStatus']),
+            /* Lottie.asset('assets/Animations/checked.json',
+                width: size.width * 0.25) */
+          ],
+        );
         break;
 
       case ("BESTELLING CONFIRMATIE"):
@@ -508,6 +522,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
   }
 
   getBezorgerInfo() {
+    print("GET BEZORGER INFO NOW !!!");
     if (bestelling != null) {
       var reference = Firestore.instance
           .collection("Users")
@@ -517,8 +532,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       reference.listen((onData) {
         if (mounted) {
           setState(() {
+            print("3");
             bezorgerInfo = onData.data;
           });
+          getMarkers();
         }
       });
     }
@@ -535,7 +552,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
             textAlign: TextAlign.left,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
           ),
-          //TODO: status is true!!
           subtitle: (status == "PRODUCTEN VERZAMELEN")
               ? Text('Verzamelt je producten..')
               : (status == "BEZORGD")
@@ -610,10 +626,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
   }
 
   getMapEnInfo(status) {
-    setState(() {
-      //getBezorgerInfo();
-      getMarkers();
-    });
     Size size = MediaQuery.of(context).size;
     if (bezorgerInfo != null) {
       return Expanded(
@@ -644,6 +656,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                         options: new MapOptions(
                           onTap: (LatLng eo) {
                             mapController.onReady.then((result) {
+                              print("verplaats it!");
                               verplaatsKaart(
                                   mapController,
                                   LatLng(bezorgerInfo['Position']['latitude'],
@@ -690,9 +703,11 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       //print(mapController);
 
       mapController.onReady.then((result) {
+        print("verplaats it!");
         verplaatsKaart(mapController,
             LatLng(latitudeBezorger, longitudeBezorger), 15, this);
         setState(() {
+          print("4");
           opMapMarkers = [
             Marker(
               width: 35.0,
@@ -738,6 +753,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   @override
   Widget build(BuildContext context) {
+    print("BUILD IT");
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -763,6 +779,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
               padding: new EdgeInsets.only(
                   top: 8.0, bottom: 20, right: 15, left: 15),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Padding(
                       padding: EdgeInsets.only(
@@ -820,12 +837,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                 ],
                               )))),
                   (bestelling['BestellingStatus'] == "BEZORGD")
-                      ? Column(children: [
-                        //TODO: meetre le getInfoWidget en desous du ticket de caisse
-                          getInfoWidget(
-                              bestelling['BestellingStatus']),
-                          getBestellingOverzicht()
-                        ])
+                      ? getBestellingOverzicht()
                       : Container(
                           constraints: BoxConstraints(
                             maxHeight: size.height * 0.22,
@@ -1262,6 +1274,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                 */
 
                                 setState(() {
+                                  print("5");
                                   isOk = true;
                                 });
                                 Navigator.pop(context);
