@@ -53,6 +53,8 @@ class _KaartAankoperState extends State<KaartAankoper>
         barrierDismissible: false,
         builder: (BuildContext context) {
           return new AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0))),
             title: Text('LOCALISATIE NIET GEACTIVEERD',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontWeight: FontWeight.bold)),

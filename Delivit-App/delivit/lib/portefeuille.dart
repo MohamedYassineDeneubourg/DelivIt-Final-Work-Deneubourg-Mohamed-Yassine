@@ -60,6 +60,8 @@ class _PortefeuilleState extends State<Portefeuille> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12.0))),
               title: new Text(
                 "Portefeuille aanvullen",
                 style: TextStyle(fontWeight: FontWeight.bold),

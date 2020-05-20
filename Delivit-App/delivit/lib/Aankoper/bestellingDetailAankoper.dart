@@ -248,6 +248,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0))),
             title: new Text(
               "Aanbieding accepteren",
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -1047,6 +1049,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(12.0))),
                                 title: new Text(
                                   "Bestelling annuleren",
                                   style: TextStyle(fontWeight: FontWeight.bold),

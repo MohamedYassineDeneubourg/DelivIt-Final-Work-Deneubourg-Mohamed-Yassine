@@ -73,6 +73,8 @@ class StripeServices {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 title: new Text(
                   "Probleem met je kaart...",
                   style: TextStyle(fontWeight: FontWeight.bold),

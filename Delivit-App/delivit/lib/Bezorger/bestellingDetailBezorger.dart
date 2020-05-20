@@ -415,72 +415,75 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
           height: size.height * 0.59,
           child: Column(
             children: <Widget>[
-              new ListView.builder(
-                shrinkWrap: true,
-                itemCount: bestellingLijst.length,
-                itemBuilder: (context, index) {
-                  print(verzameldeProducten.contains(bestellingLijst[index]));
-                  print(verzameldeProducten);
-                  print(bestellingLijst[index]);
-                  return Card(
-                      // TODO: add checkbutton - verzamel
-                      color: (verzameldeProducten
-                              .contains(bestellingLijst[index]['ProductID']))
-                          ? GrijsMidden.withOpacity(0.3)
-                          : White,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: ListTile(
-                        enabled: (verzameldeProducten
+              Container(
+                height: size.height * 0.45,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: bestellingLijst.length,
+                  itemBuilder: (context, index) {
+                    print(verzameldeProducten.contains(bestellingLijst[index]));
+                    print(verzameldeProducten);
+                    print(bestellingLijst[index]);
+                    return Card(
+                        // TODO: add checkbutton - verzamel
+                        color: (verzameldeProducten
                                 .contains(bestellingLijst[index]['ProductID']))
-                            ? false
-                            : true,
-                        onTap: () async {
-                          if (verzameldeProducten
-                              .contains(bestellingLijst[index]['ProductID'])) {
-                            verzameldeProducten
-                                .remove(bestellingLijst[index]['ProductID']);
-                            await Firestore.instance
-                                .collection('Commands')
-                                .document(bestellingId)
-                                .updateData({
-                              "VerzameldeProducten": verzameldeProducten,
-                            });
-                          } else {
-                            verzameldeProducten
-                                .add(bestellingLijst[index]['ProductID']);
-                            await Firestore.instance
-                                .collection('Commands')
-                                .document(bestellingId)
-                                .updateData({
-                              "VerzameldeProducten": verzameldeProducten,
-                            });
-                          }
-                        },
-                        trailing: Text(
-                            "€ " +
-                                (bestellingLijst[index]['Aantal'] *
-                                        bestellingLijst[index]
-                                            ['ProductAveragePrijs'])
-                                    .toStringAsFixed(2),
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        leading: Image.network(
-                          bestellingLijst[index]['ProductImage'],
-                          height: 40,
+                            ? GrijsMidden.withOpacity(0.3)
+                            : White,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        title: Text(
-                            bestellingLijst[index]['Aantal'].toString() +
-                                "x : " +
-                                bestellingLijst[index]['ProductTitel'],
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(
-                            "€ " +
-                                bestellingLijst[index]['ProductAveragePrijs']
-                                    .toStringAsFixed(2),
-                            style: TextStyle(fontWeight: FontWeight.w400)),
-                      ));
-                },
+                        child: ListTile(
+                          enabled: (verzameldeProducten.contains(
+                                  bestellingLijst[index]['ProductID']))
+                              ? false
+                              : true,
+                          onTap: () async {
+                            if (verzameldeProducten.contains(
+                                bestellingLijst[index]['ProductID'])) {
+                              verzameldeProducten
+                                  .remove(bestellingLijst[index]['ProductID']);
+                              await Firestore.instance
+                                  .collection('Commands')
+                                  .document(bestellingId)
+                                  .updateData({
+                                "VerzameldeProducten": verzameldeProducten,
+                              });
+                            } else {
+                              verzameldeProducten
+                                  .add(bestellingLijst[index]['ProductID']);
+                              await Firestore.instance
+                                  .collection('Commands')
+                                  .document(bestellingId)
+                                  .updateData({
+                                "VerzameldeProducten": verzameldeProducten,
+                              });
+                            }
+                          },
+                          trailing: Text(
+                              "€ " +
+                                  (bestellingLijst[index]['Aantal'] *
+                                          bestellingLijst[index]
+                                              ['ProductAveragePrijs'])
+                                      .toStringAsFixed(2),
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          leading: Image.network(
+                            bestellingLijst[index]['ProductImage'],
+                            height: 40,
+                          ),
+                          title: Text(
+                              bestellingLijst[index]['Aantal'].toString() +
+                                  "x : " +
+                                  bestellingLijst[index]['ProductTitel'],
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                              "€ " +
+                                  bestellingLijst[index]['ProductAveragePrijs']
+                                      .toStringAsFixed(2),
+                              style: TextStyle(fontWeight: FontWeight.w400)),
+                        ));
+                  },
+                ),
               ),
               getTotalePrijsWidget()
             ],

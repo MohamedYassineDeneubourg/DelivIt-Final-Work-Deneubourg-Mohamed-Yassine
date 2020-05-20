@@ -302,6 +302,8 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12.0))),
           title: new Text(
             "Verwijderen?",
             style: TextStyle(fontWeight: FontWeight.bold),
@@ -358,6 +360,8 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12.0))),
           title: new Text(
             "Onvoeldoende geld..",
             style: TextStyle(fontWeight: FontWeight.bold),
@@ -376,9 +380,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                   ),
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        SlideTopRoute(
-                                page:Portefeuille()));
+                        context, SlideTopRoute(page: Portefeuille()));
                     print("Naar portefeuille!");
 
                     //  signIn();

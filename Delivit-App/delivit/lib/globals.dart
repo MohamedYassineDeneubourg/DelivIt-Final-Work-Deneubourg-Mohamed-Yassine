@@ -5,11 +5,14 @@ import 'package:latlong/latlong.dart';
 import 'package:intl/intl.dart';
 
 const Geel = Color(0xFFF3D511);
+const GeelDark = Color(0xFFada766);
+
 const GeelAccent = Color(0xFFF7E710);
 const GrijsDark = Color(0xFF717070);
 const GrijsMidden = Color(0xFFCCCACA);
 const GrijsLicht = Color(0xFFEFEFEF);
 const White = Colors.white;
+const Black = Colors.black;
 
 num leveringPrijs = 3.5;
 Map leveringGlobals;
@@ -108,4 +111,10 @@ getDatumToString(timestamp) {
   String tijd = new DateFormat.Hm().format(timestamp.toDate()).toString();
 
   return datum + " - " + tijd;
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
 }

@@ -467,6 +467,8 @@ class _LaatsteStapBestellingAankoperState
               barrierDismissible: false,
               builder: (BuildContext context) {
                 return new AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0))),
                   title: Text('CONFIRMATIE BESTELLING',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontWeight: FontWeight.bold)),
@@ -505,6 +507,8 @@ class _LaatsteStapBestellingAankoperState
             barrierDismissible: false,
             builder: (BuildContext context) {
               return new AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0))),
                 title: Text('OEPS.. ONJUISTE ADRES',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontWeight: FontWeight.bold)),

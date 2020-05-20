@@ -6,7 +6,7 @@ module:
   androidX: true
 
 environment:
-  sdk: ">=2.3.0"
+  sdk: ">=2.6.0"
 
 dependencies:
   flutter:

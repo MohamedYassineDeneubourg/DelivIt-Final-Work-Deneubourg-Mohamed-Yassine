@@ -67,6 +67,8 @@ class _KaartBezorgerState extends State<KaartBezorger>
     //print(serviceStatus);
     if (serviceStatus == ServiceStatus.disabled) {
       AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12.0))),
         title: Text("GPS niet geactiveerd"),
         content: SingleChildScrollView(
           child: Text(
@@ -228,7 +230,9 @@ class _KaartBezorgerState extends State<KaartBezorger>
                           18,
                           this);
                       if (this.mounted) {
-                        followUser = !followUser;
+                        setState(() {
+                          followUser = !followUser;
+                        });
                       }
                     },
                     child: Icon(

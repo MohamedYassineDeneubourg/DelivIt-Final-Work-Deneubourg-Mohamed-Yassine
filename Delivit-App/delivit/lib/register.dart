@@ -86,6 +86,8 @@ class _RegisterState extends State<Register> {
           barrierDismissible: false,
           builder: (BuildContext context) {
             return new AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12.0))),
               title: Text('VOEG JE SMS-CODE',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.bold)),
@@ -220,8 +222,8 @@ class _RegisterState extends State<Register> {
                 .collection("Users")
                 .document(_email)
                 .setData({
-              'Naam': _naam,
-              "Voornaam": _voornaam,
+              'Naam': _naam.capitalize(),
+              "Voornaam": _voornaam.capitalize(),
               "Email": _email,
               "RatingScore": 2.5,
               "RatingMessages": [],
@@ -505,46 +507,56 @@ class _RegisterState extends State<Register> {
                                 Padding(
                                     padding: EdgeInsets.only(bottom: 20.0),
                                     child: TextFormField(
-                                      decoration: InputDecoration(
-                                          errorStyle: TextStyle(
-                                              fontWeight: FontWeight.w700),
-                                          prefixIcon: Icon(
-                                            Icons.alternate_email,
-                                            color: Geel,
-                                          ),
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Geel, width: 6),
-                                          ),
-                                          border: new UnderlineInputBorder(),
-                                          errorBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.red, width: 6),
-                                          ),
-                                          labelText: 'Uw e-mail adress',
-                                          hintText: 'E.g m.yassine@hotmail.be'),
-                                      validator: (value) {
-                                        if (value.isEmpty) {
-                                          return "E-mail adres moet ingevuld zijn.";
-                                        }
+                                        decoration: InputDecoration(
+                                            errorStyle: TextStyle(
+                                                fontWeight: FontWeight.w700),
+                                            prefixIcon: Icon(
+                                              Icons.alternate_email,
+                                              color: Geel,
+                                            ),
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            focusedBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Geel, width: 6),
+                                            ),
+                                            border: new UnderlineInputBorder(),
+                                            errorBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.red, width: 6),
+                                            ),
+                                            labelText: 'Uw e-mail adress',
+                                            hintText:
+                                                'E.g m.yassine@hotmail.be'),
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return "E-mail adres moet ingevuld zijn.";
+                                          }
 
-                                        if (!RegExp(
-                                                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                                            .hasMatch(value)) {
-                                          return "Geen correcte e-mail adres.";
-                                        }
+                                          if (!RegExp(
+                                                  r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                              .hasMatch(value)) {
+                                            return "Geen correcte e-mail adres.";
+                                          }
 
-                                        if (!emailIsOK) {
-                                          //print("EmailAlGebruikt!");
-                                          return "E-mailadres is al gebruikt.";
-                                        }
-                                        return null;
-                                      },
-                                      onSaved: (value) => _email = value,
-                                      onChanged: (value) => _email = value,
-                                    )),
+                                          if (!emailIsOK) {
+                                            //print("EmailAlGebruikt!");
+                                            return "E-mailadres is al gebruikt.";
+                                          }
+                                          return null;
+                                        },
+                                        onSaved: (value) => _email = value
+                                            .replaceAll(
+                                              ' ',
+                                              '',
+                                            )
+                                            .toLowerCase(),
+                                        onChanged: (value) => _email = value
+                                            .replaceAll(
+                                              ' ',
+                                              '',
+                                            )
+                                            .toLowerCase())),
                                 Padding(
                                     padding: EdgeInsets.only(bottom: 20.0),
                                     child: TextFormField(

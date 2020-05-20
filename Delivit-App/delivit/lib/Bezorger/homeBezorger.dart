@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:delivit/Bezorger/Drawer.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
 import 'package:delivit/Bezorger/overzichtBesteldeBestellingenBezorger.dart';
 import 'package:delivit/globals.dart';
@@ -25,11 +26,10 @@ class HomeBezorger extends StatefulWidget {
 
 class _HomeBezorgerState extends State<HomeBezorger> {
   int _cIndex = 0;
-  String email;
   double tabHeight = 50;
+  Map gebruikerData;
   final List<Widget> _children = [
     KaartBezorger(),
-    // TODO: ajouter une nouvelle page pour commende finie
     TabBarView(children: [
       OverzichtBestellingenBezorger(),
       OverzichtBesteldeBestellingenBezorger()
@@ -49,10 +49,37 @@ class _HomeBezorgerState extends State<HomeBezorger> {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
     if (user != null) {
-      setState(() {
-        connectedUserMail = user.email;
+      print("User is connected!");
+      if (this.mounted) {
+        setState(() {
+          connectedUserMail = user.email;
+        });
+      }
+      int testi = 0;
+      Firestore.instance
+          .collection('Users')
+          .document(user.email)
+          .snapshots()
+          .listen((e) {
+        testi++;
+        print(testi.toString() + "BEZORGER");
+        if (this.mounted) {
+          setState(() {
+            gebruikerData = e.data;
+          });
+        }
+        print("HOME BEZORGER TJR ACTIF");
       });
+    } else {
+      FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(context, SlideTopRoute(page: Main()));
     }
+  }
+
+  @override
+  void dispose() {
+    print('LA ON DISPOSE LE BEZORGER HOME');
+    super.dispose();
   }
 
   @override
@@ -64,7 +91,6 @@ class _HomeBezorgerState extends State<HomeBezorger> {
     super.initState();
   }
 
-//TODO: ameliorer ton tabbar
   @override
   Widget build(BuildContext context) {
     //_getData();
@@ -72,172 +98,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
     return new DefaultTabController(
         length: 2,
         child: Scaffold(
-          endDrawer: Drawer(
-            semanticLabel: "Menu",
-            child: StreamBuilder<DocumentSnapshot>(
-              stream: Firestore.instance
-                  .collection('Users')
-                  .document(connectedUserMail)
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<DocumentSnapshot> snapshot) {
-                print("Hasdata? " + snapshot.hasData.toString());
-
-                return Column(
-                  children: <Widget>[
-                    UserAccountsDrawerHeader(
-                      decoration: BoxDecoration(
-                          color: Geel.withOpacity(0.7),
-                          image: DecorationImage(
-                              colorFilter: ColorFilter.mode(
-                                  GrijsDark.withOpacity(0.7),
-                                  BlendMode.srcOver),
-                              image: NetworkImage(
-                                (snapshot.hasData)
-                                    ? snapshot.data['ProfileImage']
-                                    : "",
-                              ),
-                              fit: BoxFit.cover)),
-                      arrowColor: GrijsDark,
-                      otherAccountsPictures: <Widget>[
-                        IconButton(
-                          icon: Icon(Icons.close, color: White),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        )
-                      ],
-                      currentAccountPicture: CircleAvatar(
-                          backgroundColor: White,
-                          child: ClipOval(
-                              child: Image.network(
-                            (snapshot.hasData)
-                                ? snapshot.data['ProfileImage']
-                                : "",
-                            fit: BoxFit.cover,
-                          ))),
-                      accountName: new Text(
-                          (snapshot.hasData)
-                              ? snapshot.data['Voornaam'] +
-                                  " " +
-                                  snapshot.data['Naam']
-                              : "",
-                          style: TextStyle(
-                              color: White,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18)),
-                      accountEmail: new Text(
-                          (snapshot.hasData) ? snapshot.data['Email'] : "",
-                          style: TextStyle(color: White)),
-                    ),
-                    ListTile(
-                      leading: Icon(FontAwesomeIcons.userAlt, color: Geel),
-                      title: Text(
-                        'Profiel',
-                        style: TextStyle(color: GrijsDark),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            SlideTopRoute(
-                              page: Profile(
-                                userEmail: connectedUserMail,
-                              ),
-                            ));
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        FontAwesomeIcons.wallet,
-                        color: Geel,
-                        size: 22,
-                      ),
-                      title: Text((snapshot.hasData)
-                          ? 'Portefeuille (€' +
-                              snapshot.data['Portefeuille'].toString() +
-                              ")"
-                          : "Portefeuille"),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            SlideTopRoute(
-                              page: Portefeuille(),
-                            ));
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        FontAwesomeIcons.facebookMessenger,
-                        color: Geel,
-                        size: 23,
-                      ),
-                      title: Text('Berichten'),
-                      onTap: () {
-                        /* Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            MovingMarkersPage(),
-                                        ));  */
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.school, color: Geel),
-                      title: Text('Aankoper-modus'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushReplacement(
-                            context,
-                            SlideTopRoute(
-                                page: Keuze(
-                              connectedUserMail: connectedUserMail,
-                              redirect: false,
-                            )));
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(FontAwesomeIcons.solidQuestionCircle,
-                          color: GrijsDark),
-                      title: Text('Help'),
-                      onTap: () {
-                        print('Launch mail..');
-                        launch(
-                            "mailto:contact@delivit.be?subject=HELP:%20Application&body=Hallo%20L'équipe%20Hitutu,");
-                        Navigator.pop(context);
-                      },
-                    ),
-                    Expanded(
-                      flex: MediaQuery.of(context).size.height.toInt(),
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 70,
-                          child: FlatButton(
-                            child: Text(
-                              "Zich Uitloggen",
-                              style: TextStyle(
-                                color: White,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            onPressed: () {
-                              FirebaseAuth.instance.signOut();
-                              Navigator.pop(context);
-                              Navigator.pushReplacement(
-                                  context, SlideTopRoute(page: Main()));
-                              print("uitlogg");
-                            },
-                            color: Geel.withOpacity(0.75),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                );
-              },
-            ),
-          ),
+          endDrawer: Drawer(child: DrawerNav()),
           appBar: new AppBar(
             bottom: this._cIndex == 1
                 ? TabBar(
@@ -283,12 +144,12 @@ class _HomeBezorgerState extends State<HomeBezorger> {
             centerTitle: true,
             title: new Text((() {
               if (this._cIndex == 0) {
-                return "OVERZICHT KAART ";
+                return "OVERZICHT KAART";
               } else if (this._cIndex == 1) {
-                return "Bestellingen";
+                return "BESTELLINGEN";
               }
 
-              return "Chat";
+              return "DELIVIT";
             })()),
           ),
           body: _children[_cIndex],
@@ -299,7 +160,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
             animationCurve: Curves.easeOutCirc,
             items: <Widget>[
               Icon(FontAwesomeIcons.globeEurope, size: 30),
-              Icon(Icons.list, size: 30),
+              Icon(FontAwesomeIcons.dolly, size: 24),
             ],
             onTap: (index) {
               _incrementTab(index);
