@@ -11,14 +11,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
-class OverzichtBestellingenAankoper extends StatefulWidget {
+class OverzichtVorigeBestellingenAankoper extends StatefulWidget {
   @override
-  _OverzichtBestellingenAankoperState createState() =>
-      _OverzichtBestellingenAankoperState();
+  _OverzichtVorigeBestellingenAankoperState createState() =>
+      _OverzichtVorigeBestellingenAankoperState();
 }
 
-class _OverzichtBestellingenAankoperState
-    extends State<OverzichtBestellingenAankoper> {
+class _OverzichtVorigeBestellingenAankoperState
+    extends State<OverzichtVorigeBestellingenAankoper> {
   List bestellingenLijst;
   String connectedUserMail;
   int aantalAanbiedingen;
@@ -34,20 +34,9 @@ class _OverzichtBestellingenAankoperState
       _getFirebaseSubscription = Firestore.instance
           .collection('Commands')
           .where("AankoperEmail", isEqualTo: user.email)
-          .where("BestellingStatus", whereIn: [
-            "AANVRAAG",
-            "AANBIEDING GEKREGEN",
-            "PRODUCTEN VERZAMELEN",
-            "BESTELLING CONFIRMATIE"
-          ])
+          .where("BestellingStatus", whereIn: ["GEANNULEERD", "BEZORGD"])
           .snapshots()
           .listen((e) {
-            aantalAanbiedingen = 0;
-            e.documents.forEach((element) {
-              if (element.data['BestellingStatus'] == "AANBIEDING GEKREGEN") {
-                aantalAanbiedingen++;
-              }
-            });
             List list = e.documents;
             list.sort((a, b) => a.data['BezorgDatumEnTijd']
                 .compareTo(b.data['BezorgDatumEnTijd']));
@@ -60,8 +49,6 @@ class _OverzichtBestellingenAankoperState
               setState(() {
                 bestellingenLijst = list.reversed.toList();
                 connectedUserMail = user.email;
-                aantalAanbiedingen = aantalAanbiedingen;
-                FlutterAppBadger.updateBadgeCount(aantalAanbiedingen);
               });
             }
           });

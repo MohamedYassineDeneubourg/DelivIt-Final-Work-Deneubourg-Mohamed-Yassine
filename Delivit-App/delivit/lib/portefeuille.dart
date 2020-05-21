@@ -25,7 +25,9 @@ class _PortefeuilleState extends State<Portefeuille> {
 
   @override
   void dispose() {
-    _getFirebaseSubscription.cancel();
+    if (_getFirebaseSubscription != null) {
+      _getFirebaseSubscription.cancel();
+    }
     super.dispose();
   }
 

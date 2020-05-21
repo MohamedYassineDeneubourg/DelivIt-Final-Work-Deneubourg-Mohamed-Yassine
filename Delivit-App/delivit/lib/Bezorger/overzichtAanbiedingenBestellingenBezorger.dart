@@ -10,50 +10,42 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
-class OverzichtBestellingenBezorger extends StatefulWidget {
+class OverzichtAanbiedingenBestellingenBezorger extends StatefulWidget {
   @override
-  _OverzichtBestellingenBezorgerState createState() =>
-      _OverzichtBestellingenBezorgerState();
+  _OverzichtAanbiedingenBestellingenBezorgerState createState() =>
+      _OverzichtAanbiedingenBestellingenBezorgerState();
 }
 
-class _OverzichtBestellingenBezorgerState
-    extends State<OverzichtBestellingenBezorger> {
+class _OverzichtAanbiedingenBestellingenBezorgerState
+    extends State<OverzichtAanbiedingenBestellingenBezorger> {
   List bestellingenLijst;
   String connectedUserMail;
   StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
 
   void getCurrentUser() async {
+    print("bestelde");
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
     if (user != null) {
-      ;
       _getFirebaseSubscription = Firestore.instance
           .collection('Commands')
-          .where("BezorgerEmail", isEqualTo: user.email)
-          .where("BestellingStatus", whereIn: [
-            "AANVRAAG",
-            "AANBIEDING GEKREGEN",
-            "PRODUCTEN VERZAMELEN",
-            "BESTELLING CONFIRMATIE"
-          ])
-          // .orderBy("BezorgDatumEnTijd", descending: true)
+          .where("AanbodEmailLijst", arrayContains: user.email)
           .snapshots()
-          .listen((e) {
-            List list = e.documents;
-            list.sort((a, b) => a.data['BezorgDatumEnTijd']
-                .compareTo(b.data['BezorgDatumEnTijd']));
+          .listen((e) async {
+        List list = e.documents;
+        list.sort((a, b) =>
+            a.data['BezorgDatumEnTijd'].compareTo(b.data['BezorgDatumEnTijd']));
 
-            list.forEach((element) {
-              print(element.documentID);
-            });
+        list.forEach((element) {
+          print(element.documentID);
+        });
 
-            if (this.mounted) {
-              setState(() {
-                bestellingenLijst = list.reversed.toList();
-                connectedUserMail = user.email;
-              });
-            }
+        if (this.mounted) {
+          setState(() {
+            bestellingenLijst = list.reversed.toList();
+            connectedUserMail = user.email;
           });
+        }
+      });
     }
   }
 
@@ -66,30 +58,35 @@ class _OverzichtBestellingenBezorgerState
                 body: ListView.builder(
               itemCount: bestellingenLijst.length,
               itemBuilder: (_, index) {
-                var bestelling = bestellingenLijst[index];
-                String bestellingStatus = bestelling['BestellingStatus'];
+                String bestellingStatus =
+                    bestellingenLijst[index]['BestellingStatus'];
                 String datum = new DateFormat.d()
-                        .format(bestelling['BezorgDatumEnTijd'].toDate())
+                        .format(bestellingenLijst[index]['BezorgDatumEnTijd']
+                            .toDate())
                         .toString() +
                     "/" +
                     DateFormat.M()
-                        .format(bestelling['BezorgDatumEnTijd'].toDate())
+                        .format(bestellingenLijst[index]['BezorgDatumEnTijd']
+                            .toDate())
                         .toString() +
                     "/" +
                     DateFormat.y()
-                        .format(bestelling['BezorgDatumEnTijd'].toDate())
+                        .format(bestellingenLijst[index]['BezorgDatumEnTijd']
+                            .toDate())
                         .toString();
 
                 String tijd = new DateFormat.Hm()
-                    .format(bestelling['BezorgDatumEnTijd'].toDate())
+                    .format(
+                        bestellingenLijst[index]['BezorgDatumEnTijd'].toDate())
                     .toString();
-                if (bestellingStatus != "BEZORGD") {
+                if (bestellingenLijst[index]['BezorgerEmail'] !=
+                    connectedUserMail) {
                   return Card(
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
-                            color: bestelling != null
+                            color: bestellingenLijst[index] != null
                                 ? (bestellingStatus == "AANBIEDING GEKREGEN")
-                                    ? Geel
+                                    ? Colors.deepOrange
                                     : GrijsLicht
                                 : GrijsLicht),
                         borderRadius: BorderRadius.circular(8.0),
@@ -100,28 +97,18 @@ class _OverzichtBestellingenBezorgerState
                               context,
                               SlideTopRoute(
                                   page: BestellingDetailBezorger(
-                                bestellingId: bestelling.documentID,
+                                bestellingId:
+                                    bestellingenLijst[index].documentID,
                                 connectedUserMail: connectedUserMail,
                               )));
                         },
                         trailing: getIconBezorger(bestellingStatus),
                         title: Text("Bestelling: " + datum + " - " + tijd,
                             style: TextStyle(
-                                color: (bestellingStatus == "BEZORGD" ||
-                                        bestellingStatus == "GEANNULEERD")
-                                    ? GrijsDark
-                                    : Colors.black,
+                                color: Colors.black,
                                 fontWeight: FontWeight.bold)),
-                        subtitle: Text(
-                          (bestellingStatus == "AANBIEDING GEKREGEN")
-                              ? "AANBIEDING GESTUURD"
-                              : bestellingStatus,
-                          style: TextStyle(
-                              color: (bestellingStatus == "BEZORGD" ||
-                                      bestellingStatus == "GEANNULEERD")
-                                  ? GrijsDark
-                                  : Colors.black),
-                        ),
+                        subtitle: Text(bestellingStatus,
+                            style: TextStyle(color: Colors.black)),
                       ));
                 } else {
                   return Container();
@@ -144,7 +131,7 @@ class _OverzichtBestellingenBezorgerState
                   children: <Widget>[
                     Lottie.asset('assets/Animations/empty.json'),
                     Text(
-                      "Je hebt nog geen bestellingen genomen. \n Bekijk de interactieve map! ",
+                      "Je hebt nog geen bestellingen bezorgd. \n Bekijk de interactieve map! ",
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -155,6 +142,7 @@ class _OverzichtBestellingenBezorgerState
   @override
   void dispose() {
     if (_getFirebaseSubscription != null) {
+      print("CANCELED!");
       _getFirebaseSubscription.cancel();
     }
 
@@ -163,7 +151,7 @@ class _OverzichtBestellingenBezorgerState
 
   @override
   void initState() {
-    getCurrentUser();
     super.initState();
+    getCurrentUser();
   }
 }

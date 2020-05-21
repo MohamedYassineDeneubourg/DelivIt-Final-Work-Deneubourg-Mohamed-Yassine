@@ -49,8 +49,12 @@ class _KaartBezorgerState extends State<KaartBezorger>
 
   @override
   void dispose() {
-    _getFirebaseSubscription.cancel();
-    _getPositionSubscription.cancel();
+    if (_getFirebaseSubscription != null) {
+      _getFirebaseSubscription.cancel();
+    }
+    if (_getPositionSubscription != null) {
+      _getPositionSubscription.cancel();
+    }
     super.dispose();
   }
 

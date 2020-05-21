@@ -42,7 +42,9 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _getFirebaseSubscription.cancel();
+    if (_getFirebaseSubscription != null) {
+      _getFirebaseSubscription.cancel();
+    }
     super.dispose();
   }
 

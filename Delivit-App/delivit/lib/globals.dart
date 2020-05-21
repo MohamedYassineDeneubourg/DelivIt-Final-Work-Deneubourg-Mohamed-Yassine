@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'package:intl/intl.dart';
 
@@ -118,3 +119,71 @@ extension StringExtension on String {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
+
+   getIconBezorger(status) {
+          switch (status) {
+            case ("AANVRAAG"):
+              return Icon(
+                FontAwesomeIcons.question,
+                size: 30,
+                color: Colors.orange,
+              );
+              break;
+
+            case ("AANBIEDING GEKREGEN"):
+              return Icon(
+                Icons.notification_important,
+                size: 30,
+                color: Colors.green,
+              );
+              break;
+
+            case ("PRODUCTEN VERZAMELEN"):
+              return Icon(
+                Icons.shopping_cart,
+                size: 30,
+                color: Geel,
+              );
+              break;
+
+            case ("ONDERWEG"):
+              return Icon(
+                Icons.directions_bike,
+                size: 30,
+                color: Geel,
+              );
+              break;
+
+            case ("BESTELLING CONFIRMATIE"):
+              return Icon(
+                Icons.access_time,
+                size: 30,
+                color: Colors.orange,
+              );
+              break;
+            case ("BEZORGD"):
+              return Icon(
+                Icons.check,
+                size: 30,
+                color: Geel,
+              );
+              break;
+
+            case ("GEANNULEERD"):
+              return Icon(
+                Icons.delete,
+                size: 30,
+                color: Colors.redAccent.withOpacity(0.4),
+              );
+              break;
+
+            default:
+              return Icon(
+                Icons.help_outline,
+                size: 30,
+                color: Geel,
+              );
+              break;
+          }
+        }
+

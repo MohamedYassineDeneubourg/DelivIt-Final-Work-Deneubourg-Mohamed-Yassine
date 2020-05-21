@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
+import 'package:delivit/Bezorger/overzichtAanbiedingenBestellingenBezorger.dart';
 import 'package:delivit/Bezorger/overzichtBesteldeBestellingenBezorger.dart';
 import 'package:delivit/Drawer.dart';
 import 'package:delivit/globals.dart';
@@ -27,6 +27,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
     KaartBezorger(),
     TabBarView(children: [
       OverzichtBestellingenBezorger(),
+      OverzichtAanbiedingenBestellingenBezorger(),
       OverzichtBesteldeBestellingenBezorger()
     ]),
   ];
@@ -76,7 +77,7 @@ class _HomeBezorgerState extends State<HomeBezorger> {
     //_getData();
     //Size size = MediaQuery.of(context).size;
     return new DefaultTabController(
-        length: 2,
+        length: 3,
         child: Scaffold(
           endDrawer: Drawer(
               child: DrawerNav(
@@ -90,28 +91,52 @@ class _HomeBezorgerState extends State<HomeBezorger> {
                     unselectedLabelColor: GrijsDark,
                     labelPadding: EdgeInsets.zero,
                     tabs: <Widget>[
-                      Tab(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.sync),
-                            Text(
-                              "TE BEZORGEN",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(
+                                Icons.sync,
+                                size: 14,
+                              ),
+                              Text(
+                                "TE BEZORGEN",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Tab(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.check),
+                            Icon(
+                              Icons.assignment,
+                              size: 14,
+                            ),
                             Text(
-                              "BEZORGD",
+                              "AANBOD",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10.0),
+                        child: Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.check, size: 14),
+                              Text(
+                                "BEZORGD",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

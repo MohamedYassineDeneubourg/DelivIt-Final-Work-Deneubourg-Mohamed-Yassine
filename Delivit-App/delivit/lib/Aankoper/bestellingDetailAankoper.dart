@@ -58,9 +58,17 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   @override
   void dispose() {
-    _getFirebaseSubscription.cancel();
-    _getFirebasBezorgereSubscription.cancel();
-    _timerBezorging.cancel();
+    if (_getFirebaseSubscription != null) {
+      _getFirebaseSubscription.cancel();
+    }
+    if (_getFirebasBezorgereSubscription != null) {
+      _getFirebasBezorgereSubscription.cancel();
+    }
+
+    if (_timerBezorging != null) {
+      _timerBezorging.cancel();
+    }
+
     scrollController.dispose();
     super.dispose();
   }

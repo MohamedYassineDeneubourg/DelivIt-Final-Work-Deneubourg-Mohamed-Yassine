@@ -54,8 +54,13 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   @override
   void dispose() {
-    _getFirebaseSubscription.cancel();
-    _getFirebaseAankoperSubscription.cancel();
+    if (_getFirebaseSubscription != null) {
+      _getFirebaseSubscription.cancel();
+    }
+    if (_getFirebaseAankoperSubscription != null) {
+      _getFirebaseAankoperSubscription.cancel();
+    }
+
     super.dispose();
   }
 
@@ -91,7 +96,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                 ..addAll(data.data['VerzameldeProducten']);
             }
 
-            print("Leveren?...");
 
             List bestellingLijstDatabase = data.data['BestellingLijst'];
             //print(data.data);
@@ -251,9 +255,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 }
                               ])
                             });
+
                             setState(() {
                               isLoading = false;
                             });
+                            Navigator.of(context).pop();
                           },
                         )),
                 isLoading
@@ -295,24 +301,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
         if (!checkAanbod()) {
           return floatingButton(
               "AANBOD MAKEN", FontAwesomeIcons.solidArrowAltCircleUp, () {
-            Firestore.instance
-                .collection('Commands')
-                .document(bestellingId)
-                .updateData({
-              "BestellingStatus": "AANBIEDING GEKREGEN",
-              "AanbodEmailLijst": FieldValue.arrayUnion([connectedUserMail]),
-              "AanbodLijst": FieldValue.arrayUnion([
-                {
-                  'EmailBezorger': connectedUserMail,
-                  'TotaleAanbodPrijs':
-                      getTotalePrijs() + bestelling["LeveringKosten"],
-                  'PrijsVanProducten': getTotalePrijs(),
-                  'LeveringKosten': bestelling["LeveringKosten"],
-                  'ComissieAankoper':
-                      (percentageCommisie * getTotalePrijs()).ceilToDouble()
-                }
-              ])
-            });
+            maakAanbod();
           });
         } else {
           return null;

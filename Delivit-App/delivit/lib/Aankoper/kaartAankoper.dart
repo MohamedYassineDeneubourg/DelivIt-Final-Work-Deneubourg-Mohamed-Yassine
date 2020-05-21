@@ -45,8 +45,12 @@ class _KaartAankoperState extends State<KaartAankoper>
 
   @override
   void dispose() {
-    _getPositionSubscription.cancel();
-    _getFirebaseSubscription.cancel();
+    if (_getFirebaseSubscription != null) {
+      _getFirebaseSubscription.cancel();
+    }
+    if (_getPositionSubscription != null) {
+      _getPositionSubscription.cancel();
+    }
     super.dispose();
   }
 

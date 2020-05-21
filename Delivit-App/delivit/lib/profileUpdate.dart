@@ -56,7 +56,9 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
 
   @override
   void dispose() {
-    _getFirebaseSubscription.cancel();
+    if (_getFirebaseSubscription != null) {
+      _getFirebaseSubscription.cancel();
+    }
     super.dispose();
   }
 
