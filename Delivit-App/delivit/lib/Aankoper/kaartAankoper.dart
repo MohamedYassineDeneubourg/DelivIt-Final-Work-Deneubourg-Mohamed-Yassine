@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/globals.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,8 @@ class _KaartAankoperState extends State<KaartAankoper>
   MapController mapController = new MapController();
   DateTime startTimerForUpdate;
   bool followUser = false;
+  StreamSubscription _getPositionSubscription;
+  StreamSubscription _getFirebaseSubscription;
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -37,6 +41,13 @@ class _KaartAankoperState extends State<KaartAankoper>
         connectedUserMail = user.email;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _getPositionSubscription.cancel();
+    _getFirebaseSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -115,8 +126,11 @@ class _KaartAankoperState extends State<KaartAankoper>
     var locationOptions = LocationOptions(
         accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
 
-    Firestore.instance.collection('Users').snapshots().listen((querySnapshot) {
-      //print("NEW ON MAP")
+    _getFirebaseSubscription = Firestore.instance
+        .collection('Users')
+        .snapshots()
+        .listen((querySnapshot) {
+      print("NEW ON MAP");
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot gebruiker = querySnapshot.documents[i];
         Map positionMap = gebruiker['Position'];
@@ -159,7 +173,10 @@ class _KaartAankoperState extends State<KaartAankoper>
       }
     });
 
-    geolocator.getPositionStream(locationOptions).listen((Position position) {
+    _getPositionSubscription = geolocator
+        .getPositionStream(locationOptions)
+        .listen((Position position) {
+      print("GET POSITION IN AANKOPER");
       if (this.mounted) {
         setState(() {
           userPosition = position;
@@ -174,6 +191,7 @@ class _KaartAankoperState extends State<KaartAankoper>
 
 //Wanneer 10seconden gepasseerd zijn, ga ik updaten
       if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
+        print("UPDATE POSITION AANKOPER!");
         //   print('10seconds passed');
         Firestore.instance
             .collection('Users')

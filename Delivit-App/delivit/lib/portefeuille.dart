@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/globals.dart';
 import 'package:delivit/portefeuilleKaart.dart';
@@ -19,6 +21,13 @@ class _PortefeuilleState extends State<Portefeuille> {
   Map gebruikerData;
   double geldToevoegen = 5.00;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
+  StreamSubscription _getFirebaseSubscription;
+
+  @override
+  void dispose() {
+    _getFirebaseSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -203,7 +212,7 @@ class _PortefeuilleState extends State<Portefeuille> {
         .document(connectedUserMail)
         .snapshots();
 
-    reference.listen((data) {
+    _getFirebaseSubscription = reference.listen((data) {
       if (this.mounted) {
         setState(() {
           // //print("Refreshed");

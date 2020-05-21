@@ -1,22 +1,16 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Aankoper/kaartAankoper.dart';
 import 'package:delivit/Aankoper/overzichtBestellingenAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
-import 'package:delivit/Bezorger/Drawer.dart';
+import 'package:delivit/Drawer.dart';
 import 'package:delivit/globals.dart';
 import 'package:delivit/main.dart';
-import 'package:delivit/portefeuille.dart';
-import 'package:delivit/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../keuze.dart';
 
 class HomeAankoper extends StatefulWidget {
   HomeAankoper({Key key, this.title}) : super(key: key);
@@ -28,7 +22,6 @@ class HomeAankoper extends StatefulWidget {
 
 class _HomeAankoperState extends State<HomeAankoper> {
   int _cIndex = 0;
-  var gebruikerListener;
 
   double tabHeight = 50;
   final List<Widget> _children = [
@@ -37,8 +30,6 @@ class _HomeAankoperState extends State<HomeAankoper> {
   ];
 
   String connectedUserMail;
-
-  Map gebruikerData;
 
   void _incrementTab(index) {
     if (this.mounted) {
@@ -57,22 +48,6 @@ class _HomeAankoperState extends State<HomeAankoper> {
           connectedUserMail = user.email;
         });
       }
-      int testi = 0;
-
-      gebruikerListener = Firestore.instance
-          .collection('Users')
-          .document(user.email)
-          .snapshots();
-      gebruikerListener.listen((e) {
-        testi++;
-        print(testi.toString() + "AAANKOPER");
-        print(" TJR DISO aankoper");
-        if (this.mounted) {
-          setState(() {
-            gebruikerData = e.data;
-          });
-        }
-      });
     } else {
       FirebaseAuth.instance.signOut();
       Navigator.pushReplacement(context, SlideTopRoute(page: Main()));
@@ -94,13 +69,13 @@ class _HomeAankoperState extends State<HomeAankoper> {
     super.initState();
   }
 
-//TODO: CHANGER DRAWER PAS DE STRAMBUILDER
   @override
   Widget build(BuildContext context) {
-    //_getData();
-    //Size size = MediaQuery.of(context).size;
     return new Scaffold(
-      endDrawer: Drawer(child: DrawerNav()),
+      endDrawer: Drawer(
+          child: DrawerNav(
+        modus: "AANKOPER",
+      )),
       appBar: new AppBar(
         backgroundColor: White,
         textTheme: TextTheme(

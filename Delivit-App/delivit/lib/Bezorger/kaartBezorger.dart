@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
@@ -40,6 +42,18 @@ class _KaartBezorgerState extends State<KaartBezorger>
   MapController mapController = new MapController();
 
   bool followUser = false;
+
+  StreamSubscription<Position> _getPositionSubscription;
+
+  StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
+
+  @override
+  void dispose() {
+    _getFirebaseSubscription.cancel();
+    _getPositionSubscription.cancel();
+    super.dispose();
+  }
+
   @override
   initState() {
     getCurrentUser();
@@ -103,7 +117,9 @@ class _KaartBezorgerState extends State<KaartBezorger>
       });
     }
 
-    geolocator.getPositionStream(locationOptions).listen((Position position) {
+    _getPositionSubscription = geolocator
+        .getPositionStream(locationOptions)
+        .listen((Position position) {
       if (this.mounted) {
         setState(() {
           userPosition = position;
@@ -130,13 +146,13 @@ class _KaartBezorgerState extends State<KaartBezorger>
       }
     });
 
-    Firestore.instance
+    _getFirebaseSubscription = Firestore.instance
         .collection('Commands')
         .where("isBeschikbaar", isEqualTo: true)
         .snapshots()
         .listen((querySnapshot) {
       //print("NEW ON MAP");
-
+      opMapBestellingen = [];
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot bestelling = querySnapshot.documents[i];
         Map positionMap = bestelling['AdresPosition'];

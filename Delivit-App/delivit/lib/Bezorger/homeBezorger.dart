@@ -1,19 +1,14 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:delivit/Bezorger/Drawer.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
 import 'package:delivit/Bezorger/overzichtBesteldeBestellingenBezorger.dart';
+import 'package:delivit/Drawer.dart';
 import 'package:delivit/globals.dart';
-import 'package:delivit/keuze.dart';
 import 'package:delivit/main.dart';
-import 'package:delivit/portefeuille.dart';
-import 'package:delivit/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'overzichtBestellingenBezorger.dart';
 
 class HomeBezorger extends StatefulWidget {
@@ -55,21 +50,6 @@ class _HomeBezorgerState extends State<HomeBezorger> {
           connectedUserMail = user.email;
         });
       }
-      int testi = 0;
-      Firestore.instance
-          .collection('Users')
-          .document(user.email)
-          .snapshots()
-          .listen((e) {
-        testi++;
-        print(testi.toString() + "BEZORGER");
-        if (this.mounted) {
-          setState(() {
-            gebruikerData = e.data;
-          });
-        }
-        print("HOME BEZORGER TJR ACTIF");
-      });
     } else {
       FirebaseAuth.instance.signOut();
       Navigator.pushReplacement(context, SlideTopRoute(page: Main()));
@@ -98,7 +78,10 @@ class _HomeBezorgerState extends State<HomeBezorger> {
     return new DefaultTabController(
         length: 2,
         child: Scaffold(
-          endDrawer: Drawer(child: DrawerNav()),
+          endDrawer: Drawer(
+              child: DrawerNav(
+            modus: "BEZORGER",
+          )),
           appBar: new AppBar(
             bottom: this._cIndex == 1
                 ? TabBar(

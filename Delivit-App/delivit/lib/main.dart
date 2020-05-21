@@ -43,25 +43,6 @@ class _MainState extends State<Main> {
     });
   }
 
-  /*getFunctie() {
-    Firestore.instance
-        .collection("Users")
-        .document(connectedUserMail)
-        .snapshots()
-        .listen((data) {
-      //print(data);
-      setState(() {
-        if (data['Functie'] == "Aankoper") {
-          functie = HomeAankoper();
-        } else if (data['Functie'] == "Bezorger") {
-          return HomeAankoper();
-        } else {
-          return Keuze();
-        }
-      });
-    });
-  }*/
-
   @override
   void initState() {
     getCurrentUser();

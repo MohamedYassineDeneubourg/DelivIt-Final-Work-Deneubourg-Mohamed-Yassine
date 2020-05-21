@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:delivit/globals.dart';
 import 'package:delivit/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -50,6 +52,14 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
   final ScrollController _scrollController = ScrollController();
   var biographieController = TextEditingController();
 
+  StreamSubscription<DocumentSnapshot> _getFirebaseSubscription;
+
+  @override
+  void dispose() {
+    _getFirebaseSubscription.cancel();
+    super.dispose();
+  }
+
   @override
   void initState() {
     getCurrentUser();
@@ -75,7 +85,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
         .document(connectedUserMail)
         .snapshots();
 
-    reference.listen((data) {
+    _getFirebaseSubscription = reference.listen((data) {
       if (this.mounted) {
         setState(() {
           // print("Refreshed");

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:android_intent/android_intent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -33,6 +34,10 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   Map aankoperInfo;
 
   int aanbodBezorgingTijd = 0;
+
+  StreamSubscription<DocumentSnapshot> _getFirebaseSubscription;
+
+  StreamSubscription<DocumentSnapshot> _getFirebaseAankoperSubscription;
   _BestellingDetailBezorgerState(
       {Key key, @required this.bestellingId, @required this.connectedUserMail});
   String buttonText = "";
@@ -46,6 +51,14 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   MapController mapController = new MapController();
   List<Marker> opMapMarkers;
+
+  @override
+  void dispose() {
+    _getFirebaseSubscription.cancel();
+    _getFirebaseAankoperSubscription.cancel();
+    super.dispose();
+  }
+
   @override
   void initState() {
     getGlobals();
@@ -68,7 +81,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
           .document(bestellingId)
           .snapshots();
 
-      reference.listen((data) {
+      _getFirebaseSubscription = reference.listen((data) {
         if (this.mounted) {
           setState(() {
             // print("Refreshed");
@@ -522,7 +535,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
           .document(bestelling['AankoperEmail'])
           .snapshots();
 
-      reference.listen((onData) {
+      _getFirebaseAankoperSubscription = reference.listen((onData) {
         if (mounted) {
           setState(() {
             aankoperInfo = onData.data;
@@ -901,7 +914,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                                 color: Colors.white,
                                                 fontSize: 16),
                                           ),
-                                          //TODO: pourquoi ecrire aanvraag, je le sais en tant qeu bezorger
                                           Divider(
                                             color: White,
                                             thickness: 2,

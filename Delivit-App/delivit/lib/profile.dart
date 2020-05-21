@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:delivit/globals.dart';
@@ -19,6 +20,8 @@ class Profile extends StatefulWidget {
 //TODO: change moi cette merde
 
 class _ProfileState extends State<Profile> with TickerProviderStateMixin {
+  StreamSubscription<DocumentSnapshot> _getFirebaseSubscription;
+
   _ProfileState({Key key, @required this.userEmail});
   final String userEmail;
   num bezorgdeBestellingen = 0;
@@ -38,6 +41,12 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    _getFirebaseSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     getCurrentUser();
     _tabBarController = TabController(length: 0, vsync: this);
@@ -51,7 +60,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
     var reference =
         Firestore.instance.collection("Users").document(userEmail).snapshots();
 
-    reference.listen((data) {
+    _getFirebaseSubscription = reference.listen((data) {
       if (this.mounted) {
         setState(() {
           // print("Refreshed");

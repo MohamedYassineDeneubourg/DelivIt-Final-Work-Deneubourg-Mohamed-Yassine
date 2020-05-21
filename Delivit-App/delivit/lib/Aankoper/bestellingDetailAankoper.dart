@@ -29,6 +29,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
     with TickerProviderStateMixin {
   ScrollController scrollController = ScrollController();
 
+  StreamSubscription<DocumentSnapshot> _getFirebaseSubscription;
+
+  StreamSubscription<DocumentSnapshot> _getFirebasBezorgereSubscription;
+
   _BestellingDetailAankoperState({Key key, @required this.bestellingId});
   List<Marker> opMapMarkers = [];
   String bestellingId;
@@ -54,6 +58,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   @override
   void dispose() {
+    _getFirebaseSubscription.cancel();
+    _getFirebasBezorgereSubscription.cancel();
     _timerBezorging.cancel();
     scrollController.dispose();
     super.dispose();
@@ -75,7 +81,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
         .document(bestellingId)
         .snapshots();
 
-    reference.listen((data) {
+    _getFirebaseSubscription = reference.listen((data) {
       aanbodLijst = [];
       if (this.mounted) {
         setState(() {
@@ -554,7 +560,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
           .document(bestelling['BezorgerEmail'])
           .snapshots();
 
-      reference.listen((onData) {
+      _getFirebasBezorgereSubscription = reference.listen((onData) {
         if (mounted) {
           setState(() {
             print("3");
