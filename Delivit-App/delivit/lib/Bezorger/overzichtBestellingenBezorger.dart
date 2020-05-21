@@ -26,7 +26,6 @@ class _OverzichtBestellingenBezorgerState
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     print(user);
     if (user != null) {
-      ;
       _getFirebaseSubscription = Firestore.instance
           .collection('Commands')
           .where("BezorgerEmail", isEqualTo: user.email)

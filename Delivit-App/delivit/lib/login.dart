@@ -47,7 +47,7 @@ class _LoginState extends State<Login> {
                   ),
                   label: Text(
                     "INLOGGEN",
-                    style: TextStyle(color: Geel, fontWeight: FontWeight.w800),
+                    style: TextStyle(color: Geel, fontWeight: FontWeight.w900),
                   ),
                   onPressed: () {
                     isWachtwoordFout();
@@ -60,7 +60,7 @@ class _LoginState extends State<Login> {
             : SingleChildScrollView(
                 child: Stack(children: <Widget>[
                   Image.asset(
-                    'assets/images/backgroundLogin.jpg',
+                    'assets/images/backgroundLoginTwo.png',
                     width: size.width,
                     height: size.height,
                     fit: BoxFit.cover,
@@ -94,10 +94,10 @@ class _LoginState extends State<Login> {
                                       EdgeInsets.only(top: size.height / 10),
                                   width: size.width * 0.90,
                                   decoration: new BoxDecoration(
-                                      //TODO: trop de jaune!
                                       color: Geel.withOpacity(0.8),
-                                      borderRadius: new BorderRadius.all(
-                                          Radius.circular(10.0))),
+                                      borderRadius: new BorderRadius.only(
+                                          topLeft: Radius.circular(10.0),
+                                          topRight: Radius.circular(10.0))),
                                   child: Padding(
                                       padding: EdgeInsets.all(20),
                                       child: SingleChildScrollView(
@@ -111,7 +111,9 @@ class _LoginState extends State<Login> {
                                                 textAlign: TextAlign.center),
                                             Padding(
                                               padding: const EdgeInsets.only(
-                                                  right: 15.0, left: 15),
+                                                  right: 15.0,
+                                                  left: 15,
+                                                  bottom: 25),
                                               child: Text(
                                                 "Dit moet je maar één keer doen op dit toestel.",
                                                 textAlign: TextAlign.center,
@@ -129,8 +131,8 @@ class _LoginState extends State<Login> {
                                                     Padding(
                                                         padding:
                                                             EdgeInsets.only(
-                                                                top: 30,
-                                                                bottom: 20.0),
+                                                                top: 0,
+                                                                bottom: 0.0),
                                                         child: TextFormField(
                                                           enabled: false,
                                                           decoration:
@@ -161,7 +163,7 @@ class _LoginState extends State<Login> {
                                                     Padding(
                                                         padding:
                                                             EdgeInsets.only(
-                                                                bottom: 20.0),
+                                                                top: 10.0),
                                                         child: TextFormField(
                                                           decoration:
                                                               InputDecoration(
@@ -251,30 +253,63 @@ class _LoginState extends State<Login> {
                                                               _wachtwoord =
                                                                   value,
                                                         )),
-                                                    FlatButton.icon(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      label: Text(
-                                                        "Verkeerde e-mailadres",
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: White,
-                                                        ),
-                                                      ),
-                                                      icon: Icon(
-                                                        Icons.arrow_back_ios,
-                                                        size: 15,
-                                                        color: White,
-                                                      ),
-                                                    )
                                                   ],
-                                                ))
+                                                )),
                                           ],
                                         ),
                                       ))),
                             ),
+                            Container(
+                              color: White.withOpacity(0.8),
+                              width: size.width * 0.90,
+                              child: FlatButton.icon(
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                onPressed: () {
+                                  passwordreset(email, context);
+                                },
+                                label: Text(
+                                  "Wachtwoord vergeten",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: GrijsDark,
+                                  ),
+                                ),
+                                icon: Icon(
+                                  Icons.error,
+                                  size: 15,
+                                  color: GrijsDark,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: size.width * 0.90,
+                              decoration: new BoxDecoration(
+                                  color: GrijsDark.withOpacity(0.7),
+                                  borderRadius: new BorderRadius.only(
+                                      bottomLeft: Radius.circular(10.0),
+                                      bottomRight: Radius.circular(10.0))),
+                              child: FlatButton.icon(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                label: Text(
+                                  "Verkeerde e-mailadres",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: White,
+                                  ),
+                                ),
+                                icon: Icon(
+                                  Icons.arrow_back_ios,
+                                  size: 15,
+                                  color: White,
+                                ),
+                              ),
+                            )
                           ],
                         )),
                   )

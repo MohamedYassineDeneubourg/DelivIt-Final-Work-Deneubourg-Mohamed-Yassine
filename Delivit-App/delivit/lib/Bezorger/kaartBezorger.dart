@@ -401,7 +401,7 @@ class _KaartBezorgerState extends State<KaartBezorger>
                         backgroundColor: GeelAccent,
                       ),
                       title: Text(
-                        getDatumToString(
+                        getDatumEnTijdToString(
                             selectedBestelling['BezorgDatumEnTijd']),
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),

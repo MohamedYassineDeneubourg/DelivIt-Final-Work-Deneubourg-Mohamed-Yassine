@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -64,8 +65,6 @@ void verplaatsKaart(MapController mapController, LatLng destLocation,
   });
 
   animation.addStatusListener((status) {
-    print("STATUS------");
-    print(status);
     if (status == AnimationStatus.completed) {
       controller.dispose();
     } else if (status == AnimationStatus.dismissed) {
@@ -102,7 +101,10 @@ class SlideTopRoute extends PageRouteBuilder {
         );
 }
 
-getDatumToString(timestamp) {
+getDatumEnTijdToString(timestamp) {
+  if (timestamp == null) {
+    return "00/00/0000 - 00:00";
+  }
   String datum = new DateFormat.d().format(timestamp.toDate()).toString() +
       "/" +
       DateFormat.M().format(timestamp.toDate()).toString() +
@@ -114,76 +116,136 @@ getDatumToString(timestamp) {
   return datum + " - " + tijd;
 }
 
+getDatumToString(timestamp) {
+  if (timestamp == null) {
+    return "00/00/0000";
+  }
+  String datum = new DateFormat.d().format(timestamp.toDate()).toString() +
+      "/" +
+      DateFormat.M().format(timestamp.toDate()).toString() +
+      "/" +
+      DateFormat.y().format(timestamp.toDate()).toString();
+
+  return datum;
+}
+
 extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
 
-   getIconBezorger(status) {
-          switch (status) {
-            case ("AANVRAAG"):
-              return Icon(
-                FontAwesomeIcons.question,
-                size: 30,
-                color: Colors.orange,
-              );
-              break;
+getIconBezorger(status) {
+  switch (status) {
+    case ("AANVRAAG"):
+      return Icon(
+        FontAwesomeIcons.question,
+        size: 30,
+        color: Colors.orange,
+      );
+      break;
 
-            case ("AANBIEDING GEKREGEN"):
-              return Icon(
-                Icons.notification_important,
-                size: 30,
-                color: Colors.green,
-              );
-              break;
+    case ("AANBIEDING GEKREGEN"):
+      return Icon(
+        Icons.notification_important,
+        size: 30,
+        color: Colors.green,
+      );
+      break;
 
-            case ("PRODUCTEN VERZAMELEN"):
-              return Icon(
-                Icons.shopping_cart,
-                size: 30,
-                color: Geel,
-              );
-              break;
+    case ("PRODUCTEN VERZAMELEN"):
+      return Icon(
+        Icons.shopping_cart,
+        size: 30,
+        color: Geel,
+      );
+      break;
 
-            case ("ONDERWEG"):
-              return Icon(
-                Icons.directions_bike,
-                size: 30,
-                color: Geel,
-              );
-              break;
+    case ("ONDERWEG"):
+      return Icon(
+        Icons.directions_bike,
+        size: 30,
+        color: Geel,
+      );
+      break;
 
-            case ("BESTELLING CONFIRMATIE"):
-              return Icon(
-                Icons.access_time,
-                size: 30,
-                color: Colors.orange,
-              );
-              break;
-            case ("BEZORGD"):
-              return Icon(
-                Icons.check,
-                size: 30,
-                color: Geel,
-              );
-              break;
+    case ("BESTELLING CONFIRMATIE"):
+      return Icon(
+        Icons.access_time,
+        size: 30,
+        color: Colors.orange,
+      );
+      break;
+    case ("BEZORGD"):
+      return Icon(
+        Icons.check,
+        size: 30,
+        color: Geel,
+      );
+      break;
 
-            case ("GEANNULEERD"):
-              return Icon(
-                Icons.delete,
-                size: 30,
-                color: Colors.redAccent.withOpacity(0.4),
-              );
-              break;
+    case ("GEANNULEERD"):
+      return Icon(
+        Icons.delete,
+        size: 30,
+        color: Colors.redAccent.withOpacity(0.4),
+      );
+      break;
 
-            default:
-              return Icon(
-                Icons.help_outline,
-                size: 30,
-                color: Geel,
-              );
-              break;
-          }
-        }
+    default:
+      return Icon(
+        Icons.help_outline,
+        size: 30,
+        color: Geel,
+      );
+      break;
+  }
+}
 
+passwordreset(connectedUserMail, context) {
+  FirebaseAuth.instance.sendPasswordResetEmail(email: connectedUserMail);
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12.0))),
+        title: new Text(
+          "WACHTWOORD",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.check_circle, size: 24, color: Geel),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+                "Je hebt een mail gekregen op " +
+                    connectedUserMail +
+                    " om je wachtwoord te wijzigen.",
+                style: TextStyle(fontWeight: FontWeight.bold))
+          ],
+        ),
+        actions: <Widget>[
+          ButtonTheme(
+              minWidth: 400.0,
+              child: RaisedButton(
+                color: GrijsDark,
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ))
+        ],
+      );
+    },
+  );
+}

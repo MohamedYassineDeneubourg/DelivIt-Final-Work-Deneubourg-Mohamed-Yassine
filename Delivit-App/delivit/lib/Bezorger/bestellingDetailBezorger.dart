@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:android_intent/android_intent.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/globals.dart';
 import 'package:expandable/expandable.dart';
@@ -10,7 +11,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:latlong/latlong.dart';
 
@@ -48,6 +48,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   Map bestelling;
   double totalePrijs = 0.0;
   List verzameldeProducten = new List();
+  Size size;
 
   MapController mapController = new MapController();
   List<Marker> opMapMarkers;
@@ -78,8 +79,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
         .get();
     Map prijsLijst = {};
     prijsLijstQuery.then((userData) {
-      // print('Get prijslijst...');
-
       prijsLijst = userData['PrijsLijstBezorger'];
       var reference = Firestore.instance
           .collection("Commands")
@@ -89,16 +88,13 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
       _getFirebaseSubscription = reference.listen((data) {
         if (this.mounted) {
           setState(() {
-            // print("Refreshed");
             bestelling = data.data;
             if (data.data['VerzameldeProducten'] != null) {
               verzameldeProducten = []
                 ..addAll(data.data['VerzameldeProducten']);
             }
 
-
             List bestellingLijstDatabase = data.data['BestellingLijst'];
-            //print(data.data);
             bestellingLijst = [];
             bestellingLijstDatabase.forEach((bestelling) {
               String productId = bestelling['ProductID'];
@@ -111,8 +107,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
               };
               if (prijsLijst.containsKey(bestelling['ProductID'])) {
                 productObject['ProductAveragePrijs'] = prijsLijst[productId];
-                // print(prijsLijst[productId]);
-                //print("Contains!");
               }
 
               bestellingLijst.add(productObject);
@@ -410,7 +404,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   getStatusWidget(status) {
     print(status);
-    Size size = MediaQuery.of(context).size;
     switch (status) {
       case ("PRODUCTEN VERZAMELEN"):
         return Container(
@@ -427,10 +420,9 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                     print(verzameldeProducten);
                     print(bestellingLijst[index]);
                     return Card(
-                        // TODO: add checkbutton - verzamel
                         color: (verzameldeProducten
                                 .contains(bestellingLijst[index]['ProductID']))
-                            ? GrijsMidden.withOpacity(0.3)
+                            ? GrijsLicht
                             : White,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
@@ -462,21 +454,32 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                               });
                             }
                           },
-                          trailing: Text(
-                              "€ " +
-                                  (bestellingLijst[index]['Aantal'] *
-                                          bestellingLijst[index]
-                                              ['ProductAveragePrijs'])
-                                      .toStringAsFixed(2),
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Text(
+                                  "€ " +
+                                      (bestellingLijst[index]['Aantal'] *
+                                              bestellingLijst[index]
+                                                  ['ProductAveragePrijs'])
+                                          .toStringAsFixed(2),
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              Checkbox(
+                                  value: verzameldeProducten.contains(
+                                      bestellingLijst[index]['ProductID']),
+                                  onChanged: null)
+                            ],
+                          ),
                           leading: Image.network(
                             bestellingLijst[index]['ProductImage'],
                             height: 40,
                           ),
-                          title: Text(
+                          title: AutoSizeText(
                               bestellingLijst[index]['Aantal'].toString() +
                                   "x : " +
                                   bestellingLijst[index]['ProductTitel'],
+                              maxLines: 2,
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(
                               "€ " +
@@ -508,8 +511,18 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
         break;
       case ("BEZORGD"):
-        return Lottie.asset('assets/Animations/checked.json');
+        return Column(
+          children: <Widget>[
+            Icon(
+              Icons.check_circle,
+              color: Geel,
+            ),
+            getProductenLijst(),
+            getTotalePrijsWidget()
+          ],
+        );
         break;
+
       default:
         return Padding(padding: EdgeInsets.all(1));
         break;
@@ -518,7 +531,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   getAankoperInfo() {
     if (bestelling != null) {
-      //print(bestelling);
       var reference = Firestore.instance
           .collection("Users")
           .document(bestelling['AankoperEmail'])
@@ -536,14 +548,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   getMarkers() {
     if (aankoperInfo != null && bestelling != null) {
-      //print(bezorgerInfo['Position']['latitude']);
-      //print(bezorgerInfo['Position']['longitude']);
       num longitudeBezorger = aankoperInfo['Position']['longitude'];
       num latitudeBezorger = aankoperInfo['Position']['latitude'];
 
       num longitudeBestelling = bestelling['AdresPosition']['longitude'];
       num latitudeBestelling = bestelling['AdresPosition']['latitude'];
-      //print(mapController);
 
       mapController.onReady.then((result) {
         if (this.mounted) {
@@ -597,6 +606,8 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
           backgroundColor: White,
@@ -629,9 +640,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   }
 
   getMapEnInfo(status) {
-    Size size = MediaQuery.of(context).size;
     if (aankoperInfo != null) {
-      print("mapinfo");
       return Expanded(
         child: Container(
             width: size.width,
@@ -687,7 +696,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 color: Colors.white,
                               ),
                               onPressed: () {
-                                print(bestelling);
                                 Navigator.push(
                                     context,
                                     SlideTopRoute(
@@ -723,54 +731,48 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                       ],
                     ),
                   )),
-              (status == "BEZORGD" && mapController != null)
-                  //TODO: enlever cette icone de merde, ajouter prix
-                  ? Lottie.asset('assets/Animations/checked.json',
-                      width: size.width * 0.25)
-                  : (status == "BESTELLING CONFIRMATIE" &&
-                          mapController != null)
-                      ? Container(
-                          margin: EdgeInsets.all(30),
-                          child: SpinKitDoubleBounce(
-                            color: Geel,
-                            size: 100,
+              (status == "BESTELLING CONFIRMATIE" && mapController != null)
+                  ? Container(
+                      margin: EdgeInsets.all(30),
+                      child: SpinKitDoubleBounce(
+                        color: Geel,
+                        size: 100,
+                      ),
+                    )
+                  : Flexible(
+                      child: FlutterMap(
+                        mapController: mapController,
+                        options: new MapOptions(
+                          onTap: (LatLng eo) {
+                            mapController.onReady.then((result) {
+                              verplaatsKaart(
+                                  mapController,
+                                  new LatLng(
+                                      aankoperInfo['Position']['latitude'],
+                                      aankoperInfo['Position']['longitude']),
+                                  15,
+                                  this);
+                            });
+                          },
+                          center: new LatLng(53, 22),
+                          zoom: 15.0,
+                        ),
+                        layers: [
+                          new TileLayerOptions(
+                            urlTemplate: "https://api.tiles.mapbox.com/v4/"
+                                "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
+                            additionalOptions: {
+                              'accessToken':
+                                  '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
+                              'id': 'mapbox.streets',
+                            },
                           ),
-                        )
-                      : Flexible(
-                          child: FlutterMap(
-                            mapController: mapController,
-                            options: new MapOptions(
-                              onTap: (LatLng eo) {
-                                mapController.onReady.then((result) {
-                                  verplaatsKaart(
-                                      mapController,
-                                      new LatLng(
-                                          aankoperInfo['Position']['latitude'],
-                                          aankoperInfo['Position']
-                                              ['longitude']),
-                                      15,
-                                      this);
-                                });
-                              },
-                              center: new LatLng(53, 22),
-                              zoom: 15.0,
-                            ),
-                            layers: [
-                              new TileLayerOptions(
-                                urlTemplate: "https://api.tiles.mapbox.com/v4/"
-                                    "{id}/{z}/{x}/{y}@2x.png?access_token=sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg",
-                                additionalOptions: {
-                                  'accessToken':
-                                      '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
-                                  'id': 'mapbox.streets',
-                                },
-                              ),
-                              new MarkerLayerOptions(
-                                markers: opMapMarkers,
-                              ),
-                            ],
+                          new MarkerLayerOptions(
+                            markers: opMapMarkers,
                           ),
-                        )
+                        ],
+                      ),
+                    )
             ])),
       );
     } else {
@@ -779,7 +781,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   }
 
   getCorrectInterface() {
-    Size size = MediaQuery.of(context).size;
     if ((bestelling != null)) {
       if ((bestelling['BestellingStatus'] != "AANVRAAG") &&
           (bestelling['BestellingStatus'] != "AANBIEDING GEKREGEN") &&
@@ -925,49 +926,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                           ),
                                         ],
                                       )))),
-                          Container(
-                            height: size.height * 0.43,
-                            child: new ListView.builder(
-                              itemCount: bestellingLijst.length,
-                              itemBuilder: (context, index) {
-                                return Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: ListTile(
-                                      onTap: null,
-                                      trailing: Text(
-                                          "€ " +
-                                              (bestellingLijst[index]
-                                                          ['Aantal'] *
-                                                      bestellingLijst[index][
-                                                          'ProductAveragePrijs'])
-                                                  .toStringAsFixed(2),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      leading: Image.network(
-                                        bestellingLijst[index]['ProductImage'],
-                                        height: 40,
-                                      ),
-                                      title: Text(
-                                          bestellingLijst[index]['Aantal']
-                                                  .toString() +
-                                              "x : " +
-                                              bestellingLijst[index]
-                                                  ['ProductTitel'],
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      subtitle: Text(
-                                          "€ " +
-                                              bestellingLijst[index]
-                                                      ['ProductAveragePrijs']
-                                                  .toStringAsFixed(2),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400)),
-                                    ));
-                              },
-                            ),
-                          ),
+                          getProductenLijst(),
                           getAanbodPrijsWidget(),
                           getStatusWidget(bestelling['BestellingStatus'])
                         ],
@@ -1036,6 +995,44 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
               );
       }
     }
+  }
+
+  getProductenLijst() {
+    return Container(
+      height: size.height * 0.43,
+      child: new ListView.builder(
+        itemCount: bestellingLijst.length,
+        itemBuilder: (context, index) {
+          return Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: ListTile(
+                onTap: null,
+                trailing: Text(
+                    "€ " +
+                        (bestellingLijst[index]['Aantal'] *
+                                bestellingLijst[index]['ProductAveragePrijs'])
+                            .toStringAsFixed(2),
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                leading: Image.network(
+                  bestellingLijst[index]['ProductImage'],
+                  height: 40,
+                ),
+                title: Text(
+                    bestellingLijst[index]['Aantal'].toString() +
+                        "x : " +
+                        bestellingLijst[index]['ProductTitel'],
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(
+                    "€ " +
+                        bestellingLijst[index]['ProductAveragePrijs']
+                            .toStringAsFixed(2),
+                    style: TextStyle(fontWeight: FontWeight.w400)),
+              ));
+        },
+      ),
+    );
   }
 
   getTotalePrijs() {
@@ -1200,10 +1197,8 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   checkAanbod() {
     List aanbodLijst = bestelling['AanbodLijst'];
-    print(aanbodLijst);
     bool isInLijst = false;
     aanbodLijst.forEach((aanbodMap) {
-      print(aanbodMap['EmailBezorger']);
       if (aanbodMap['EmailBezorger'] == connectedUserMail) {
         print("exist in aanbod");
         isInLijst = true;

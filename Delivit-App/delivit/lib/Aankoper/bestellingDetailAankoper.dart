@@ -33,6 +33,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   StreamSubscription<DocumentSnapshot> _getFirebasBezorgereSubscription;
 
+  String userName;
+
   _BestellingDetailAankoperState({Key key, @required this.bestellingId});
   List<Marker> opMapMarkers = [];
   String bestellingId;
@@ -77,10 +79,19 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
     final FirebaseUser userData = await FirebaseAuth.instance.currentUser();
     if (userData != null) {
       setState(() {
-        print("6");
         connectedUserMail = userData.email;
       });
     }
+
+    Firestore.instance
+        .collection('Users')
+        .document(connectedUserMail)
+        .get()
+        .then((e) {
+      setState(() {
+        userName = e.data['Naam'] + " " + e.data['Voornaam'];
+      });
+    });
   }
 
   _getData() {
@@ -93,9 +104,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       aanbodLijst = [];
       if (this.mounted) {
         setState(() {
-          print("1");
           bestelling = data.data;
-          //print(data.data);
           if (data != null) {
             if (data.data['VerzameldeProducten'] != null) {
               verzameldeProducten = []
@@ -129,8 +138,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                   .get();
 
               reference.then((data) {
-                //print(data);
-                //print(distanceInMeters);
                 Map bezorgerMap = {
                   "EmailBezorger": aanbod['EmailBezorger'],
                   "NaamVoornaam":
@@ -147,7 +154,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                 };
 
                 setState(() {
-                  print("2");
                   aanbodLijst.add(bezorgerMap);
                 });
               });
@@ -524,8 +530,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
         break;
 
       case ("ONDERWEG"):
-        //print("IS ONDERWEG!");
-
         return getMapEnInfo(status);
 
         break;
@@ -561,7 +565,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
   }
 
   getBezorgerInfo() {
-    print("GET BEZORGER INFO NOW !!!");
     if (bestelling != null) {
       var reference = Firestore.instance
           .collection("Users")
@@ -571,7 +574,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       _getFirebasBezorgereSubscription = reference.listen((onData) {
         if (mounted) {
           setState(() {
-            print("3");
             bezorgerInfo = onData.data;
           });
           if (bestelling['BestellingStatus'] == "PRODUCTEN VERZAMELEN" ||
@@ -698,7 +700,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                         options: new MapOptions(
                           onTap: (LatLng eo) {
                             mapController.onReady.then((result) {
-                              print("verplaats it!");
                               verplaatsKaart(
                                   mapController,
                                   LatLng(bezorgerInfo['Position']['latitude'],
@@ -793,11 +794,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       //print(mapController);
 
       mapController.onReady.then((result) {
-        print("verplaats it!");
         verplaatsKaart(mapController,
             LatLng(latitudeBezorger, longitudeBezorger), 15, this);
         setState(() {
-          print("4");
           opMapMarkers = [
             Marker(
               width: 35.0,
@@ -843,7 +842,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   @override
   Widget build(BuildContext context) {
-    print("BUILD IT");
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -895,7 +893,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                 child: Column(
                                   children: <Widget>[
                                     Text(
-                                        getDatumToString(
+                                        getDatumEnTijdToString(
                                             bestelling['BezorgDatumEnTijd']),
                                         style: TextStyle(
                                             color: Colors.white,
@@ -955,7 +953,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                     color: (verzameldeProducten.contains(
                                             bestellingLijst[index]
                                                 ['ProductID']))
-                                        ? GrijsMidden.withOpacity(0.3)
+                                        ? GrijsLicht
                                         : White,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8.0),
@@ -967,15 +965,27 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                           ? false
                                           : true,
                                       onTap: null,
-                                      trailing: Text(
-                                          "€ " +
-                                              (bestellingLijst[index][
-                                                          'ProductAveragePrijs'] *
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          Text(
+                                              "€ " +
+                                                  (bestellingLijst[index]
+                                                              ['Aantal'] *
+                                                          bestellingLijst[index]
+                                                              [
+                                                              'ProductAveragePrijs'])
+                                                      .toStringAsFixed(2),
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
+                                          Checkbox(
+                                              value:
+                                                  verzameldeProducten.contains(
                                                       bestellingLijst[index]
-                                                          ['Aantal'])
-                                                  .toStringAsFixed(2),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
+                                                          ['ProductID']),
+                                              onChanged: null)
+                                        ],
+                                      ),
                                       leading: AspectRatio(
                                           aspectRatio: 1 / 1,
                                           child: Image.network(
@@ -1362,11 +1372,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                   'RatingScoresList': firebaseEntry,
                                   'RatingMessages': FieldValue.arrayUnion([
                                     {
-                                      "Person": anonyme
-                                          ? "Anoniem"
-                                          : connectedUserMail,
+                                      "Person": anonyme ? "Anoniem" : userName,
                                       "Message": ratingMessage,
-                                      "Score": ratingNumber
+                                      "Score": ratingNumber,
+                                      "Datum": DateTime.now()
                                     }
                                   ])
                                 });
@@ -1389,7 +1398,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                 */
 
                                 setState(() {
-                                  print("5");
                                   isOk = true;
                                 });
                                 Navigator.pop(context);

@@ -111,7 +111,7 @@ class _HomeAankoperState extends State<HomeAankoper> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.sync),
+                            Icon(Icons.sync, size: 14),
                             Text(
                               "IN AFWACHTING",
                               style: TextStyle(fontWeight: FontWeight.bold),
@@ -123,7 +123,10 @@ class _HomeAankoperState extends State<HomeAankoper> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.check),
+                            Icon(
+                              Icons.check,
+                              size: 14,
+                            ),
                             Text(
                               "VORIGE",
                               style: TextStyle(fontWeight: FontWeight.bold),
@@ -141,9 +144,9 @@ class _HomeAankoperState extends State<HomeAankoper> {
               child: FittedBox(
                   child: FloatingActionButton(
                 heroTag: "buttonGaNaarProductenLijst",
-                shape: CircleBorder(side: BorderSide(color: Geel)),
+                shape: CircleBorder(side: BorderSide(color: Geel, width: 0.5)),
                 backgroundColor: Colors.white,
-                elevation: 1,
+                elevation: 2,
                 onPressed: () {
                   print("PRODUCTENLIJST");
                   Navigator.push(
@@ -154,7 +157,8 @@ class _HomeAankoperState extends State<HomeAankoper> {
                   );
                 },
                 child: Icon(
-                  Icons.add,
+                  FontAwesomeIcons.plus,
+                  size: 22,
                   color: Geel,
                 ),
               ))),

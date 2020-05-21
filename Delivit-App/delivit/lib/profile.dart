@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:delivit/globals.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/profileUpdate.dart';
+import 'package:expandable/expandable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:snaplist/snaplist.dart';
 
 class Profile extends StatefulWidget {
   Profile({Key key, this.userEmail}) : super(key: key);
@@ -17,8 +21,6 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState(userEmail: this.userEmail);
 }
 
-//TODO: change moi cette merde
-
 class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   StreamSubscription<DocumentSnapshot> _getFirebaseSubscription;
 
@@ -26,11 +28,10 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   final String userEmail;
   num bezorgdeBestellingen = 0;
   num gekregenBestellingen = 0;
-  num _ratingScore = 2.5;
   Map gebruikerData;
   List ratingMessages = [];
-  TabController _tabBarController;
   String connectedUserEmail;
+  Size size;
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -51,7 +52,6 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   @override
   void initState() {
     getCurrentUser();
-    _tabBarController = TabController(length: 0, vsync: this);
     _getData();
     super.initState();
   }
@@ -68,12 +68,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
           // print("Refreshed");
           gebruikerData = data.data;
           ratingMessages = data.data['RatingMessages'];
-          if (ratingMessages != null) {
-            setState(() {
-              _tabBarController =
-                  TabController(length: ratingMessages.length, vsync: this);
-            });
-          }
+          if (ratingMessages != null) {}
           //print(data.data);
         });
       }
@@ -106,105 +101,115 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
 
   Widget _buildCoverImage(Size screenSize) {
     return Container(
-        height: screenSize.height * 0.50,
-        decoration: BoxDecoration(
-          color: Geel.withOpacity(0.7),
-          image: DecorationImage(
-            image: NetworkImage(gebruikerData['ProfileImage']),
-            fit: BoxFit.cover,
-            colorFilter:
-                ColorFilter.mode(Geel.withOpacity(0.6), BlendMode.srcOver),
-          ),
-        ),
-        child: new BackdropFilter(
-            filter: new ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            child: new Container(
-                decoration:
-                    new BoxDecoration(color: Colors.white.withOpacity(0.0)))));
-  }
-
-  Widget _buildProfileImage() {
-    return Center(
-      child: Container(
-        width: 140.0,
-        height: 140.0,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(gebruikerData['ProfileImage']),
-            fit: BoxFit.contain,
-          ),
-          borderRadius: BorderRadius.circular(80.0),
-          border: Border.all(
-            color: Colors.white,
-            width: 10.0,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFullName() {
-    Size size = MediaQuery.of(context).size;
-
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(gebruikerData['Voornaam'] + " " + gebruikerData['Naam'],
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black,
-                      offset: Offset(3.0, 3.0),
+        padding: EdgeInsets.only(top: size.height * 0.1),
+        width: size.width,
+        decoration: new BoxDecoration(
+            image: DecorationImage(
+                colorFilter:
+                    ColorFilter.mode(Geel.withOpacity(0.05), BlendMode.srcOver),
+                image: NetworkImage(
+                  gebruikerData['ProfileImage'],
+                ),
+                fit: BoxFit.cover),
+            color: Geel,
+            borderRadius: new BorderRadius.only(
+                topLeft: Radius.circular(10), topRight: Radius.circular(10))),
+        child: Padding(
+            padding: EdgeInsets.only(
+                top: (size.aspectRatio > 0.57)
+                    ? size.height / 5.5
+                    : size.height / 4.7,
+                left: 20,
+                bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: AutoSizeText(
+                          gebruikerData['Voornaam'].toUpperCase() +
+                              " " +
+                              gebruikerData['Naam'].toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 10.0,
+                                  color: Colors.black,
+                                  offset: Offset(
+                                    5.0,
+                                    5.0,
+                                  ),
+                                ),
+                              ],
+                              fontSize: 26),
+                          textAlign: TextAlign.left),
+                    ),
+                    // getBadge(gebruikerData['RatingScore']),
+                    // SizedBox(width: 8),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 3, bottom: 0),
+                      padding:
+                          EdgeInsets.only(right: 8, left: 8, top: 2, bottom: 2),
+                      decoration: new BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.all(Radius.circular(15))),
+                      child: RatingBarIndicator(
+                        rating: gebruikerData['RatingScore'].toDouble(),
+                        unratedColor: GrijsDark,
+                        itemBuilder: (context, index) => Icon(
+                          Icons.star,
+                          color: Geel,
+                        ),
+                        itemCount: 5,
+                        itemSize: (size.aspectRatio > 0.57) ? 18 : 24.0,
+                        direction: Axis.horizontal,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 5, bottom: 5),
+                      padding: (size.aspectRatio > 0.57)
+                          ? EdgeInsets.only(
+                              right: 8, left: 8, top: 4, bottom: 4)
+                          : EdgeInsets.only(
+                              right: 8, left: 8, top: 6, bottom: 6),
+                      decoration: new BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.all(Radius.circular(15))),
+                      child: Text(
+                        gebruikerData['RatingScore']
+                                .toDouble()
+                                .toStringAsFixed(2) +
+                            "/5",
+                        style: TextStyle(
+                            color: White, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
-                  fontSize: 26),
-              textAlign: TextAlign.center),
-          _buildRatingBars(),
-          Text(
-            _ratingScore.toString() + " /5",
-            style: TextStyle(fontWeight: FontWeight.bold, color: GrijsLicht),
-          ),
-          Container(
-            transform: Matrix4.translationValues(0, 15.0, 0.0),
-            height: size.width * 0.10,
-            width: size.width * 0.10,
-            decoration: new BoxDecoration(
-                color: GrijsDark,
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 1.0,
-                    color: GrijsMidden,
-                    offset: Offset(0.3, 0.3),
-                  ),
-                ],
-                borderRadius: new BorderRadius.all(Radius.circular(360.0))),
-            child: new IconButton(
-                icon: new Icon(
-                  Icons.message,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  //naar chat
-                }),
-          ),
-        ],
-      ),
-    );
+                )
+              ],
+            )));
   }
 
   Widget _buildStatItem(String label, String count) {
     TextStyle _statLabelTextStyle = TextStyle(
       color: GrijsDark,
-      fontSize: 18.0,
-      fontWeight: FontWeight.w200,
+      fontSize: 10.0,
+      fontWeight: FontWeight.w800,
     );
 
     TextStyle _statCountTextStyle = TextStyle(
-      color: GrijsDark,
+      color: Black,
       fontSize: 25.0,
       fontWeight: FontWeight.bold,
     );
@@ -220,47 +225,29 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
           label,
           style: _statLabelTextStyle,
         ),
+        SizedBox(height: 5)
       ],
     );
   }
 
   Widget _buildStatContainer() {
     return Container(
-      decoration: BoxDecoration(color: White),
+      decoration: BoxDecoration(
+        color: GrijsMidden.withOpacity(0.15),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            _buildStatItem("Bezorgd", bezorgdeBestellingen.toString()),
             _buildStatItem(
+                "BESTELLINGEN BEZORGD", bezorgdeBestellingen.toString()),
+            /* _buildStatItem(
               "Besteld",
               gekregenBestellingen.toString(),
-            )
+            )*/
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildRatingBars() {
-    //TODO: arranger le rating sur profiel
-    return Container(
-      margin: EdgeInsets.only(top: 8.0, bottom: 8),
-      padding: EdgeInsets.only(right: 0, left: 0, top: 0, bottom: 0),
-      /* decoration: new BoxDecoration(
-          color: White.withOpacity(0.3),
-          borderRadius: BorderRadius.all(Radius.circular(15))), */
-      child: RatingBarIndicator(
-        itemPadding: EdgeInsets.all(10),
-        rating: _ratingScore,
-        itemBuilder: (context, index) => Icon(
-          Icons.star,
-          color: GrijsDark,
-        ),
-        itemCount: 5,
-        itemSize: 45.0,
-        direction: Axis.horizontal,
       ),
     );
   }
@@ -300,97 +287,85 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildComments(BuildContext context) {
+  Widget reviewsComponent() {
     return Container(
-        height: MediaQuery.of(context).size.height * 0.15,
-        color: Theme.of(context).scaffoldBackgroundColor,
-        padding: EdgeInsets.only(top: 8.0, right: 15, left: 15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.arrow_back_ios),
-              onPressed: () {
-                print("back");
-                if (_tabBarController.index > 0 &&
-                    (_tabBarController.index < _tabBarController.length)) {
-                  print(_tabBarController.index.toString() +
-                      ' : ' +
-                      _tabBarController.length.toString());
-                  _tabBarController.animateTo(_tabBarController.index - 1);
-                } else {}
-              },
-            ),
-            Expanded(
-                child: TabBarView(
-                    controller: _tabBarController,
-                    children: ratingMessages.map((var ratingMessage) {
-                      return Card(
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Geel.withOpacity(0.3)),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Container(
-                              padding: EdgeInsets.all(15),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(ratingMessage['Person'],
-                                      style: TextStyle(
-                                          color: GrijsDark,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12)),
-                                  Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Icon(
-                                              Icons.star,
-                                              size: 12,
-                                              color: Colors.amber,
-                                            ),
-                                            Text(
-                                              ratingMessage['Score'].toString(),
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: GrijsDark,
-                                                  fontSize: 12),
-                                            )
-                                          ])),
-                                  Expanded(
-                                    child: Text(ratingMessage['Message'],
-                                        maxLines: 12,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 12)),
-                                  )
-                                ],
-                              )));
-                    }).toList())),
-            IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                if (_tabBarController.index >= 0 &&
-                    (_tabBarController.index < _tabBarController.length - 1)) {
-                  print(_tabBarController.index.toString() +
-                      ' : ' +
-                      _tabBarController.length.toString());
-                  _tabBarController.animateTo(_tabBarController.index + 1);
-                } else {}
-              },
-            )
-          ],
+        margin: EdgeInsets.only(top: 15),
+        height: MediaQuery.of(context).size.height * 0.22,
+        child: SnapList(
+          sizeProvider: (index, data) => Size(
+              ratingMessages.length == 1
+                  ? MediaQuery.of(context).size.width * 0.9
+                  : MediaQuery.of(context).size.width * 0.70,
+              MediaQuery.of(context).size.height * 0.29),
+          separatorProvider: (index, data) => Size(10.0, 10.0),
+          builder: (context, index, data) {
+            return Container(
+              padding: EdgeInsets.all(16),
+              decoration: new BoxDecoration(
+                  color: GrijsMidden.withOpacity(0.15),
+                  borderRadius: BorderRadius.all(Radius.circular(15))),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ExpandablePanel(
+                    header: RatingBarIndicator(
+                      rating: ratingMessages[index]['Score'].toDouble(),
+                      unratedColor: GrijsDark,
+                      itemBuilder: (context, index) => Icon(
+                        Icons.star,
+                        color: Geel,
+                      ),
+                      itemCount: 5,
+                      itemSize: (size.aspectRatio > 0.57) ? 16 : 20.0,
+                      direction: Axis.horizontal,
+                    ),
+                    collapsed: Text(
+                        "« " + ratingMessages[index]['Message'] + " »",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal, fontSize: 20)),
+                    expanded: Text(
+                        "« " + ratingMessages[index]['Message'] + " »",
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal, fontSize: 20)),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      AutoSizeText(ratingMessages[index]['Person'],
+                          maxLines: 2,
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: GrijsDark,
+                              fontWeight: FontWeight.bold)),
+                      AutoSizeText(
+                          getDatumToString(ratingMessages[index]['Datum']),
+                          maxLines: 1,
+                          style: TextStyle(
+                              color: GrijsMidden,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17)),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+          count: ratingMessages.length,
         ));
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -425,39 +400,44 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
       body: (gebruikerData != null)
           ? SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Stack(
-                    children: <Widget>[
-                      _buildCoverImage(size),
-                      SafeArea(
-                        child: Column(
-                          children: <Widget>[
-                            _buildProfileImage(),
-                            SizedBox(height: 10.0),
-                            _buildFullName(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildCoverImage(size),
                   _buildStatContainer(),
                   Container(
                     height: size.height * 0.35,
+                    padding: EdgeInsets.only(left: 20),
                     color: Colors.transparent,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         (ratingMessages.length != 0)
                             ? Text(
-                                "Commentaar beoordeling aankopers..",
+                                "Beoordeling",
+                                style: TextStyle(
+                                    color: GrijsDark,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 16),
                                 textAlign: TextAlign.start,
                               )
                             : Text(
-                                "Er is geen beoordeling gemaakt..",
+                                "Geen beoordeling...",
+                                style: TextStyle(
+                                    color: GrijsDark,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 16),
                                 textAlign: TextAlign.start,
                               ),
+                        Container(
+                          margin: EdgeInsets.only(top: 10),
+                          height: 2,
+                          width: 50,
+                          color: Geel,
+                        ),
                         (ratingMessages.length != 0)
-                            ? _buildComments(context)
+                            ? reviewsComponent()
                             : Container(),
                       ],
                     ),
@@ -471,6 +451,83 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                 size: 100,
               ),
             ),
+    );
+  }
+}
+
+getBadge(_ratingScore) {
+  _ratingScore = _ratingScore.toDouble();
+
+  if (_ratingScore < 2.5) {
+    return SizedBox();
+  }
+
+  if (_ratingScore >= 2.5 && _ratingScore <= 3.4) {
+    return Container(
+      padding: EdgeInsets.all(4),
+      child: Icon(FontAwesomeIcons.award,
+          size: 28, color: Color(0xffcd7f32)), //BRONZE
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: GrijsDark,
+              blurRadius: 10.0, // has the effect of softening the shadow
+              spreadRadius: 2.0, // has the effect of extending the shadow
+              offset: Offset(
+                0.0, // horizontal, move right 10
+                10.0, // vertical, move down 10
+              ),
+            )
+          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(30.0))),
+    );
+  }
+
+  if (_ratingScore > 3.4 && _ratingScore <= 4.4) {
+    return Container(
+      padding: EdgeInsets.all(4),
+      child: Icon(FontAwesomeIcons.award,
+          size: 28, color: Color(0xffc0c0c0)), //BRONZE
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: GrijsDark,
+              blurRadius: 10.0, // has the effect of softening the shadow
+              spreadRadius: 2.0, // has the effect of extending the shadow
+              offset: Offset(
+                0.0, // horizontal, move right 10
+                10.0, // vertical, move down 10
+              ),
+            )
+          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(30.0))),
+    );
+  }
+
+  if (_ratingScore > 4.4 /*&& ratingScore <= 5.0*/) {
+    return Container(
+      padding: EdgeInsets.all(4),
+      child: Icon(
+        FontAwesomeIcons.award,
+        size: 28,
+        color: Colors.amber,
+      ), //BRONZE
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: GrijsDark,
+              blurRadius: 10.0, // has the effect of softening the shadow
+              spreadRadius: 2.0, // has the effect of extending the shadow
+              offset: Offset(
+                0.0, // horizontal, move right 10
+                10.0, // vertical, move down 10
+              ),
+            )
+          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(30.0))),
     );
   }
 }
