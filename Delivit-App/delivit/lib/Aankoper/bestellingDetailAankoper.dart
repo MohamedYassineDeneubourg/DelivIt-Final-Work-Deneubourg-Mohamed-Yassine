@@ -60,6 +60,11 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   @override
   void dispose() {
+    if (getFirebaseGlobalSubscription != null) {
+      getFirebaseGlobalSubscription.cancel();
+      getFirebaseGlobalSubscription = null;
+    }
+
     if (_getFirebaseSubscription != null) {
       _getFirebaseSubscription.cancel();
     }
@@ -228,10 +233,26 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )),
                     Text(
+                      "€ " + (bestelling["LeveringKosten"]).toStringAsFixed(2),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Service",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
                       "€ " +
-                          (bestelling["LeveringKosten"] +
-                                  bestelling["ComissieAankoper"])
-                              .toStringAsFixed(2),
+                          (bestelling["ComissieAankoper"]).toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )
@@ -873,7 +894,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                   children: <Widget>[
                     Padding(
                         padding: EdgeInsets.only(
-                          bottom: 15,
+                          bottom: 0,
                           top: 10,
                         ),
                         child: Container(
@@ -891,10 +912,13 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                             child: Padding(
                                 padding: EdgeInsets.all(20),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Text(
                                         getDatumEnTijdToString(
                                             bestelling['BezorgDatumEnTijd']),
+                                        textAlign: TextAlign.center,
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w900,
@@ -906,16 +930,21 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                           color: Colors.white,
                                           fontSize: 16),
                                     ),
-                                    Divider(
-                                      color: White,
-                                      thickness: 2,
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          right: size.width * 0.15,
+                                          left: size.width * 0.15),
+                                      child: Divider(
+                                        color: Geel,
+                                        thickness: 2,
+                                      ),
                                     ),
                                     Text(
-                                      "Status:",
+                                      "STATUS:",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w900,
                                           color: Colors.white,
-                                          fontSize: 16),
+                                          fontSize: 14),
                                     ),
                                     Text(
                                       bestelling['BestellingStatus'],
@@ -939,6 +968,34 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                     ),
                                   ],
                                 )))),
+                    (bestelling['AdditioneleInformatie'] != "" &&
+                            bestelling['AdditioneleInformatie'] != null)
+                        ? Padding(
+                            padding: const EdgeInsets.only(
+                                right: 8.0, left: 0, bottom: 15),
+                            child: ExpandablePanel(
+                              header: Text(
+                                "Additionele informatie",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: GrijsDark),
+                              ),
+                              expanded: Padding(
+                                padding: const EdgeInsets.only(left: 35.0),
+                                child:
+                                    Text(bestelling['AdditioneleInformatie']),
+                              ),
+                              theme: ExpandableThemeData(
+                                iconPlacement:
+                                    ExpandablePanelIconPlacement.left,
+                                headerAlignment:
+                                    ExpandablePanelHeaderAlignment.center,
+                              ),
+                            ),
+                          )
+                        : SizedBox(
+                            height: 10,
+                          ),
                     (bestelling['BestellingStatus'] == "BEZORGD")
                         ? getBestellingOverzicht()
                         : Container(
@@ -978,12 +1035,15 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                                       .toStringAsFixed(2),
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold)),
-                                          Checkbox(
-                                              value:
-                                                  verzameldeProducten.contains(
-                                                      bestellingLijst[index]
-                                                          ['ProductID']),
-                                              onChanged: null)
+                                          (bestelling['BestellingStatus'] ==
+                                                  "PRODUCTEN VERZAMELEN")
+                                              ? Checkbox(
+                                                  value: verzameldeProducten
+                                                      .contains(
+                                                          bestellingLijst[index]
+                                                              ['ProductID']),
+                                                  onChanged: null)
+                                              : Container()
                                         ],
                                       ),
                                       leading: AspectRatio(

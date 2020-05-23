@@ -13,6 +13,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:lottie/lottie.dart';
+import 'package:toast/toast.dart';
 
 class KaartAankoper extends StatefulWidget {
   KaartAankoper({Key key, this.title}) : super(key: key);
@@ -105,26 +106,34 @@ class _KaartAankoperState extends State<KaartAankoper>
 
     ServiceStatus serviceStatus =
         await LocationPermissions().checkServiceStatus();
+
+    GeolocationStatus geolocationStatus =
+        await Geolocator().checkGeolocationPermissionStatus();
     print(serviceStatus);
     if (serviceStatus == ServiceStatus.disabled) {
       showGpsSettings();
     }
     var geolocator = Geolocator();
-    GeolocationStatus geolocationStatus =
-        await geolocator.checkGeolocationPermissionStatus();
-    print(geolocationStatus);
-    final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
-    print(userPosition);
 
-    Position position = await geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation)
-        .catchError((e) {
-      print(e);
-    });
-    if (this.mounted) {
-      setState(() {
-        userPosition = position;
-      });
+    if (geolocationStatus == GeolocationStatus.granted) {
+      GeolocationStatus geolocationStatus =
+          await geolocator.checkGeolocationPermissionStatus();
+      print(geolocationStatus);
+      print(userPosition);
+      if (geolocationStatus == GeolocationStatus.granted) {
+        Position position = await geolocator
+            .getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.bestForNavigation)
+            .catchError((e) {
+          print(e);
+        });
+
+        if (this.mounted) {
+          setState(() {
+            userPosition = position;
+          });
+        }
+      }
     }
 
     var locationOptions = LocationOptions(
@@ -138,7 +147,7 @@ class _KaartAankoperState extends State<KaartAankoper>
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot gebruiker = querySnapshot.documents[i];
         Map positionMap = gebruiker['Position'];
-        if (gebruiker.documentID != currentUser.email) {
+        if (gebruiker.documentID != connectedUserMail) {
           opMapUsers.add(
             new Marker(
               width: 100.0,
@@ -176,43 +185,51 @@ class _KaartAankoperState extends State<KaartAankoper>
         }
       }
     });
-
-    _getPositionSubscription = geolocator
-        .getPositionStream(locationOptions)
-        .listen((Position position) {
-      print("GET POSITION IN AANKOPER");
-      if (this.mounted) {
-        setState(() {
-          userPosition = position;
-        });
-      }
-      if (followUser) {
-        verplaatsKaart(mapController,
-            LatLng(position.latitude, position.longitude), 18, this);
-      }
-      //Hier print ik de timer:
-      //  print(DateTime.now().difference(startTimerForUpdate).inSeconds);
+    try {
+      if (geolocationStatus == GeolocationStatus.granted) {
+        _getPositionSubscription = geolocator
+            .getPositionStream(locationOptions)
+            .listen((Position position) {
+          print("GET POSITION IN AANKOPER");
+          if (this.mounted) {
+            setState(() {
+              userPosition = position;
+            });
+          }
+          if (followUser) {
+            verplaatsKaart(mapController,
+                LatLng(position.latitude, position.longitude), 18, this);
+          }
+          //Hier print ik de timer:
+          //  print(DateTime.now().difference(startTimerForUpdate).inSeconds);
 
 //Wanneer 10seconden gepasseerd zijn, ga ik updaten
-      if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
-        print("UPDATE POSITION AANKOPER!");
-        //   print('10seconds passed');
-        Firestore.instance
-            .collection('Users')
-            .document(connectedUserMail)
-            .updateData({
-          "Position": {
-            'latitude': position.latitude,
-            'longitude': position.longitude,
-          }
+          // if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
+
+          //   //   print('10seconds passed');
+          //   Firestore.instance
+          //       .collection('Users')
+          //       .document(connectedUserMail)
+          //       .updateData({
+          //     "Position": {
+          //       'latitude': position.latitude,
+          //       'longitude': position.longitude,
+          //     }
+          //   });
+          //   if (this.mounted) {
+          //     setState(() {
+          //       startTimerForUpdate = DateTime.now();
+          //     });
+          //   }
+          // }
         });
-        if (this.mounted) {
-          setState(() {
-            startTimerForUpdate = DateTime.now();
-          });
-        }
       }
-    });
+    } catch (e) {
+      Toast.show("Localisatie is niet geactiveerd...", context,
+          duration: Toast.LENGTH_SHORT,
+          gravity: Toast.TOP,
+          backgroundColor: Colors.red);
+    }
   }
 
   @override

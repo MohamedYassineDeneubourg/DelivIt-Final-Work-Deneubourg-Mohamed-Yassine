@@ -110,45 +110,51 @@ class _KaartBezorgerState extends State<KaartBezorger>
     print(geolocationStatus);
     var locationOptions = LocationOptions(
         accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
-    Position position = await geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation)
-        .catchError((e) {
-      print(e);
-    });
-    if (this.mounted) {
-      setState(() {
-        userPosition = position;
-      });
-    }
 
-    _getPositionSubscription = geolocator
-        .getPositionStream(locationOptions)
-        .listen((Position position) {
+    if (geolocationStatus == GeolocationStatus.granted) {
+      Position position = await geolocator
+          .getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.bestForNavigation)
+          .catchError((e) {
+        print(e);
+      });
       if (this.mounted) {
         setState(() {
           userPosition = position;
         });
-        if (followUser) {
-          verplaatsKaart(mapController,
-              LatLng(position.latitude, position.longitude), 18, this);
-        }
-        //Hier print ik de timer:
-        //  print(DateTime.now().difference(startTimerForUpdate).inSeconds);
+      }
+    }
+
+    if (geolocationStatus == GeolocationStatus.granted) {
+      _getPositionSubscription = geolocator
+          .getPositionStream(locationOptions)
+          .listen((Position position) {
+        if (this.mounted) {
+          setState(() {
+            userPosition = position;
+          });
+          if (followUser) {
+            verplaatsKaart(mapController,
+                LatLng(position.latitude, position.longitude), 18, this);
+          }
+          //Hier print ik de timer:
+          //  print(DateTime.now().difference(startTimerForUpdate).inSeconds);
 
 //Wanneer 10seconden gepasseerd zijn, ga ik updaten
-        if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
-          Firestore.instance
-              .collection('Users')
-              .document(connectedUserMail)
-              .updateData({
-            "Position": {
-              'latitude': position.latitude,
-              'longitude': position.longitude,
-            }
-          });
+          if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
+            Firestore.instance
+                .collection('Users')
+                .document(connectedUserMail)
+                .updateData({
+              "Position": {
+                'latitude': position.latitude,
+                'longitude': position.longitude,
+              }
+            });
+          }
         }
-      }
-    });
+      });
+    }
 
     _getFirebaseSubscription = Firestore.instance
         .collection('Commands')

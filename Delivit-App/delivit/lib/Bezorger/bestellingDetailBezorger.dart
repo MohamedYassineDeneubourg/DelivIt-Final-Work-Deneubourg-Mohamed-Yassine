@@ -55,6 +55,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
 
   @override
   void dispose() {
+    if (getFirebaseGlobalSubscription != null) {
+      getFirebaseGlobalSubscription.cancel();
+      getFirebaseGlobalSubscription = null;
+    }
+
     if (_getFirebaseSubscription != null) {
       _getFirebaseSubscription.cancel();
     }
@@ -829,11 +834,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                       thickness: 2,
                                     ),
                                     Text(
-                                      "Status:",
+                                      "STATUS:",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w900,
                                           color: Colors.white,
-                                          fontSize: 16),
+                                          fontSize: 14),
                                     ),
                                     Text(
                                       bestelling['BestellingStatus'],
@@ -909,9 +914,9 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                             thickness: 2,
                                           ),
                                           Text(
-                                            "Status:",
+                                            "STATUS:",
                                             style: TextStyle(
-                                                fontWeight: FontWeight.w600,
+                                                fontWeight: FontWeight.w900,
                                                 color: Colors.white,
                                                 fontSize: 14),
                                           ),

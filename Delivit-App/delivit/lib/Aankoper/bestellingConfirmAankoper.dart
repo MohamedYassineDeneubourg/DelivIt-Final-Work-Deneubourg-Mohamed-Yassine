@@ -5,6 +5,7 @@ import 'package:delivit/portefeuille.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:toast/toast.dart';
 
 class BestellingConfirmAankoper extends StatefulWidget {
   @override
@@ -66,11 +67,17 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
             });
           });
         }
-        setState(() {
-          getTotalePrijs();
-        });
       });
     }
+  }
+
+  @override
+  void dispose() {
+    if (getFirebaseGlobalSubscription != null) {
+      getFirebaseGlobalSubscription.cancel();
+      getFirebaseGlobalSubscription = null;
+    }
+    super.dispose();
   }
 
   @override
@@ -79,10 +86,6 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
     print("init!");
     getCurrentUser();
     _getData();
-    setState(() {
-      getTotalePrijs();
-    });
-
     super.initState();
   }
 
@@ -117,7 +120,6 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
 
                   reference
                       .updateData({"MomenteleBestelling": bestellingLijst});
-                  getTotalePrijs();
                   return Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -139,7 +141,6 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                                     if (this.mounted) {
                                       setState(() {
                                         bestellingLijst[index]['Aantal']--;
-                                        getTotalePrijs();
                                       });
                                     }
                                   }
@@ -158,7 +159,6 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                                   onPressed: () {
                                     setState(() {
                                       bestellingLijst[index]['Aantal']++;
-                                      getTotalePrijs();
                                     });
                                   }),
                             ]),
@@ -192,7 +192,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )),
                     Text(
-                      "€ " + getTotalePrijs(),
+                      "€ " + getTotalePrijs().toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )
@@ -217,6 +217,24 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20, left: 20),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Text(
+                      "Service",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )),
+                    Text(
+                      "€ " + getServicePrijs().toStringAsFixed(2),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
               Divider(),
               Padding(
                 padding: const EdgeInsets.only(right: 20, left: 20),
@@ -230,7 +248,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                     )),
                     Text(
                       "€ " +
-                          (double.parse(getTotalePrijs()) + leveringPrijs)
+                          (getTotalePrijs() + leveringPrijs + getServicePrijs())
                               .toString(),
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
@@ -269,30 +287,43 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
           totalePrijs + (product['Aantal'] * product['ProductAveragePrijs']);
     });
 
-    return totalePrijs.toStringAsFixed(2);
+    return totalePrijs;
+  }
+
+  getServicePrijs() {
+    return ((percentageCommisie * getTotalePrijs()).ceilToDouble());
   }
 
   void confirmBestelling() async {
-    num portefeuille = 0;
-    var reference = Firestore.instance
-        .collection("Users")
-        .document(connectedUserMail)
-        .get();
+    if (bestellingLijst.length < 1) {
+      Toast.show("Je hebt geen producten.", context,
+          duration: Toast.LENGTH_SHORT,
+          gravity: Toast.BOTTOM,
+          backgroundColor: Colors.red);
+    } else {
+      num portefeuille = 0;
+      try {
+        var reference = Firestore.instance
+            .collection("Users")
+            .document(connectedUserMail)
+            .get();
 
-    reference.then((data) {
-      portefeuille = data.data['Portefeuille'];
-      print(portefeuille);
-      if ((totalePrijs + leveringPrijs + 5) > (portefeuille)) {
-        print("Niet genoeg geld");
-        nietGenoegSaldo();
-      } else {
-        print("genoeg geld");
-        Navigator.push(
-          context,
-          SlideTopRoute(page: LaatsteStapBestellingAankoper()),
-        );
+        reference.then((data) {
+          portefeuille = data.data['Portefeuille'];
+          if ((totalePrijs + leveringPrijs + getServicePrijs() + 5) >
+              (portefeuille)) {
+            nietGenoegSaldo();
+          } else {
+            Navigator.push(
+              context,
+              SlideTopRoute(page: LaatsteStapBestellingAankoper()),
+            );
+          }
+        });
+      } catch (e) {
+        print(e);
       }
-    });
+    }
   }
 
   void _showDeleteVraag(Map productMap) {
@@ -350,7 +381,6 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
           Firestore.instance.collection("Users").document(connectedUserMail);
 
       reference.updateData({"ShoppingBag": _productenLijst});
-      getTotalePrijs();
     });
     Navigator.pop(context);
   }

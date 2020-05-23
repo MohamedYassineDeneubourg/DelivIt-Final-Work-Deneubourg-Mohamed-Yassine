@@ -24,6 +24,7 @@ class _LaatsteStapBestellingAankoperState
   String connectedUserMail;
   List bestellingLijst = [];
   Map adresPosition;
+  bool procesDone = true;
 
   final straatController = TextEditingController();
   final nummerController = TextEditingController();
@@ -57,8 +58,6 @@ class _LaatsteStapBestellingAankoperState
 
   @override
   Widget build(BuildContext context) {
-    print("build..");
-
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
@@ -139,24 +138,31 @@ class _LaatsteStapBestellingAankoperState
                                   ),
                                   FlatButton.icon(
                                     onPressed: () {
-                                      Geolocator()
-                                          .getCurrentPosition(
-                                              desiredAccuracy: LocationAccuracy
-                                                  .bestForNavigation)
-                                          .then((e) async {
-                                        var positieAdres = await Geolocator()
-                                            .placemarkFromCoordinates(
-                                                e.latitude, e.longitude,
-                                                localeIdentifier: "nl_BE");
+                                      if (procesDone) {
                                         setState(() {
-                                          straatController.text =
-                                              positieAdres.first.thoroughfare;
-                                          nummerController.text = positieAdres
-                                              .first.subThoroughfare;
-                                          postcodeController.text =
-                                              positieAdres.first.postalCode;
+                                          procesDone = false;
                                         });
-                                      });
+                                        Geolocator()
+                                            .getCurrentPosition(
+                                                desiredAccuracy:
+                                                    LocationAccuracy
+                                                        .bestForNavigation)
+                                            .then((e) async {
+                                          var positieAdres = await Geolocator()
+                                              .placemarkFromCoordinates(
+                                                  e.latitude, e.longitude,
+                                                  localeIdentifier: "nl_BE");
+                                          setState(() {
+                                            straatController.text =
+                                                positieAdres.first.thoroughfare;
+                                            nummerController.text = positieAdres
+                                                .first.subThoroughfare;
+                                            postcodeController.text =
+                                                positieAdres.first.postalCode;
+                                            procesDone = true;
+                                          });
+                                        });
+                                      }
                                     },
                                     label: Text(
                                       "Huidig positie gebruiken",
@@ -164,11 +170,16 @@ class _LaatsteStapBestellingAankoperState
                                           color: Geel,
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    icon: Icon(
-                                      Icons.person_pin,
-                                      size: 25,
-                                      color: GrijsDark,
-                                    ),
+                                    icon: (procesDone)
+                                        ? Icon(
+                                            Icons.person_pin,
+                                            size: 20,
+                                            color: GrijsDark,
+                                          )
+                                        : SpinKitDoubleBounce(
+                                            color: GrijsDark,
+                                            size: 14,
+                                          ),
                                   ),
                                   Padding(
                                       padding: EdgeInsets.only(

@@ -158,26 +158,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                 Row(
                   children: <Widget>[
                     Container(
-                      margin: EdgeInsets.only(top: 3, bottom: 0),
-                      padding:
-                          EdgeInsets.only(right: 8, left: 8, top: 2, bottom: 2),
-                      decoration: new BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.all(Radius.circular(15))),
-                      child: RatingBarIndicator(
-                        rating: gebruikerData['RatingScore'].toDouble(),
-                        unratedColor: GrijsDark,
-                        itemBuilder: (context, index) => Icon(
-                          Icons.star,
-                          color: Geel,
-                        ),
-                        itemCount: 5,
-                        itemSize: (size.aspectRatio > 0.57) ? 18 : 24.0,
-                        direction: Axis.horizontal,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 5, bottom: 5),
+                      margin: EdgeInsets.only(top: 5, bottom: 5, right: 5),
                       padding: (size.aspectRatio > 0.57)
                           ? EdgeInsets.only(
                               right: 8, left: 8, top: 4, bottom: 4)
@@ -189,10 +170,54 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                       child: Text(
                         gebruikerData['RatingScore']
                                 .toDouble()
-                                .toStringAsFixed(2) +
+                                .toStringAsFixed(1) +
                             "/5",
                         style: TextStyle(
                             color: White, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 3, bottom: 0),
+                      padding:
+                          EdgeInsets.only(right: 8, left: 8, top: 2, bottom: 2),
+                      decoration: new BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.all(Radius.circular(15))),
+                      child: RatingBarIndicator(
+                        rating: gebruikerData['RatingScore'].toDouble(),
+                        unratedColor: GrijsDark.withOpacity(0.8),
+                        itemBuilder: (context, index) => Icon(
+                          Icons.star,
+                          color: Geel,
+                        ),
+                        itemCount: 5,
+                        itemSize: (size.aspectRatio > 0.57) ? 18 : 24.0,
+                        direction: Axis.horizontal,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 5, bottom: 5, left: 5),
+                      padding: (size.aspectRatio > 0.57)
+                          ? EdgeInsets.only(
+                              right: 8, left: 8, top: 4, bottom: 4)
+                          : EdgeInsets.only(
+                              right: 8, left: 8, top: 6, bottom: 6),
+                      decoration: new BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.all(Radius.circular(15))),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            ratingMessages.length.toString(),
+                            style: TextStyle(
+                                color: White, fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            Icons.person,
+                            color: White,
+                            size: 13,
+                          )
+                        ],
                       ),
                     ),
                   ],
@@ -289,7 +314,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
 
   Widget reviewsComponent() {
     return Container(
-        margin: EdgeInsets.only(top: 15),
+        margin: EdgeInsets.only(top: 15, bottom: 20),
         height: MediaQuery.of(context).size.height * 0.22,
         child: SnapList(
           sizeProvider: (index, data) => Size(
@@ -400,15 +425,13 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
       body: (gebruikerData != null)
           ? SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   _buildCoverImage(size),
                   _buildStatContainer(),
                   Container(
-                    height: size.height * 0.35,
-                    padding: EdgeInsets.only(left: 20),
                     color: Colors.transparent,
+                    padding: EdgeInsets.only(left: 20, top: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -439,9 +462,24 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                         (ratingMessages.length != 0)
                             ? reviewsComponent()
                             : Container(),
+                        Text(
+                          "Badges",
+                          style: TextStyle(
+                              color: GrijsDark,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16),
+                          textAlign: TextAlign.start,
+                        ), //TODO: BADGES
+                        //TODO:CHATBUTTON
+                        Container(
+                          margin: EdgeInsets.only(top: 10),
+                          height: 2,
+                          width: 50,
+                          color: Geel,
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             )

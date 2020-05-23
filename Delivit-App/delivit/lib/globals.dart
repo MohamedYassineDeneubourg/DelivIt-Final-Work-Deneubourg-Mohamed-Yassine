@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +21,17 @@ const Black = Colors.black;
 num leveringPrijs = 3.5;
 Map leveringGlobals;
 num percentageCommisie = 0.10;
+StreamSubscription getFirebaseGlobalSubscription;
 
 getGlobals() {
-  Firestore.instance
+  getFirebaseGlobalSubscription = Firestore.instance
       .collection("Globals")
       .document("Globals")
       .snapshots()
-      .listen((e) {
+      .listen((e) {});
+
+  getFirebaseGlobalSubscription.onData((e) {
+    print("------------------------- YOOOOO");
     DateTime beginNachtijd = e.data['BeginNachtTijd'].toDate();
     DateTime eindeNachtTijd = e.data['EindeNachtTijd'].toDate();
     int actueeltijd = DateTime.now().hour;
