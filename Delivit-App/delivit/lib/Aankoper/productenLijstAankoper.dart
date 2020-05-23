@@ -85,9 +85,9 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
     print(zoekWoord);
     var reference = await Firestore.instance
         .collection("Products")
-        .where("ProductTitel",
-            isGreaterThanOrEqualTo: toBeginningOfSentenceCase(zoekWoord))
-        .getDocuments();
+        .orderBy("ProductTitel")
+        .startAt([toBeginningOfSentenceCase(zoekWoord)]).endAt(
+            [toBeginningOfSentenceCase(zoekWoord) + '\uf8ff']).getDocuments();
     List<DocumentSnapshot> documents = reference.documents;
 
     setState(() {
@@ -175,7 +175,14 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                   child: Icon(icon,
                       size: 28, color: returnColor(name) ? White : GrijsDark),
                 )),
-            Text(name)
+            Container(
+              width: 70,
+              child: Text(
+                name,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+            )
           ],
         ),
       );
@@ -212,11 +219,11 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                     FontAwesomeIcons.cookieBite,
                   ),
                   categorieButton(
-                    'Fruit&Gr.',
+                    'Fruit&Groenten',
                     FontAwesomeIcons.leaf,
                   ),
                   categorieButton(
-                    'Charcuter.',
+                    'Charcuterie',
                     FontAwesomeIcons.shapes,
                   ),
                 ],

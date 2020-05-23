@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/chatPage.dart';
 import 'package:delivit/globals.dart';
 import 'package:delivit/keuze.dart';
 import 'package:delivit/main.dart';
@@ -208,12 +209,11 @@ class _DrawerNavState extends State<DrawerNav> {
               style: TextStyle(fontWeight: FontWeight.w600, color: GrijsDark),
             ),
             onTap: () {
-              /* Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ChatPage(isTutu: true),
-                                              )); */
+              Navigator.push(
+                  context,
+                  SlideTopRoute(
+                    page: ChatPage(),
+                  ));
             },
           ),
         ),

@@ -52,10 +52,6 @@ class _OverzichtBestellingenAankoperState
             list.sort((a, b) => a.data['BezorgDatumEnTijd']
                 .compareTo(b.data['BezorgDatumEnTijd']));
 
-            list.forEach((element) {
-              print(element.documentID);
-            });
-
             if (this.mounted) {
               setState(() {
                 bestellingenLijst = list.reversed.toList();

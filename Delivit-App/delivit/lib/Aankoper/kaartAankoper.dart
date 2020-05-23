@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/globals.dart';
+import 'package:delivit/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -353,18 +354,19 @@ class _KaartAankoperState extends State<KaartAankoper>
                   contentPadding:
                       EdgeInsets.only(top: 4, right: 0, left: 15, bottom: 4),
                   onTap: () {
-                    //naar profiel pagina
+                    Navigator.push(
+                        context,
+                        SlideTopRoute(
+                            page: Profile(
+                          userEmail: persoon.documentID,
+                        )));
                   },
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(distance.toString() + "km",
                           style: TextStyle(fontWeight: FontWeight.bold)),
-                      IconButton(
-                          icon: Icon(Icons.arrow_forward_ios),
-                          onPressed: () {
-                            //NAAR PROFIEL PAGINA
-                          })
+                      Icon(Icons.arrow_forward_ios)
                     ],
                   ),
                   leading: Image.network(

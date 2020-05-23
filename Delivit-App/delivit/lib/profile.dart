@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:delivit/Controller/chatFunctions.dart';
 import 'package:delivit/globals.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/profileUpdate.dart';
@@ -15,24 +16,28 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:snaplist/snaplist.dart';
 
 class Profile extends StatefulWidget {
-  Profile({Key key, this.userEmail}) : super(key: key);
+  Profile({Key key, this.userEmail, this.comingFromMessage}) : super(key: key);
   final String userEmail;
+  final bool comingFromMessage;
   @override
-  _ProfileState createState() => _ProfileState(userEmail: this.userEmail);
+  _ProfileState createState() => _ProfileState(
+      userEmail: this.userEmail, comingFromMessage: comingFromMessage);
 }
 
 class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   StreamSubscription<DocumentSnapshot> _getFirebaseSubscription;
 
-  _ProfileState({Key key, @required this.userEmail});
+  _ProfileState(
+      {Key key, @required this.userEmail, @required this.comingFromMessage});
   final String userEmail;
+  final bool comingFromMessage;
   num bezorgdeBestellingen = 0;
   num gekregenBestellingen = 0;
   Map gebruikerData;
   List ratingMessages = [];
   String connectedUserEmail;
   Size size;
-
+  bool isBezorger = false;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
@@ -57,19 +62,17 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   }
 
   _getData() {
-    print(userEmail);
-    print("Getting data of user...");
     var reference =
         Firestore.instance.collection("Users").document(userEmail).snapshots();
 
     _getFirebaseSubscription = reference.listen((data) {
       if (this.mounted) {
         setState(() {
-          // print("Refreshed");
           gebruikerData = data.data;
           ratingMessages = data.data['RatingMessages'];
-          if (ratingMessages != null) {}
-          //print(data.data);
+          if (data.data['Functie'] != "Aankoper") {
+            isBezorger = true;
+          }
         });
       }
     });
@@ -393,10 +396,31 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
     size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: (userEmail != connectedUserEmail)
+          ? FloatingActionButton(
+              onPressed: () {
+                goToConversation(
+                    gebruikerData['Email'],
+                    gebruikerData['Naam'].toUpperCase() +
+                        " " +
+                        gebruikerData['Voornaam'].toUpperCase(),
+                    gebruikerData['ProfileImage'],
+                    connectedUserEmail,
+                    context,
+                    comingFromMessage);
+              },
+              backgroundColor: Geel.withOpacity(0.9),
+              child: Icon(
+                Icons.message,
+                color: White,
+              ),
+            )
+          : null,
       appBar: AppBar(
         elevation: 0,
-        iconTheme: IconThemeData(color: White),
-        actionsIconTheme: IconThemeData(color: White),
+        iconTheme: IconThemeData(color: Black),
+        actionsIconTheme: IconThemeData(color: Black),
         backgroundColor: Colors.transparent,
         actions: <Widget>[
           (userEmail == connectedUserEmail)
@@ -470,7 +494,6 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                               fontSize: 16),
                           textAlign: TextAlign.start,
                         ), //TODO: BADGES
-                        //TODO:CHATBUTTON
                         Container(
                           margin: EdgeInsets.only(top: 10),
                           height: 2,

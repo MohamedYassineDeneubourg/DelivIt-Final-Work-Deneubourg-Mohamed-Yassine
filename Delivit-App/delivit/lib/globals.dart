@@ -135,12 +135,6 @@ getDatumToString(timestamp) {
   return datum;
 }
 
-extension StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${this.substring(1)}";
-  }
-}
-
 getIconBezorger(status) {
   switch (status) {
     case ("AANVRAAG"):
@@ -254,4 +248,10 @@ passwordreset(connectedUserMail, context) {
       );
     },
   );
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
 }

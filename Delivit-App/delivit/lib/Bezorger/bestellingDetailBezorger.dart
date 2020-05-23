@@ -705,7 +705,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                     context,
                                     SlideTopRoute(
                                         page: Profile(
-                                      userEmail: bestelling['BezorgerEmail'],
+                                      userEmail: bestelling['AankoperEmail'],
                                     )));
                               }),
                         ),

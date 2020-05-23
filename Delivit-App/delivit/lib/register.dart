@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:toast/toast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'globals.dart';
 
@@ -21,6 +22,8 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  bool conditionsGeAccepteerd = false;
 
   _RegisterState({Key key, @required this.phoneNumber});
 
@@ -171,15 +174,27 @@ class _RegisterState extends State<Register> {
 
     //print(_wachtwoord);
     //print(_herhaalWachtwoord);
+    if (!conditionsGeAccepteerd) {
+      Toast.show("Veuillez accepter nos termes et conditions...", context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.BOTTOM,
+          backgroundColor: Colors.red);
+    }
     if (form.validate()) {
       form.save();
       //print('Form is valid: Email: $_email & Password: $_wachtwoord');
       if (_wachtwoord == _herhaalWachtwoord) {
         return true;
       } else {
+        if (!conditionsGeAccepteerd) {
+          Toast.show("Veuillez accepter nos termes et conditions...", context,
+              duration: Toast.LENGTH_LONG,
+              gravity: Toast.BOTTOM,
+              backgroundColor: Colors.red);
+        }
         Toast.show("Wachtwoord is niet hetzelfde, probeer opnieuw", context,
             duration: Toast.LENGTH_SHORT,
-            gravity: Toast.TOP,
+            gravity: Toast.BOTTOM,
             backgroundColor: Colors.red);
         return false;
       }
@@ -281,6 +296,39 @@ class _RegisterState extends State<Register> {
         //print('error: $e');
       }
     }
+  }
+
+  buildConditionsCheckbox() {
+    return Container(
+      decoration: BoxDecoration(
+          color: White,
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(5.0), topRight: Radius.circular(5.0))),
+      margin: const EdgeInsets.only(bottom: 100.0),
+      child: CheckboxListTile(
+        checkColor: White,
+        value: conditionsGeAccepteerd,
+        onChanged: (val) {
+          setState(() {
+            conditionsGeAccepteerd = !conditionsGeAccepteerd;
+          });
+        },
+        title: Text(
+          "Ik heb de gebruiksvoorwaarden en het privacybeleid gelezen en accepteer deze.",
+          maxLines: 4,
+          style: TextStyle(fontSize: 10.0),
+        ),
+        secondary: IconButton(
+            icon: Icon(Icons.open_in_new),
+            iconSize: 20,
+            onPressed: () {
+              launch("linkToPdf");
+            }),
+        dense: false,
+        controlAffinity: ListTileControlAffinity.leading,
+        activeColor: Geel,
+      ),
+    );
   }
 
   checkIfEmailExists() async {
@@ -632,6 +680,7 @@ class _RegisterState extends State<Register> {
                                       onSaved: (value) =>
                                           _herhaalWachtwoord = value,
                                     )),
+                                buildConditionsCheckbox()
                               ])),
                     ],
                   ))),
