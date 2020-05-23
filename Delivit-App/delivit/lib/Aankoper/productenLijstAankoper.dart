@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/bestellingConfirmAankoper.dart';
 import 'package:delivit/globals.dart';
@@ -126,6 +127,9 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
               setState(() {
                 toonSearchbar = !toonSearchbar;
               });
+              if (toonSearchbar == false) {
+                getData();
+              }
             },
           )
         ],
@@ -250,7 +254,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                   ),
                   label: Text(
                     "BESTELLEN (" +
-                        (bestellingProducten.length).toString() +
+                        (bestellingProducten.length).toStringAsFixed(2) +
                         ")",
                     style: TextStyle(color: White, fontWeight: FontWeight.w800),
                   ),
@@ -331,80 +335,67 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
             duration: const Duration(milliseconds: 250),
           ),
           Expanded(
-            child: GridView.builder(
-              itemCount: producten.length,
-              itemBuilder: (context, product) {
-                //print(product);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 5.0),
-                  child: Center(
-                    child: Stack(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10.0, left: 3),
-                          child: Container(
-                              width: 175,
-                              height: 200,
-                              child: RaisedButton(
-                                  color: White,
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                          color: (bestellingProducten.contains(
-                                                  producten[product]
-                                                      .documentID))
-                                              ? Geel
-                                              : GrijsMidden,
-                                          width: (bestellingProducten.contains(
-                                                  producten[product]
-                                                      .documentID))
-                                              ? 4
-                                              : 1),
-                                      borderRadius: BorderRadius.circular(5)),
-                                  onPressed: () {
-                                    if (bestellingProducten.contains(
-                                        producten[product].documentID)) {
-                                      setState(() {
-                                        bestellingProducten.remove(
-                                            producten[product].documentID);
-                                      });
-                                    } else {
-                                      setState(() {
-                                        bestellingProducten
-                                            .add(producten[product].documentID);
-                                        print(bestellingProducten);
-                                      });
-                                    }
+            child: Container(
+              padding: EdgeInsets.only(right: 15, left: 15),
+              child: GridView.builder(
+                itemCount: producten.length,
+                itemBuilder: (context, product) {
+                  //print(product);
+                  return Container(
+                    child: RaisedButton(
+                        color: White,
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: (bestellingProducten.contains(
+                                        producten[product].documentID))
+                                    ? Geel
+                                    : GrijsMidden,
+                                width: (bestellingProducten.contains(
+                                        producten[product].documentID))
+                                    ? 4
+                                    : 1),
+                            borderRadius: BorderRadius.circular(5)),
+                        onPressed: () {
+                          if (bestellingProducten
+                              .contains(producten[product].documentID)) {
+                            setState(() {
+                              bestellingProducten
+                                  .remove(producten[product].documentID);
+                            });
+                          } else {
+                            setState(() {
+                              bestellingProducten
+                                  .add(producten[product].documentID);
+                              print(bestellingProducten);
+                            });
+                          }
 
-                                    var reference = Firestore.instance
-                                        .collection("Users")
-                                        .document(connectedUserMail);
+                          var reference = Firestore.instance
+                              .collection("Users")
+                              .document(connectedUserMail);
 
-                                    reference.updateData(
-                                        {"ShoppingBag": bestellingProducten});
-                                  },
-                                  child: Hero(
-                                      transitionOnUserGestures: true,
-                                      tag: producten[product].documentID,
-                                      child: Image.network(
-                                          producten[product]
-                                              .data['ProductImage'],
-                                          height: 100,
-                                          fit: BoxFit.cover)))),
-                        ),
-                        Positioned(
-                          top: 15,
-                          left: 15,
-                          child: Text(
-                            producten[product].data["ProductTitel"],
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        Positioned(
-                            bottom: 20,
-                            right: 10,
-                            left: 10,
-                            child: Container(
+                          reference
+                              .updateData({"ShoppingBag": bestellingProducten});
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(top: 15),
+                              child: AutoSizeText(
+                                producten[product].data["ProductTitel"],
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            Image.network(
+                                producten[product].data['ProductImage'],
+                                height: 100,
+                                fit: BoxFit.cover),
+                            Container(
+                              margin: EdgeInsets.only(bottom: 10),
                               padding: EdgeInsets.only(
                                   top: 5, left: 10, right: 10, bottom: 5),
                               decoration: BoxDecoration(
@@ -415,21 +406,21 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                     "€ " +
                                         producten[product]
                                             .data["ProductDefaultPrijs"]
-                                            .toString(),
+                                            .toStringAsFixed(2),
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.w700)),
                               ),
-                            )),
-                      ],
-                    ),
-                  ),
-                );
-              },
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 1.0,
-                mainAxisSpacing: 5.0,
+                            )
+                          ],
+                        )),
+                  );
+                },
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 15.0,
+                  mainAxisSpacing: 15.0,
+                ),
               ),
             ),
           ),

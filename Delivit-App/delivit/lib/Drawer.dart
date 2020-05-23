@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Bezorger/prijsLijstWijziging.dart';
 import 'package:delivit/chatPage.dart';
 import 'package:delivit/globals.dart';
 import 'package:delivit/keuze.dart';
@@ -136,6 +137,33 @@ class _DrawerNavState extends State<DrawerNav> {
             },
           ),
         ),
+        (modus == "BEZORGER")
+            ? Container(
+                margin: EdgeInsets.zero,
+                color: GrijsDark.withOpacity(0.7),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.list,
+                    color: White,
+                  ),
+                  dense: true,
+                  title: Text(
+                    "WIJZIG PRIJSLIJST",
+                    style: TextStyle(color: White, fontWeight: FontWeight.bold),
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 11,
+                    color: White,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context,
+                        SlideTopRoute(page: PrijsLijstWijzigingBezorger()));
+                  },
+                ),
+              )
+            : Container(),
         Divider(
           height: 0,
           color: Geel,
