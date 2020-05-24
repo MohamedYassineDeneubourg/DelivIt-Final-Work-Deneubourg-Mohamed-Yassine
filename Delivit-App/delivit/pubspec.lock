@@ -700,6 +700,20 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.5"
+  stripe_fl:
+    dependency: "direct main"
+    description:
+      name: stripe_fl
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.0"
+  stripe_payment:
+    dependency: "direct main"
+    description:
+      name: stripe_payment
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.7"
   synchronized:
     dependency: transitive
     description:
@@ -762,7 +776,7 @@ packages:
       name: url_launcher
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.4.7"
+    version: "5.4.10"
   url_launcher_macos:
     dependency: transitive
     description:

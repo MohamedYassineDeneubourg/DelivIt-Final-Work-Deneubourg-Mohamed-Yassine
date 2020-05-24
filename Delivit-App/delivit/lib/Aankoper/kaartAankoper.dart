@@ -13,7 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'package:app_settings/app_settings.dart';
-import 'package:lottie/lottie.dart';
+import 'package:lottie/lottie.dart' as Lottie;
 import 'package:toast/toast.dart';
 
 class KaartAankoper extends StatefulWidget {
@@ -325,7 +325,7 @@ class _KaartAankoperState extends State<KaartAankoper>
                         color: Colors.black,
                       ),
                     ),
-                    icon: Lottie.asset('assets/Animations/settings.json',
+                    icon: Lottie.Lottie.asset('assets/Animations/settings.json',
                         width: 30))),
           ]));
     }

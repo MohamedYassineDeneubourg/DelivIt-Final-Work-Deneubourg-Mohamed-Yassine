@@ -72,7 +72,6 @@ class _PrijsLijstWijzigingBezorgerState
     setState(() {
       producten = list;
     });
-
     checkInMijnPrijsLijst();
   }
 
@@ -371,11 +370,9 @@ class _PrijsLijstWijzigingBezorgerState
 
   checkInMijnPrijsLijst() async {
     List productenTemp = [];
-
     producten.forEach((element) {
       var elementTemp = element.data;
       elementTemp['documentID'] = element.documentID;
-
       if (mijnPrijsLijst.containsKey(element.documentID)) {
         elementTemp['GewijzigdPrijs'] = mijnPrijsLijst[element.documentID];
       }
@@ -424,7 +421,6 @@ class _PrijsLijstWijzigingBezorgerState
                     element.data['PrijsLijstBezorger'][productId];
                 aantalBezorgersMetDitProduct++;
               }
-              print(element.documentID);
             });
             double nieuweAveragePrijs = double.parse(
                 ((prijsVanIedereen + oudePrijs) /
@@ -652,7 +648,6 @@ class _PrijsLijstWijzigingBezorgerState
                                                     "ProductDefaultPrijs"]
                                                 .toDouble())) {
                                           setState(() {
-                                            print("ok");
                                             prijsWijziging =
                                                 prijsWijziging + 0.10;
                                           });
