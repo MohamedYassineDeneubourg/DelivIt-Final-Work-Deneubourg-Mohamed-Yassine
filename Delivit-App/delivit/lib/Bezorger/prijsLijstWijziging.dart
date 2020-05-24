@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:numberpicker/numberpicker.dart';
+import 'package:toast/toast.dart';
 
 class PrijsLijstWijzigingBezorger extends StatefulWidget {
   @override
@@ -65,12 +65,12 @@ class _PrijsLijstWijzigingBezorgerState
           .getDocuments();
     }
 
-    print(selectedCategory);
-    List<DocumentSnapshot> documents = reference.documents;
+    List list = reference.documents;
+    list.sort(
+        (a, b) => a.data['ProductTitel'].compareTo(b.data['ProductTitel']));
 
     setState(() {
-      producten = documents;
-      print("OOOOPSI");
+      producten = list;
     });
 
     checkInMijnPrijsLijst();
@@ -88,10 +88,8 @@ class _PrijsLijstWijzigingBezorgerState
     setState(() {
       print(documents.length);
       if (documents.length == 0) {
-        print("no!");
         producten = [];
       } else {
-        print("yesè");
         producten = documents;
       }
     });
@@ -399,197 +397,307 @@ class _PrijsLijstWijzigingBezorgerState
     });
   }
 
+  veranderPrijsLijst(productId, oudePrijs, nieuwePrijs) {
+    setState(() {
+      if (oudePrijs == nieuwePrijs) {
+        mijnPrijsLijst.remove(productId);
+      } else {
+        mijnPrijsLijst[productId] = nieuwePrijs;
+      }
+    });
+    try {
+      Firestore.instance
+          .collection("Users")
+          .document(connectedUserMail)
+          .updateData({'PrijsLijstBezorger': mijnPrijsLijst});
+
+      Firestore.instance
+          .collection("Users")
+          .where("PrijsLijstBezorger", isGreaterThan: {})
+          .getDocuments()
+          .then((documents) {
+            double prijsVanIedereen = 0;
+            int aantalBezorgersMetDitProduct = 0;
+            documents.documents.forEach((element) {
+              if (element.data['PrijsLijstBezorger'].containsKey(productId)) {
+                prijsVanIedereen +=
+                    element.data['PrijsLijstBezorger'][productId];
+                aantalBezorgersMetDitProduct++;
+              }
+              print(element.documentID);
+            });
+            double nieuweAveragePrijs = double.parse(
+                ((prijsVanIedereen + oudePrijs) /
+                        (aantalBezorgersMetDitProduct + 1))
+                    .toStringAsFixed(2));
+
+            Firestore.instance
+                .collection("Products")
+                .document(productId)
+                .updateData({'ProductAveragePrijs': nieuweAveragePrijs});
+          })
+          .then((value) {
+            Navigator.pop(context);
+            setState(() {
+              getData();
+              toonSearchbar = false;
+            });
+          });
+    } catch (e) {
+      Toast.show("Oeps... Je kan binnenkort nog eens proberen...", context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.BOTTOM,
+          backgroundColor: Colors.red);
+      Navigator.pop(context);
+    }
+  }
+
+  getMinimumPrijs(standaardPrijs) {
+    return standaardPrijs -= (standaardPrijs * 0.25);
+  }
+
+  getMaximumPrijs(standaardPrijs) {
+    return standaardPrijs += (standaardPrijs * 0.25);
+  }
+
   toonDetailProduct(productMap) {
     double prijsWijziging = (productMap['GewijzigdPrijs'] == null
-        ? productMap["ProductDefaultPrijs"]
-        : productMap["GewijzigdPrijs"]);
+        ? productMap["ProductDefaultPrijs"].toDouble()
+        : productMap["GewijzigdPrijs"].toDouble());
 
     showModalBottomSheet(
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         context: context,
         builder: (BuildContext context) {
-          return Container(
-            height: size.height * 0.50,
-            decoration: BoxDecoration(
-                color: White,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20))),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    padding:
-                        EdgeInsets.only(top: 4, right: 0, left: 15, bottom: 4),
-                    decoration: BoxDecoration(
-                        color: GrijsLicht,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20))),
-                    child: Row(
-                      children: <Widget>[
-                        Image.network(productMap['ProductImage'],
-                            width: size.width * 0.2, fit: BoxFit.cover),
-                        SizedBox(width: size.width * 0.05),
-                        AutoSizeText(
-                          productMap["ProductTitel"],
-                          style: TextStyle(
-                              fontWeight: FontWeight.w900, fontSize: 20),
-                        ),
-                      ],
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              height: size.height * 0.50,
+              decoration: BoxDecoration(
+                  color: White,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20))),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.only(
+                          top: 4, right: 0, left: 15, bottom: 4),
+                      decoration: BoxDecoration(
+                          color: GrijsLicht,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20))),
+                      child: Row(
+                        children: <Widget>[
+                          Image.network(productMap['ProductImage'],
+                              height: size.width * 0.2,
+                              width: size.width * 0.2,
+                              fit: BoxFit.cover),
+                          SizedBox(width: size.width * 0.05),
+                          AutoSizeText(
+                            productMap["ProductTitel"],
+                            style: TextStyle(
+                                fontWeight: FontWeight.w900, fontSize: 20),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(
-                        top: 20, right: 15, left: 15, bottom: 4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          "Prijzen",
-                          style: TextStyle(
-                              color: GrijsDark,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 18),
-                          textAlign: TextAlign.start,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 10, bottom: 10),
-                          height: 2,
-                          width: 50,
-                          color: Geel,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: size.width * 0.0),
-                          child: Row(
+                    Container(
+                      padding: EdgeInsets.only(
+                          top: 20, right: 15, left: 15, bottom: 4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Prijzen",
+                            style: TextStyle(
+                                color: GrijsDark,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18),
+                            textAlign: TextAlign.start,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(top: 10, bottom: 10),
+                            height: 2,
+                            width: 50,
+                            color: Geel,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(right: size.width * 0.0),
+                            child: Row(
+                              children: <Widget>[
+                                Expanded(
+                                    child: Text(
+                                  "Standaard prijs",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600),
+                                )),
+                                Text(
+                                  "€ " +
+                                      productMap["ProductDefaultPrijs"]
+                                          .toStringAsFixed(2),
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600),
+                                )
+                              ],
+                            ),
+                          ),
+                          Row(
                             children: <Widget>[
                               Expanded(
                                   child: Text(
-                                "Standaard prijs",
+                                "Gemiddelde prijs",
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.w600),
                               )),
                               Text(
                                 "€ " +
-                                    productMap["ProductDefaultPrijs"]
+                                    productMap["ProductAveragePrijs"]
                                         .toStringAsFixed(2),
                                 style: TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.w600),
                               )
                             ],
                           ),
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Expanded(
-                                child: Text(
-                              "Gemiddelde prijs",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
-                            )),
-                            Text(
-                              "€ " +
-                                  productMap["ProductAveragePrijs"]
-                                      .toStringAsFixed(2),
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
-                            )
-                          ],
-                        ),
-                        Divider(),
-                        Padding(
-                          padding: EdgeInsets.only(right: size.width * 0.0),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                  child: Text(
-                                "Jouw prijs",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w900),
-                              )),
-                              Text(
-                                "€ " +
-                                    (productMap['GewijzigdPrijs'] == null
-                                        ? productMap["ProductDefaultPrijs"]
-                                            .toStringAsFixed(2)
-                                        : productMap["GewijzigdPrijs"]
-                                            .toStringAsFixed(2)),
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w900),
-                              )
-                            ],
-                          ),
-                        ),
-                        (productMap['GewijzigdPrijs'] != null)
-                            ? Text("Gewijzigd",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange,
-                                ))
-                            : Container(),
-                        SizedBox(height: size.height * 0.03),
-                        Text(
-                          "Eigen prijs wijzigen",
-                          style: TextStyle(
-                              color: GrijsDark,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 18),
-                          textAlign: TextAlign.start,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 10, bottom: 10),
-                          height: 2,
-                          width: 50,
-                          color: Geel,
-                        ),
-                        NumberPicker.decimal(
-                          onChanged: (value) => prijsWijziging,
-                          minValue: 1,
-                          maxValue: 100,
-                          decimalPlaces: 2,
-                          initialValue: prijsWijziging,
-                        ),
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                          IconButton(
-                            icon: Icon(
-                              Icons.remove_circle,
-                              size: 35,
+                          Divider(),
+                          Padding(
+                            padding: EdgeInsets.only(right: size.width * 0.0),
+                            child: Row(
+                              children: <Widget>[
+                                Expanded(
+                                    child: Text(
+                                  "Jouw prijs",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900),
+                                )),
+                                Text(
+                                  "€ " +
+                                      (productMap['GewijzigdPrijs'] == null
+                                          ? productMap["ProductDefaultPrijs"]
+                                              .toStringAsFixed(2)
+                                          : productMap["GewijzigdPrijs"]
+                                              .toStringAsFixed(2)),
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900),
+                                )
+                              ],
                             ),
-                            onPressed: () {
-                              if (prijsWijziging > 10) {
-                                setState(() {
-                                  prijsWijziging = prijsWijziging - 0.10;
-                                });
-                              }
-                            },
                           ),
+                          (productMap['GewijzigdPrijs'] != null)
+                              ? Text("Gewijzigd",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange,
+                                  ))
+                              : Container(),
+                          SizedBox(height: size.height * 0.03),
                           Text(
-                            "€" + prijsWijziging.toString(),
+                            "Eigen prijs wijzigen",
                             style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 30),
+                                color: GrijsDark,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18),
+                            textAlign: TextAlign.start,
                           ),
-                          IconButton(
-                              icon: Icon(
-                                Icons.add_circle,
-                                color: Geel,
-                                size: 35,
+                          Container(
+                            margin: EdgeInsets.only(top: 10, bottom: 10),
+                            height: 2,
+                            width: 50,
+                            color: Geel,
+                          ),
+                          Center(
+                            child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.remove_circle,
+                                      size: 30,
+                                    ),
+                                    onPressed: () {
+                                      if (prijsWijziging >
+                                          getMinimumPrijs(
+                                              productMap["ProductDefaultPrijs"]
+                                                  .toDouble())) {
+                                        setState(() {
+                                          prijsWijziging =
+                                              prijsWijziging - 0.10;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  Text(
+                                    "€ " + prijsWijziging.toStringAsFixed(2),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 30),
+                                  ),
+                                  IconButton(
+                                      icon: Icon(
+                                        Icons.add_circle,
+                                        color: Geel,
+                                        size: 30,
+                                      ),
+                                      onPressed: () {
+                                        if (prijsWijziging <
+                                            getMaximumPrijs(productMap[
+                                                    "ProductDefaultPrijs"]
+                                                .toDouble())) {
+                                          setState(() {
+                                            print("ok");
+                                            prijsWijziging =
+                                                prijsWijziging + 0.10;
+                                          });
+                                        }
+                                      }),
+                                ]),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(top: 15.0, bottom: 10),
+                            child: Center(
+                              child: FloatingActionButton.extended(
+                                hoverElevation: 12,
+                                heroTag: "INSCRIPTION",
+                                splashColor: GrijsDark,
+                                elevation: 2.0,
+                                backgroundColor: Geel,
+                                icon: const Icon(
+                                  FontAwesomeIcons.sync,
+                                  size: 20,
+                                  color: White,
+                                ),
+                                label: Text(
+                                  "PRIJS WIJZIGEN",
+                                  style: TextStyle(
+                                      color: White,
+                                      fontWeight: FontWeight.w900),
+                                ),
+                                onPressed: () {
+                                  veranderPrijsLijst(
+                                      productMap['documentID'],
+                                      productMap["ProductDefaultPrijs"],
+                                      prijsWijziging);
+                                },
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  prijsWijziging = prijsWijziging + 0.10;
-                                });
-                              }),
-                        ])
-                      ],
-                    ),
-                  )
-                ],
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          });
         });
   }
 }

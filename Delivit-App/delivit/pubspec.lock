@@ -450,13 +450,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.0"
-  infinite_listview:
-    dependency: transitive
-    description:
-      name: infinite_listview
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.1+1"
   international_phone_input:
     dependency: "direct main"
     description:
@@ -548,13 +541,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
-  numberpicker:
-    dependency: "direct main"
-    description:
-      name: numberpicker
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.2.0"
   path:
     dependency: transitive
     description:
