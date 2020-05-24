@@ -62,7 +62,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
   initState() {
     getCurrentUser();
     startTimerForUpdate = DateTime.now();
-
     _getData();
     super.initState();
   }
@@ -78,11 +77,10 @@ class _KaartBezorgerState extends State<KaartBezorger>
   }
 
   _getData() async {
-    //print('!GetData?');
+    await LocationPermissions().requestPermissions();
 
     ServiceStatus serviceStatus =
         await LocationPermissions().checkServiceStatus();
-    //print(serviceStatus);
     if (serviceStatus == ServiceStatus.disabled) {
       AlertDialog(
         shape: RoundedRectangleBorder(
@@ -104,6 +102,7 @@ class _KaartBezorgerState extends State<KaartBezorger>
         ],
       );
     }
+
     var geolocator = Geolocator();
     GeolocationStatus geolocationStatus =
         await geolocator.checkGeolocationPermissionStatus();

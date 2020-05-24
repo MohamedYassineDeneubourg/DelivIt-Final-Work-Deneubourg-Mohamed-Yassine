@@ -21,7 +21,7 @@ dependencies:
   flutter_map: any
   geopoint: ^0.7.0
   geolocator: ^5.1.5
-  location_permissions: ^2.0.4+1
+  location_permissions: ^2.0.5
   app_settings: ^3.0.0+1
   datetime_picker_formfield: ^1.0.0
   bubble: ^1.1.9+1
@@ -49,7 +49,7 @@ dependencies:
   lottie: ^0.3.2
   expandable: ^4.1.4
   snaplist: ^0.1.8
-  stripe_payment: ^1.0.7
+  #stripe_payment: ^1.0.7
   stripe_fl: ^0.1.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

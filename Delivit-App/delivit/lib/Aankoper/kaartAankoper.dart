@@ -104,10 +104,10 @@ class _KaartAankoperState extends State<KaartAankoper>
 
   _getData() async {
     print('!GetData?');
+    await LocationPermissions().requestPermissions();
 
     ServiceStatus serviceStatus =
         await LocationPermissions().checkServiceStatus();
-
     GeolocationStatus geolocationStatus =
         await Geolocator().checkGeolocationPermissionStatus();
     print(serviceStatus);
@@ -191,7 +191,6 @@ class _KaartAankoperState extends State<KaartAankoper>
         _getPositionSubscription = geolocator
             .getPositionStream(locationOptions)
             .listen((Position position) {
-          print("GET POSITION IN AANKOPER");
           if (this.mounted) {
             setState(() {
               userPosition = position;

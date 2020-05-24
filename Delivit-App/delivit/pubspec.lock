@@ -707,13 +707,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.0"
-  stripe_payment:
-    dependency: "direct main"
-    description:
-      name: stripe_payment
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.7"
   synchronized:
     dependency: transitive
     description:
