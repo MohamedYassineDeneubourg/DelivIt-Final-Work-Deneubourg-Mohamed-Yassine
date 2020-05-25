@@ -1,20 +1,22 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:android_intent/android_intent.dart';
+import 'package:app_settings/app_settings.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Controller/chatFunctions.dart';
 import 'package:delivit/globals.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:location_permissions/location_permissions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:latlong/latlong.dart';
-
-import '../profile.dart';
 
 class BestellingDetailBezorger extends StatefulWidget {
   BestellingDetailBezorger({Key key, this.bestellingId, this.connectedUserMail})
@@ -49,9 +51,10 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   double totalePrijs = 0.0;
   List verzameldeProducten = new List();
   Size size;
-
+  String vorigBestellingStatus = "";
   MapController mapController = new MapController();
   List<Marker> opMapMarkers;
+  MapboxNavigation _directions;
 
   @override
   void dispose() {
@@ -229,9 +232,12 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 fontWeight: FontWeight.bold),
                           ),
                           onPressed: () {
-                            setState(() {
-                              isLoading = true;
-                            });
+                            if (this.mounted) {
+                              setState(() {
+                                isLoading = true;
+                              });
+                            }
+
                             Firestore.instance
                                 .collection('Commands')
                                 .document(bestellingId)
@@ -254,10 +260,11 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 }
                               ])
                             });
-
-                            setState(() {
-                              isLoading = false;
-                            });
+                            if (this.mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                             Navigator.of(context).pop();
                           },
                         )),
@@ -421,9 +428,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                   shrinkWrap: true,
                   itemCount: bestellingLijst.length,
                   itemBuilder: (context, index) {
-                    print(verzameldeProducten.contains(bestellingLijst[index]));
-                    print(verzameldeProducten);
-                    print(bestellingLijst[index]);
                     return Card(
                         color: (verzameldeProducten
                                 .contains(bestellingLijst[index]['ProductID']))
@@ -502,16 +506,57 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
         break;
 
       case ("ONDERWEG"):
-        getAankoperInfo();
-        getMarkers();
+        if (status != vorigBestellingStatus) {
+          print("FIRST STATUS");
+          vorigBestellingStatus = status;
+          getAankoperInfo();
+          showNavigation();
+        }
 
-        return getMapEnInfo(status);
+        return SingleChildScrollView(
+          child: Container(
+            decoration: new BoxDecoration(
+                color: GrijsLicht,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 1.0,
+                    color: GrijsMidden,
+                    offset: Offset(0.3, 0.3),
+                  ),
+                ],
+                borderRadius: new BorderRadius.all(Radius.circular(10.0))),
+            height: size.height * 0.60,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: new BoxDecoration(
+                      color: Geel.withOpacity(0.6),
+                      borderRadius:
+                          new BorderRadius.all(Radius.circular(10.0))),
+                  width: size.width,
+                  child: FlatButton.icon(
+                      onPressed: () {
+                        showNavigation();
+                      },
+                      icon: Icon(Icons.map),
+                      label: Text(
+                        "Routebeschrijving naar klant",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
+                ),
+                getMapEnInfo(status)
+              ],
+            ),
+          ),
+        );
         break;
 
       case ("BESTELLING CONFIRMATIE"):
-        getAankoperInfo();
-        getMarkers();
-        print("no column?");
+        if (status != vorigBestellingStatus) {
+          vorigBestellingStatus = status;
+          getAankoperInfo();
+        }
         return getMapEnInfo(status);
 
         break;
@@ -539,16 +584,55 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
       var reference = Firestore.instance
           .collection("Users")
           .document(bestelling['AankoperEmail'])
-          .snapshots();
+          .get();
 
-      _getFirebaseAankoperSubscription = reference.listen((onData) {
-        if (mounted) {
+      reference.then((onData) {
+        if (this.mounted) {
           setState(() {
             aankoperInfo = onData.data;
           });
         }
+        getMarkers();
       });
     }
+  }
+
+  showGpsSettings() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0))),
+            title: Text('LOCALISATIE NIET GEACTIVEERD',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            content: Container(
+                height: 85,
+                child: SingleChildScrollView(
+                  child: Text(
+                      "Je moet je GPS-optie op uw toestel activeren om door te kunnen gaan."),
+                )),
+            contentPadding: EdgeInsets.all(20),
+            actions: <Widget>[
+              ButtonTheme(
+                  minWidth: 400.0,
+                  child: FlatButton(
+                    color: Geel,
+                    child: new Text(
+                      "Naar instellingen",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      AppSettings.openLocationSettings();
+                      Navigator.pop(context);
+                    },
+                  )),
+            ],
+          );
+        });
   }
 
   getMarkers() {
@@ -563,47 +647,48 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
         if (this.mounted) {
           verplaatsKaart(mapController,
               LatLng(latitudeBezorger, longitudeBezorger), 15, this);
-
-          setState(() {
-            opMapMarkers = [
-              Marker(
-                width: 35.0,
-                height: 35.0,
-                point: new LatLng(latitudeBestelling, longitudeBestelling),
-                builder: (ctx) => new Container(
-                  child: new RawMaterialButton(
-                    onPressed: null,
-                    child: Icon(
-                      Icons.home,
-                      color: Colors.white,
-                      size: 20.0,
+          if (this.mounted) {
+            setState(() {
+              opMapMarkers = [
+                Marker(
+                  width: 35.0,
+                  height: 35.0,
+                  point: new LatLng(latitudeBestelling, longitudeBestelling),
+                  builder: (ctx) => new Container(
+                    child: new RawMaterialButton(
+                      onPressed: null,
+                      child: Icon(
+                        Icons.home,
+                        color: Colors.white,
+                        size: 20.0,
+                      ),
+                      shape: new CircleBorder(),
+                      elevation: 1.0,
+                      fillColor: Colors.blue,
                     ),
-                    shape: new CircleBorder(),
-                    elevation: 1.0,
-                    fillColor: Colors.blue,
                   ),
                 ),
-              ),
-              Marker(
-                width: 35.0,
-                height: 35.0,
-                point: new LatLng(latitudeBezorger, longitudeBezorger),
-                builder: (ctx) => new Container(
-                  child: new RawMaterialButton(
-                    onPressed: null,
-                    child: Icon(
-                      Icons.directions_bike,
-                      color: Colors.white,
-                      size: 20.0,
+                Marker(
+                  width: 35.0,
+                  height: 35.0,
+                  point: new LatLng(latitudeBezorger, longitudeBezorger),
+                  builder: (ctx) => new Container(
+                    child: new RawMaterialButton(
+                      onPressed: null,
+                      child: Icon(
+                        Icons.directions_bike,
+                        color: Colors.white,
+                        size: 20.0,
+                      ),
+                      shape: new CircleBorder(),
+                      elevation: 3.0,
+                      fillColor: Geel,
                     ),
-                    shape: new CircleBorder(),
-                    elevation: 3.0,
-                    fillColor: Geel,
                   ),
-                ),
-              )
-            ];
-          });
+                )
+              ];
+            });
+          }
         }
       });
     }
@@ -676,65 +761,35 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                   'Kijkt zorgvuldig de bestelling en gaat deze binnenkort bevestigen..')
                               : Text('Wacht op zijn bestelling..'),
                   trailing: Container(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Container(
-                          height: size.width * 0.10,
-                          width: size.width * 0.10,
-                          decoration: new BoxDecoration(
-                              color: Geel,
-                              boxShadow: [
-                                BoxShadow(
-                                  blurRadius: 1.0,
-                                  color: GrijsMidden,
-                                  offset: Offset(0.3, 0.3),
-                                ),
-                              ],
-                              borderRadius:
-                                  new BorderRadius.all(Radius.circular(360.0))),
-                          child: new IconButton(
-                              icon: new Icon(
-                                Icons.person,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    SlideTopRoute(
-                                        page: Profile(
-                                      userEmail: bestelling['AankoperEmail'],
-                                    )));
-                              }),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Container(
-                            height: size.width * 0.10,
-                            width: size.width * 0.10,
-                            decoration: new BoxDecoration(
-                                color: GrijsDark,
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 1.0,
-                                    color: GrijsMidden,
-                                    offset: Offset(0.3, 0.3),
-                                  ),
-                                ],
-                                borderRadius: new BorderRadius.all(
-                                    Radius.circular(360.0))),
-                            child: new IconButton(
-                                icon: new Icon(
-                                  Icons.message,
-                                  color: Colors.white,
-                                ),
-                                onPressed: null),
+                    height: size.width * 0.10,
+                    width: size.width * 0.10,
+                    decoration: new BoxDecoration(
+                        color: GrijsDark,
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 1.0,
+                            color: GrijsMidden,
+                            offset: Offset(0.3, 0.3),
                           ),
+                        ],
+                        borderRadius:
+                            new BorderRadius.all(Radius.circular(360.0))),
+                    child: new IconButton(
+                        icon: new Icon(
+                          Icons.message,
+                          color: Colors.white,
                         ),
-                      ],
-                    ),
+                        onPressed: () {
+                          goToConversation(
+                              aankoperInfo['Email'],
+                              aankoperInfo['Naam'].toUpperCase() +
+                                  " " +
+                                  aankoperInfo['Voornaam'].toUpperCase(),
+                              aankoperInfo['ProfileImage'],
+                              connectedUserMail,
+                              context,
+                              false);
+                        }),
                   )),
               (status == "BESTELLING CONFIRMATIE" && mapController != null)
                   ? Container(
@@ -783,6 +838,31 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
     } else {
       return Padding(padding: EdgeInsets.all(1));
     }
+  }
+
+  showNavigation() {
+    LocationPermissions().requestPermissions();
+
+    Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation)
+        .then((value) async {
+      final myPosition = Location(
+          latitude: value.latitude, longitude: value.longitude, name: "Ik");
+
+      final bestellingPosition = Location(
+          name: "Bestelling",
+          latitude: bestelling['AdresPosition']['latitude'],
+          longitude: bestelling['AdresPosition']['longitude']);
+      await _directions.startNavigation(
+          origin: myPosition,
+          destination: bestellingPosition,
+          mode: NavigationMode.drivingWithTraffic,
+          simulateRoute: false);
+    });
+
+    _directions = MapboxNavigation(onRouteProgress: (arrived) async {
+      if (arrived) await _directions.finishNavigation();
+    });
   }
 
   getCorrectInterface() {

@@ -33,7 +33,8 @@ class _OverzichtBestellingenBezorgerState
             "AANVRAAG",
             "AANBIEDING GEKREGEN",
             "PRODUCTEN VERZAMELEN",
-            "BESTELLING CONFIRMATIE"
+            "BESTELLING CONFIRMATIE",
+            "ONDERWEG"
           ])
           // .orderBy("BezorgDatumEnTijd", descending: true)
           .snapshots()

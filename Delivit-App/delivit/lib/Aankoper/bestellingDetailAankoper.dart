@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Controller/chatFunctions.dart';
 import 'package:delivit/globals.dart';
 import 'package:expandable/expandable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -679,7 +680,17 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                           Icons.message,
                           color: Colors.white,
                         ),
-                        onPressed: null),
+                        onPressed: () {
+                          goToConversation(
+                              bezorgerInfo['Email'],
+                              bezorgerInfo['Naam'].toUpperCase() +
+                                  " " +
+                                  bezorgerInfo['Voornaam'].toUpperCase(),
+                              bezorgerInfo['ProfileImage'],
+                              connectedUserMail,
+                              context,
+                              false);
+                        }),
                   ),
                 ),
               ],

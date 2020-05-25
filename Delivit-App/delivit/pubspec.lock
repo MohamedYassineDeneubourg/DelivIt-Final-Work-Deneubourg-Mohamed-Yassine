@@ -335,6 +335,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.9.0"
+  flutter_mapbox_navigation:
+    dependency: "direct main"
+    description:
+      name: flutter_mapbox_navigation
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.0.7"
   flutter_native_image:
     dependency: "direct main"
     description:
@@ -700,13 +707,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.5"
-  stripe_fl:
-    dependency: "direct main"
-    description:
-      name: stripe_fl
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.0"
   synchronized:
     dependency: transitive
     description:

@@ -106,7 +106,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
     var geolocator = Geolocator();
     GeolocationStatus geolocationStatus =
         await geolocator.checkGeolocationPermissionStatus();
-    print(geolocationStatus);
     var locationOptions = LocationOptions(
         accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 0);
 
@@ -183,7 +182,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
                           ? EdgeInsets.all(10)
                           : EdgeInsets.all(2),
                       onPressed: () async {
-                        print(selectedBestelling);
 
                         _toonPopupMarker(context, bestelling);
                         setState(() {
@@ -357,7 +355,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
 
   _toonPopupMarker(context, DocumentSnapshot selectedBestelling) async {
     String distance = await getDistance(selectedBestelling['AdresPosition']);
-    print(distance);
     showModalBottomSheet(
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -436,7 +433,7 @@ class _KaartBezorgerState extends State<KaartBezorger>
   }
 
   void naarDetailBestelling(bestellingId) {
-    //print(connectedUserMail);
+
     Navigator.push(
         context,
         SlideTopRoute(

@@ -37,10 +37,6 @@ class _PortefeuilleState extends State<Portefeuille> {
     super.initState();
   }
 
-  void setError(dynamic error) {
-//Handle your errors
-  }
-
   void getCurrentUser() async {
     final FirebaseUser userData = await FirebaseAuth.instance.currentUser();
     if (userData != null) {
