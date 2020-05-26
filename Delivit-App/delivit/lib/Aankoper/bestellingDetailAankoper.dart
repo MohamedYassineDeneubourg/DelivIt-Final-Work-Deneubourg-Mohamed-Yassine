@@ -36,6 +36,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
   String userName;
 
+  num mijnPortefeuille;
+
   _BestellingDetailAankoperState({Key key, @required this.bestellingId});
   List<Marker> opMapMarkers = [];
   String bestellingId;
@@ -95,6 +97,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
         .get()
         .then((e) {
       setState(() {
+        mijnPortefeuille = e.data['Portefeuille'];
         userName = e.data['Naam'] + " " + e.data['Voornaam'];
       });
     });
@@ -155,6 +158,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                   "ComissieAankoper": aanbod['ComissieAankoper'],
                   "LeveringKosten": aanbod['LeveringKosten'],
                   "PrijsVanProducten": aanbod['PrijsVanProducten'],
+                  "AanbodBezorgingTijd": aanbod['AanbodBezorgingTijd'],
                   "RatingScore": data.data['RatingScore'],
                   "Distance": distanceInMeters / 1000
                 };
@@ -348,25 +352,58 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     onPressed: () {
-                      Firestore.instance
-                          .collection('Commands')
-                          .document(bestellingId)
-                          .updateData({
-                        "BezorgerEmail": bezorgerMap['EmailBezorger'],
-                        "TotalePrijs": bezorgerMap['TotaleAanbodPrijs'],
-                        "TotalePrijsAankoper":
-                            (bezorgerMap['TotaleAanbodPrijs'] +
-                                bezorgerMap['ComissieAankoper']),
-                        'PrijsVanProducten': bezorgerMap['PrijsVanProducten'],
-                        'LeveringKosten': bezorgerMap['LeveringKosten'],
-                        "ComissieAankoper": bezorgerMap['ComissieAankoper'],
-                        "isBeschikbaar": false,
-                        "BestellingStatus": "PRODUCTEN VERZAMELEN",
-                        'gaatBezorgdZijnTijd': bestelling['BezorgDatumEnTijd']
-                            .toDate()
-                            .add(Duration(
-                                minutes: bezorgerMap['AanbodBezorgingTijd']))
-                      });
+                      num totalePrijsAankoper =
+                          (bezorgerMap['TotaleAanbodPrijs'] +
+                              bezorgerMap['ComissieAankoper']);
+                      if (totalePrijsAankoper > (mijnPortefeuille)) {
+                        nietGenoegSaldoWidget(context);
+                      } else {
+                        print("YOOOO---");
+                        print(bestelling['BezorgDatumEnTijd'].toDate());
+                        print(bezorgerMap);
+                        print(bezorgerMap['EmailBezorger']);
+                        print(bestellingId);
+                        print("---");
+                        print(bestelling['BezorgDatumEnTijd'].toDate().add(
+                            Duration(
+                                minutes: bezorgerMap['AanbodBezorgingTijd'])));
+                        Firestore.instance
+                            .collection('Commands')
+                            .document(bestellingId)
+                            .updateData({
+                          "BezorgerEmail": bezorgerMap['EmailBezorger'],
+                          "TotalePrijs": bezorgerMap['TotaleAanbodPrijs'],
+                          "TotalePrijsAankoper": totalePrijsAankoper,
+                          'PrijsVanProducten': bezorgerMap['PrijsVanProducten'],
+                          'LeveringKosten': bezorgerMap['LeveringKosten'],
+                          "ComissieAankoper": bezorgerMap['ComissieAankoper'],
+                          "isBeschikbaar": false,
+                          "BestellingStatus": "PRODUCTEN VERZAMELEN",
+                          'gaatBezorgdZijnTijd': bestelling['BezorgDatumEnTijd']
+                              .toDate()
+                              .add(Duration(
+                                  minutes: bezorgerMap['AanbodBezorgingTijd']
+                                      .toInt()))
+                        });
+
+                        Firestore.instance
+                            .collection('Users')
+                            .document(bestelling['AankoperEmail'])
+                            .updateData({
+                          "Portefeuille":
+                              FieldValue.increment(-totalePrijsAankoper),
+                          "PortefeuilleHistoriek": FieldValue.arrayUnion(
+                            [
+                              {
+                                "BestellingId": "Bestelling: " + bestellingId,
+                                "Datum": DateTime.now().toString(),
+                                "Type": "-",
+                                "TotalePrijs": totalePrijsAankoper
+                              },
+                            ],
+                          ),
+                        });
+                      }
                       Navigator.pop(context);
                       // GEKOZEN!!
                     },
@@ -520,7 +557,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                               fontWeight: FontWeight.bold)),
                                       subtitle: RatingBarIndicator(
                                         rating: aanbodLijst[index]
-                                            ['RatingScore'],
+                                                ['RatingScore']
+                                            .toDouble(),
                                         itemBuilder: (context, index) => Icon(
                                           Icons.star,
                                           color: GrijsDark,
@@ -558,14 +596,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
       case ("BEZORGD"):
         //  getBezorgerInfo();
-        return Column(
-          children: <Widget>[
-            Divider(),
-            getInfoWidget(bestelling['BestellingStatus']),
-            /* Lottie.asset('assets/Animations/checked.json',
-                width: size.width * 0.25) */
-          ],
-        );
+        return Container();
         break;
 
       case ("BESTELLING CONFIRMATIE"):
@@ -966,17 +997,24 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
-                                    Text(
-                                      "Nog ±" +
-                                          tijdVoorBezorging.toString() +
-                                          " min...",
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 14,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
+                                    (bestelling['BestellingStatus'] !=
+                                                "AANVRAAG" &&
+                                            bestelling['BestellingStatus'] !=
+                                                "AANBIEDING GEKREGEN" &&
+                                            bestelling['BestellingStatus'] !=
+                                                "BEZORGD")
+                                        ? Text(
+                                            "Nog ±" +
+                                                tijdVoorBezorging.toString() +
+                                                " min...",
+                                            style: TextStyle(
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          )
+                                        : Container(),
                                   ],
                                 )))),
                     (bestelling['AdditioneleInformatie'] != "" &&
@@ -1007,6 +1045,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                         : SizedBox(
                             height: 10,
                           ),
+                    (bestelling['BestellingStatus'] == "BEZORGD")
+                        ? getInfoWidget(bestelling['BestellingStatus'])
+                        : Container(),
                     (bestelling['BestellingStatus'] == "BEZORGD")
                         ? getBestellingOverzicht()
                         : Container(
@@ -1248,7 +1289,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
       ratingScoreList = [];
     }
 
-    num ratingNumber;
+    double ratingNumber;
     String ratingMessage;
     bool anonyme = false;
 
@@ -1450,24 +1491,35 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                     }
                                   ])
                                 });
-                                await Firestore.instance
-                                    .collection('Commands')
-                                    .document(bestellingId)
-                                    .updateData({
-                                  "isBeschikbaar": false,
-                                  "ConfirmatieKlant": true,
-                                  "BestellingStatus": "BEZORGD",
-                                });
-/*
+
                                 await Firestore.instance
                                     .collection('Users')
                                     .document(bestelling['AankoperEmail'])
                                     .updateData({
                                   "Portefeuille": FieldValue.increment(
-                                      bestelling['geldBezorger'])
+                                      bestelling['TotalePrijs']),
+                                  "PortefeuilleHistoriek":
+                                      FieldValue.arrayUnion(
+                                    [
+                                      {
+                                        "BestellingId":
+                                            "Bezorgd: " + bestellingId,
+                                        "Datum": DateTime.now().toString(),
+                                        "Type": "+",
+                                        "TotalePrijs": bestelling['TotalePrijs']
+                                      },
+                                    ],
+                                  ),
+                                }).then((value) async {
+                                  await Firestore.instance
+                                      .collection('Commands')
+                                      .document(bestellingId)
+                                      .updateData({
+                                    "isBeschikbaar": false,
+                                    "ConfirmatieKlant": true,
+                                    "BestellingStatus": "BEZORGD",
+                                  });
                                 });
-                                */
-
                                 setState(() {
                                   isOk = true;
                                 });

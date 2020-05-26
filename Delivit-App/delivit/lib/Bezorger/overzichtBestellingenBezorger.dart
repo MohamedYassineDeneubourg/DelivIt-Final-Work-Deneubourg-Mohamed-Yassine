@@ -18,7 +18,7 @@ class OverzichtBestellingenBezorger extends StatefulWidget {
 
 class _OverzichtBestellingenBezorgerState
     extends State<OverzichtBestellingenBezorger> {
-  List bestellingenLijst;
+  List bestellingenLijst = [];
   String connectedUserMail;
   StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
 
@@ -30,8 +30,6 @@ class _OverzichtBestellingenBezorgerState
           .collection('Commands')
           .where("BezorgerEmail", isEqualTo: user.email)
           .where("BestellingStatus", whereIn: [
-            "AANVRAAG",
-            "AANBIEDING GEKREGEN",
             "PRODUCTEN VERZAMELEN",
             "BESTELLING CONFIRMATIE",
             "ONDERWEG"
@@ -55,7 +53,8 @@ class _OverzichtBestellingenBezorgerState
 
   @override
   Widget build(BuildContext context) {
-    return (bestellingenLijst != null)
+    print(bestellingenLijst.length);
+    return ((bestellingenLijst.length > 0)) 
         ? Padding(
             padding: const EdgeInsets.only(top: 20.0, right: 15, left: 15),
             child: Scaffold(

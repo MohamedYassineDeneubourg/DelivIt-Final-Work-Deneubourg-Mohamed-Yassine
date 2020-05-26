@@ -19,7 +19,7 @@ class OverzichtBestellingenAankoper extends StatefulWidget {
 
 class _OverzichtBestellingenAankoperState
     extends State<OverzichtBestellingenAankoper> {
-  List bestellingenLijst;
+  List bestellingenLijst = [];
   String connectedUserMail;
   int aantalAanbiedingen;
   StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
@@ -135,8 +135,7 @@ class _OverzichtBestellingenAankoperState
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
-    return (bestellingenLijst != null)
+    return ((bestellingenLijst.length > 0))
         ? Padding(
             padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
             child: Scaffold(
@@ -228,9 +227,7 @@ class _OverzichtBestellingenAankoperState
                                           : Colors.black,
                                       fontWeight: FontWeight.bold)),
                               subtitle: Text(
-                                (bestellingStatus == "AANBIEDING GEKREGEN")
-                                    ? "AANBIEDING GESTUURD"
-                                    : bestellingStatus,
+                                bestellingStatus,
                                 style: TextStyle(
                                     color: (bestellingStatus == "BEZORGD" ||
                                             bestellingStatus == "GEANNULEERD")

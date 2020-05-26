@@ -462,7 +462,11 @@ class _LaatsteStapBestellingAankoperState
               .collection("Users")
               .document(connectedUserMail);
 
-          reference.updateData({"MomenteleBestelling": [], "ShoppingBag": []});
+          reference.updateData({
+            "MomenteleBestelling": [],
+            "ShoppingBag": [],
+          });
+
           Navigator.of(loadingContext).pop();
           if (context != null) {
             Navigator.pop(context);

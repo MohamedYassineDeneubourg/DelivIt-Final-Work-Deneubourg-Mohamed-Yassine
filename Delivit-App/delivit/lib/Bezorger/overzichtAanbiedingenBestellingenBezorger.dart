@@ -18,7 +18,7 @@ class OverzichtAanbiedingenBestellingenBezorger extends StatefulWidget {
 
 class _OverzichtAanbiedingenBestellingenBezorgerState
     extends State<OverzichtAanbiedingenBestellingenBezorger> {
-  List bestellingenLijst;
+  List bestellingenLijst = [];
   String connectedUserMail;
   StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
 
@@ -35,8 +35,6 @@ class _OverzichtAanbiedingenBestellingenBezorgerState
         list.sort((a, b) =>
             a.data['BezorgDatumEnTijd'].compareTo(b.data['BezorgDatumEnTijd']));
 
-     
-
         if (this.mounted) {
           setState(() {
             bestellingenLijst = list.reversed.toList();
@@ -49,7 +47,7 @@ class _OverzichtAanbiedingenBestellingenBezorgerState
 
   @override
   Widget build(BuildContext context) {
-    return (bestellingenLijst != null)
+    return ((bestellingenLijst.length > 0))
         ? Padding(
             padding: const EdgeInsets.only(top: 20.0, right: 15, left: 15),
             child: Scaffold(
@@ -100,13 +98,19 @@ class _OverzichtAanbiedingenBestellingenBezorgerState
                                 connectedUserMail: connectedUserMail,
                               )));
                         },
-                        trailing: getIconBezorger(bestellingStatus),
+                        trailing: Icon((bestellingStatus == "AANBIEDING GEKREGEN")
+                                ? Icons.stay_primary_landscape : Icons.delete_forever),
                         title: Text("Bestelling: " + datum + " - " + tijd,
                             style: TextStyle(
-                                color: Colors.black,
+                                color: (bestellingStatus == "AANBIEDING GEKREGEN")
+                                ? Colors.black : GrijsDark.withOpacity(0.7),
                                 fontWeight: FontWeight.bold)),
-                        subtitle: Text(bestellingStatus,
-                            style: TextStyle(color: Colors.black)),
+                        subtitle: Text(
+                            (bestellingStatus == "AANBIEDING GEKREGEN")
+                                ? "AANBIEDING GESTUURD"
+                                : "GEANNULEERD",
+                            style: TextStyle(color: (bestellingStatus == "AANBIEDING GEKREGEN")
+                                ? Colors.black : GrijsMidden,)),
                       ));
                 } else {
                   return Container();

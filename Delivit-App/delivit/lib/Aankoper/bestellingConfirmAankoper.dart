@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Aankoper/laatsteStapBestellingAankoper.dart';
 import 'package:delivit/globals.dart';
-import 'package:delivit/portefeuille.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -312,7 +311,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
           portefeuille = data.data['Portefeuille'];
           if ((totalePrijs + leveringPrijs + getServicePrijs() + 5) >
               (portefeuille)) {
-            nietGenoegSaldo();
+            nietGenoegSaldoWidget(context);
           } else {
             Navigator.push(
               context,
@@ -385,53 +384,5 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
     Navigator.pop(context);
   }
 
-  nietGenoegSaldo() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12.0))),
-          title: new Text(
-            "Onvoeldoende geld..",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: new Text(
-              "Jij hebt onvoeldoende geld in je portefeuille... Gelieve geld toe te voegen."),
-          actions: <Widget>[
-            ButtonTheme(
-                minWidth: 400.0,
-                child: RaisedButton(
-                  color: Geel,
-                  child: Text(
-                    "GA NAAR PORTEFEUILLE",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                        context, SlideTopRoute(page: Portefeuille()));
-                    print("Naar portefeuille!");
 
-                    //  signIn();
-                  },
-                )),
-            ButtonTheme(
-                minWidth: 400.0,
-                child: RaisedButton(
-                  color: GrijsDark,
-                  child: Text(
-                    "BESTELLING WIJZIGEN",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ))
-          ],
-        );
-      },
-    );
-  }
 }

@@ -18,7 +18,7 @@ class OverzichtVorigeBestellingenAankoper extends StatefulWidget {
 
 class _OverzichtVorigeBestellingenAankoperState
     extends State<OverzichtVorigeBestellingenAankoper> {
-  List bestellingenLijst;
+  List bestellingenLijst = [];
   String connectedUserMail;
   int aantalAanbiedingen;
   StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
@@ -39,8 +39,6 @@ class _OverzichtVorigeBestellingenAankoperState
             List list = e.documents;
             list.sort((a, b) => a.data['BezorgDatumEnTijd']
                 .compareTo(b.data['BezorgDatumEnTijd']));
-
-        
 
             if (this.mounted) {
               setState(() {
@@ -124,7 +122,7 @@ class _OverzichtVorigeBestellingenAankoperState
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    return (bestellingenLijst != null)
+    return ((bestellingenLijst.length > 0))
         ? Padding(
             padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
             child: Scaffold(
@@ -216,9 +214,7 @@ class _OverzichtVorigeBestellingenAankoperState
                                           : Colors.black,
                                       fontWeight: FontWeight.bold)),
                               subtitle: Text(
-                                (bestellingStatus == "AANBIEDING GEKREGEN")
-                                    ? "AANBIEDING GESTUURD"
-                                    : bestellingStatus,
+                                bestellingStatus,
                                 style: TextStyle(
                                     color: (bestellingStatus == "BEZORGD" ||
                                             bestellingStatus == "GEANNULEERD")

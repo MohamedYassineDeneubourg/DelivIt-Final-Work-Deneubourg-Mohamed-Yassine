@@ -18,7 +18,7 @@ class OverzichtBesteldeBestellingenBezorger extends StatefulWidget {
 
 class _OverzichtBesteldeBestellingenBezorgerState
     extends State<OverzichtBesteldeBestellingenBezorger> {
-  List bestellingenLijst;
+  List bestellingenLijst = [];
   String connectedUserMail;
   StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
 
@@ -51,7 +51,7 @@ class _OverzichtBesteldeBestellingenBezorgerState
 
   @override
   Widget build(BuildContext context) {
-    return (bestellingenLijst != null)
+    return (bestellingenLijst.length > 0)
         ? Padding(
             padding: const EdgeInsets.only(top: 20.0, right: 15, left: 15),
             child: Scaffold(
