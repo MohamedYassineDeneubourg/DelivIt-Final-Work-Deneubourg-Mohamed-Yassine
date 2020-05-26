@@ -326,45 +326,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
               "BestellingStatus": "ONDERWEG",
             });
           });
-          String latitude;
-          String longitude;
-          var me = await Geolocator().getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.bestForNavigation);
-
-          latitude = me.latitude.toString();
-          longitude = me.longitude.toString();
-
-          String origin =
-              latitude + "," + longitude; // lat,long like 123.34,68.56
-          print("NAVIGATE !");
-          print(origin);
-          String destination =
-              bestelling['AdresPosition']['latitude'].toString() +
-                  "," +
-                  bestelling['AdresPosition']['longitude'].toString();
-          if (Platform.isAndroid) {
-            final AndroidIntent intent = new AndroidIntent(
-                action: 'action_view',
-                data: Uri.encodeFull(
-                    "https://www.google.com/maps/dir/?api=1&origin=" +
-                        origin +
-                        "&destination=" +
-                        destination +
-                        "&travelmode=driving&dir_action=navigate"),
-                package: 'com.google.android.apps.maps');
-            intent.launch();
-          } else {
-            String url = "https://www.google.com/maps/dir/?api=1&origin=" +
-                origin +
-                "&destination=" +
-                destination +
-                "&travelmode=driving&dir_action=navigate";
-            if (await canLaunch(url)) {
-              await launch(url);
-            } else {
-              throw 'Could not launch $url';
-            }
-          }
         });
         break;
 
@@ -840,29 +801,73 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
     }
   }
 
+  navigateToGoogleMaps() async {
+    String latitude;
+    String longitude;
+    var me = await Geolocator().getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.bestForNavigation);
+
+    latitude = me.latitude.toString();
+    longitude = me.longitude.toString();
+
+    String origin = latitude + "," + longitude; // lat,long like 123.34,68.56
+    print("NAVIGATE !");
+    print(origin);
+    String destination = bestelling['AdresPosition']['latitude'].toString() +
+        "," +
+        bestelling['AdresPosition']['longitude'].toString();
+    if (Platform.isAndroid) {
+      final AndroidIntent intent = new AndroidIntent(
+          action: 'action_view',
+          data: Uri.encodeFull(
+              "https://www.google.com/maps/dir/?api=1&origin=" +
+                  origin +
+                  "&destination=" +
+                  destination +
+                  "&travelmode=driving&dir_action=navigate"),
+          package: 'com.google.android.apps.maps');
+      intent.launch();
+    } else {
+      String url = "https://www.google.com/maps/dir/?api=1&origin=" +
+          origin +
+          "&destination=" +
+          destination +
+          "&travelmode=driving&dir_action=navigate";
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+  }
+
   showNavigation() {
     LocationPermissions().requestPermissions();
+    if (Platform.isIOS) {
+      Geolocator()
+          .getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.bestForNavigation)
+          .then((value) async {
+        final myPosition = Location(
+            latitude: value.latitude, longitude: value.longitude, name: "Ik");
 
-    Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation)
-        .then((value) async {
-      final myPosition = Location(
-          latitude: value.latitude, longitude: value.longitude, name: "Ik");
+        final bestellingPosition = Location(
+            name: "Bestelling",
+            latitude: bestelling['AdresPosition']['latitude'],
+            longitude: bestelling['AdresPosition']['longitude']);
+        await _directions.startNavigation(
+            origin: myPosition,
+            destination: bestellingPosition,
+            mode: NavigationMode.drivingWithTraffic,
+            simulateRoute: false);
+      });
 
-      final bestellingPosition = Location(
-          name: "Bestelling",
-          latitude: bestelling['AdresPosition']['latitude'],
-          longitude: bestelling['AdresPosition']['longitude']);
-      await _directions.startNavigation(
-          origin: myPosition,
-          destination: bestellingPosition,
-          mode: NavigationMode.drivingWithTraffic,
-          simulateRoute: false);
-    });
-
-    _directions = MapboxNavigation(onRouteProgress: (arrived) async {
-      if (arrived) await _directions.finishNavigation();
-    });
+      _directions = MapboxNavigation(onRouteProgress: (arrived) async {
+        if (arrived) await _directions.finishNavigation();
+      });
+    } else {
+      navigateToGoogleMaps();
+    }
   }
 
   getCorrectInterface() {

@@ -22,7 +22,7 @@ num leveringPrijs = 3.5;
 Map leveringGlobals;
 num percentageCommisie = 0.10;
 StreamSubscription getFirebaseGlobalSubscription;
-
+String serverUrlGlobals;
 getGlobals() {
   getFirebaseGlobalSubscription = Firestore.instance
       .collection("Globals")
@@ -47,6 +47,7 @@ getGlobals() {
     percentageCommisie = e.data["PercentageCommisie"];
     leveringPrijs = leveringprijsOk;
     leveringGlobals = e.data;
+    serverUrlGlobals = e.data['ServerUrl'];
   });
 }
 

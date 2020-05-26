@@ -8,7 +8,9 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Portefeuille extends StatefulWidget {
   @override
@@ -22,6 +24,8 @@ class _PortefeuilleState extends State<Portefeuille> {
   double geldToevoegen = 5.00;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _getFirebaseSubscription;
+
+  String serverUrl = "https://delivitapp.herokuapp.com/payment";
 
   @override
   void dispose() {
@@ -44,19 +48,6 @@ class _PortefeuilleState extends State<Portefeuille> {
         connectedUserMail = userData.email;
       });
       _getData();
-    }
-  }
-
-  void portefeuilleAanvullenCheck() async {
-    if (gebruikerData['stripeId'] == null) {
-      StripeServices().createStripeCustomer(
-          email: connectedUserMail,
-          userId: connectedUserMail.replaceFirst(RegExp('@'), 'AT'));
-    } else if (gebruikerData['stripeCard'] == null) {
-      Navigator.push(context, SlideTopRoute(page: PortefeuilleKaart()));
-      // kaartToevoegen();
-    } else {
-      portefeuilleAanvullen();
     }
   }
 
@@ -126,33 +117,6 @@ class _PortefeuilleState extends State<Portefeuille> {
                                     }),
                               ]),
                         ),
-                        Text("Met kaart:"),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10.0, left: 10),
-                          child: Card(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(color: Geel),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: ListTile(
-                                onTap: null,
-                                trailing: Text(
-                                    gebruikerData['stripeCard']['type']
-                                        .toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 10)),
-                                leading: Icon(
-                                  FontAwesomeIcons.creditCard,
-                                  color: Geel,
-                                ),
-                                title: Text(
-                                    gebruikerData['stripeCard']['card[number]'],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15)),
-                              )),
-                        )
                       ],
                     ),
               actions: <Widget>[
@@ -169,17 +133,7 @@ class _PortefeuilleState extends State<Portefeuille> {
                                 fontWeight: FontWeight.bold),
                           ),
                           onPressed: () {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            //print(gebruikerData['stripeId']);
-                            StripeServices().chargeIt(
-                                context: context,
-                                connectedUserEmail: connectedUserMail,
-                                amount: (geldToevoegen * 100).toInt(),
-                                customer: gebruikerData['stripeId'],
-                                paymentMethod: gebruikerData['stripeCard']
-                                    ['payment_method']);
+                            payment(isLoading, geldToevoegen);
                           },
                         )),
                 isLoading
@@ -395,7 +349,7 @@ class _PortefeuilleState extends State<Portefeuille> {
                                         ],
                                       ))
                                     ]),
-                                onPressed: portefeuilleAanvullenCheck,
+                                onPressed: portefeuilleAanvullen,
                               ),
                             ),
                           ),
@@ -546,5 +500,34 @@ class _PortefeuilleState extends State<Portefeuille> {
               ),
             ),
     );
+  }
+
+  payment(isLoading, geldToevoegen) {
+    setState(() {
+      isLoading = true;
+    });
+
+    if (serverUrlGlobals != null) {
+      serverUrl = serverUrlGlobals;
+    }
+
+    FlutterWebBrowser.openWebPage(
+        url: serverUrl +
+            "?delivitemail=" +
+            connectedUserMail +
+            "&amount=" +
+            (geldToevoegen * 100).toString(),
+        androidToolbarColor: Geel);
+
+    /* launch(
+      serverUrl +
+          "?delivitemail=" +
+          connectedUserMail +
+          "&amount=" +
+          (geldToevoegen * 100).toString(),
+    ); */
+    setState(() {
+      isLoading = false;
+    });
   }
 }
