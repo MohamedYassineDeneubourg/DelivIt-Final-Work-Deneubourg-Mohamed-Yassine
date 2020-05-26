@@ -7,13 +7,171 @@ import 'package:delivit/loadingScreen.dart';
 import 'package:delivit/login.dart';
 import 'package:delivit/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:international_phone_input/international_phone_input.dart';
+import 'package:rxdart/rxdart.dart';
 
-void main() => runApp(Main());
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+// Streams are created so that app can respond to notification-related events since the plugin is initialised in the `main` function
+final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject =
+    BehaviorSubject<ReceivedNotification>();
+
+final BehaviorSubject<String> selectNotificationSubject =
+    BehaviorSubject<String>();
+
+NotificationAppLaunchDetails notificationAppLaunchDetails;
+
+class ReceivedNotification {
+  ReceivedNotification({
+    @required this.id,
+    @required this.title,
+    @required this.body,
+    @required this.payload,
+  });
+
+  final String body;
+  final int id;
+  final String payload;
+  final String title;
+}
+
+var _gebruikerData;
+Future<void> main() async {
+  print("LEEEEETS GO --------");
+  WidgetsFlutterBinding.ensureInitialized();
+
+  notificationAppLaunchDetails =
+      await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+
+  var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+  // Note: permissions aren't requested here just to demonstrate that can be done later using the `requestPermissions()` method
+  // of the `IOSFlutterLocalNotificationsPlugin` class
+  var initializationSettingsIOS = IOSInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      onDidReceiveLocalNotification:
+          (int id, String title, String body, String payload) async {
+        didReceiveLocalNotificationSubject.add(ReceivedNotification(
+            id: id, title: title, body: body, payload: payload));
+      });
+  var initializationSettings = InitializationSettings(
+      initializationSettingsAndroid, initializationSettingsIOS);
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onSelectNotification: (String payload) async {
+      if (payload != null) {}
+      selectNotificationSubject.add(payload);
+    },
+  );
+
+  String connectedUserEmail;
+  FirebaseAuth.instance.currentUser().then((data) {
+    if (data != null) {
+      connectedUserEmail = data.email;
+      Firestore.instance
+          .collection("Users")
+          .document(data.email)
+          .snapshots()
+          .listen((e) {
+        _gebruikerData = e.data;
+      });
+    }
+  }).then((e) {
+    print('yo?');
+    if (connectedUserEmail != null) {
+      print("yoyo?");
+      //initPlatformState(connectedUserEmail);
+      checkForNewMessages(connectedUserEmail);
+      checkForCommandsUpdates(connectedUserEmail);
+    }
+  });
+  runApp(Main());
+}
+
+void checkForNewMessages(email) async {
+  bool firstChecked = true;
+
+  Firestore.instance
+      .collection("Conversations")
+      .where("Users", arrayContains: email)
+      .snapshots()
+      .listen((e) {
+    e.documentChanges.forEach((e) {
+      List messages = e.document.data["Messages"];
+      List inConversations = _gebruikerData['inConversations']..addAll([]);
+      if (!firstChecked &&
+          messages.last['Auteur'] != email &&
+          !(inConversations.contains(e.document.documentID))) {
+        var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+          'com.example.delivit',
+          'DelivIt',
+          'Levering van boodschappen',
+          playSound: true,
+          enableVibration: true,
+          importance: Importance.Max,
+          priority: Priority.High,
+        );
+        var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+        var platformChannelSpecifics = NotificationDetails(
+            androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+
+        flutterLocalNotificationsPlugin.show(
+          0,
+          messages.last['AuteurName'],
+          messages.last['Message'],
+          platformChannelSpecifics,
+          payload: 'item x',
+        );
+      }
+    });
+
+    firstChecked = false;
+  });
+}
+
+void checkForCommandsUpdates(email) async {
+  bool firstChecked = true;
+  Firestore.instance
+      .collection("Commands")
+      .where("Users", arrayContains: email)
+      .snapshots()
+      .listen((e) {
+    e.documentChanges.forEach((e) {
+      if (!firstChecked) {
+        var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+          'be.hitutu.HiTutu',
+          'HiTutu',
+          'your channel description',
+          playSound: true,
+          enableVibration: true,
+          importance: Importance.Max,
+          priority: Priority.High,
+        );
+        var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+        var platformChannelSpecifics = NotificationDetails(
+            androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+        flutterLocalNotificationsPlugin.show(
+          0,
+          "BESTELLING: " + e.document.data['BestellingStatus'],
+          getDatumEnTijdToString(e.document.data['BezorgDatumEnTijd']) +
+              " " +
+              e.document.data['Adres'],
+          platformChannelSpecifics,
+          payload: 'item x',
+        );
+      }
+    });
+
+    firstChecked = false;
+  });
+}
 
 class Main extends StatefulWidget {
   @override

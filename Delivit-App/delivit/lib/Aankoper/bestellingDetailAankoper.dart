@@ -371,6 +371,10 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                             .collection('Commands')
                             .document(bestellingId)
                             .updateData({
+                          'Users': [
+                            connectedUserMail,
+                            bezorgerMap['EmailBezorger']
+                          ],
                           "BezorgerEmail": bezorgerMap['EmailBezorger'],
                           "TotalePrijs": bezorgerMap['TotaleAanbodPrijs'],
                           "TotalePrijsAankoper": totalePrijsAankoper,
