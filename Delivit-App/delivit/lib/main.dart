@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +14,7 @@ import 'package:flutter/material.dart';
 
 import 'package:international_phone_input/international_phone_input.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:android_alarm_manager/android_alarm_manager.dart';
+//import 'package:workmanager/workmanager.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -42,6 +41,14 @@ class ReceivedNotification {
   final String payload;
   final String title;
 }
+/*
+void callbackDispatcher() {
+  Workmanager.executeTask((task, inputData) {
+    print("Native called background task: $backgroundTask"); //simpleTask will be emitted here.
+    return Future.value(true);
+  });
+}
+*/
 
 var _gebruikerData;
 Future<void> main() async {
@@ -57,7 +64,7 @@ Future<void> main() async {
   var initializationSettingsIOS = IOSInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
-      requestSoundPermission: true, 
+      requestSoundPermission: true,
       onDidReceiveLocalNotification:
           (int id, String title, String body, String payload) async {
         didReceiveLocalNotificationSubject.add(ReceivedNotification(
@@ -91,13 +98,9 @@ Future<void> main() async {
       print("yoyo?");
       //initPlatformState(connectedUserEmail);
       checkForNewMessages(connectedUserEmail);
-     // checkForCommandsUpdates(connectedUserEmail);
+      // checkForCommandsUpdates(connectedUserEmail);
     }
   });
-  final int helloAlarmID = 0;
-  await AndroidAlarmManager.initialize();
-  await AndroidAlarmManager.periodic(
-      const Duration(milliseconds: 2), helloAlarmID, printHello);
   runApp(Main());
 }
 
@@ -177,39 +180,6 @@ void checkForCommandsUpdates(email) async {
 
     firstChecked = false;
   });
-}
-
-void printHello() {
-  FirebaseAuth.instance.currentUser().then((data) {
-    if (data != null) {
-      checkForCommandsUpdates(data.email);
-    }
-  });
-
-  print("HELLO PRINT FUCNTIN");
-  final DateTime now = DateTime.now();
-  final int isolateId = Isolate.current.hashCode;
-  print("[$now] Hello, world! isolate=$isolateId function='$printHello'");
-
-  var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-    'be.hitutu.HiTutu',
-    'HiTutu',
-    'your channel description',
-    playSound: true,
-    enableVibration: true,
-    importance: Importance.Max,
-    priority: Priority.High,
-  );
-  var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-  var platformChannelSpecifics = NotificationDetails(
-      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  flutterLocalNotificationsPlugin.show(
-    0,
-    "TEST",
-    "YY " + " e.document.data['Adres']",
-    platformChannelSpecifics,
-    payload: 'item x',
-  );
 }
 
 class Main extends StatefulWidget {
