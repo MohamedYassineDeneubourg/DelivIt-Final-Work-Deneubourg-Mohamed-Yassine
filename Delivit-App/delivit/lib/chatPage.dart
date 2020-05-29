@@ -55,8 +55,8 @@ class _ChatPageState extends State<ChatPage> {
                       if (snapshot.hasData) {
                         List listChats = snapshot.data.documents;
                         print("lenght:" + listChats.length.toString());
-                        listChats.sort((a, b) => a.data['LastMessageTime']
-                            .compareTo(b.data['LastMessageTime']));
+                        listChats.sort((a, b) => b.data['LastMessageTime']
+                            .compareTo(a.data['LastMessageTime']));
                         print(snapshot);
                         return Padding(
                           padding: const EdgeInsets.all(15.0),

@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 
 import 'package:international_phone_input/international_phone_input.dart';
 import 'package:rxdart/rxdart.dart';
-//import 'package:workmanager/workmanager.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -41,14 +40,31 @@ class ReceivedNotification {
   final String payload;
   final String title;
 }
-/*
-void callbackDispatcher() {
-  Workmanager.executeTask((task, inputData) {
-    print("Native called background task: $backgroundTask"); //simpleTask will be emitted here.
-    return Future.value(true);
+
+
+void startListeningToNotifications() {
+  String connectedUserEmail;
+  FirebaseAuth.instance.currentUser().then((data) {
+    if (data != null) {
+      connectedUserEmail = data.email;
+      Firestore.instance
+          .collection("Users")
+          .document(data.email)
+          .snapshots()
+          .listen((e) {
+        _gebruikerData = e.data;
+      });
+    }
+  }).then((e) {
+    print('yo?');
+    if (connectedUserEmail != null) {
+      print("yoyo?");
+      //initPlatformState(connectedUserEmail);
+      checkForNewMessages(connectedUserEmail);
+      checkForCommandsUpdates(connectedUserEmail);
+    }
   });
 }
-*/
 
 var _gebruikerData;
 Future<void> main() async {
@@ -79,28 +95,8 @@ Future<void> main() async {
       selectNotificationSubject.add(payload);
     },
   );
+  startListeningToNotifications();
 
-  String connectedUserEmail;
-  FirebaseAuth.instance.currentUser().then((data) {
-    if (data != null) {
-      connectedUserEmail = data.email;
-      Firestore.instance
-          .collection("Users")
-          .document(data.email)
-          .snapshots()
-          .listen((e) {
-        _gebruikerData = e.data;
-      });
-    }
-  }).then((e) {
-    print('yo?');
-    if (connectedUserEmail != null) {
-      print("yoyo?");
-      //initPlatformState(connectedUserEmail);
-      checkForNewMessages(connectedUserEmail);
-      // checkForCommandsUpdates(connectedUserEmail);
-    }
-  });
   runApp(Main());
 }
 
