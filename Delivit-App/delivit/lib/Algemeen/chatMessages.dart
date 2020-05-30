@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:core';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:delivit/profile.dart';
+import 'package:delivit/Algemeen/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'globals.dart';
-
+import 'package:delivit/globals.dart';
 class ChatMessages extends StatefulWidget {
   ChatMessages(
       {Key key,

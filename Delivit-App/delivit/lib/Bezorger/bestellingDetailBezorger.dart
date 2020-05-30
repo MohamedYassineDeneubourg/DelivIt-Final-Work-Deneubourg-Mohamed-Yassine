@@ -4,7 +4,8 @@ import 'package:android_intent/android_intent.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/Controller/chatFunctions.dart';
+import 'package:delivit/Functies/chatFunctions.dart';
+import 'package:delivit/Functies/mapFunctions.dart';
 import 'package:delivit/globals.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:intl/intl.dart';
 import 'package:location_permissions/location_permissions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:latlong/latlong.dart';
@@ -126,25 +126,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
     });
   }
 
-  getDatum() {
-    String datum = new DateFormat.d()
-            .format(bestelling['BezorgDatumEnTijd'].toDate())
-            .toString() +
-        "/" +
-        DateFormat.M()
-            .format(bestelling['BezorgDatumEnTijd'].toDate())
-            .toString() +
-        "/" +
-        DateFormat.y()
-            .format(bestelling['BezorgDatumEnTijd'].toDate())
-            .toString();
 
-    String tijd = new DateFormat.Hm()
-        .format(bestelling['BezorgDatumEnTijd'].toDate())
-        .toString();
-
-    return datum + " - " + tijd;
-  }
 
   maakAanbod() {
     bool isLoading = false;
@@ -902,7 +884,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 padding: EdgeInsets.all(20),
                                 child: Column(
                                   children: <Widget>[
-                                    Text(getDatum(),
+                                    Text(getDatumEnTijdToString(bestelling['BezorgDatumEnTijd']),
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w900,
@@ -982,7 +964,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
-                                          Text(getDatum(),
+                                          Text(getDatumEnTijdToString(bestelling['BezorgDatumEnTijd']),
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.w900,

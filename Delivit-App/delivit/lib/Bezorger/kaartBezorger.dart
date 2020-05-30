@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/Bezorger/bestellingDetailBezorger.dart';
+import 'package:delivit/Functies/mapFunctions.dart';
 import 'package:delivit/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -182,35 +183,12 @@ class _KaartBezorgerState extends State<KaartBezorger>
                           ? EdgeInsets.all(10)
                           : EdgeInsets.all(2),
                       onPressed: () async {
-
                         _toonPopupMarker(context, bestelling);
                         setState(() {
                           selectedBestelling['documentID'] =
                               bestelling.documentID;
                         });
                         print(selectedBestelling);
-
-                        /*
-                    String distance =
-                        await getDistance(bestelling['AdresPosition']);
-                    //print("yo");
-                    // //print(distance);
-                        if(this.mounted){
-
-             
-                    setState(() {
-                      selectedBestelling = {
-                        "AantalProducten":
-                            (bestelling['BestellingLijst'].length).toString() +
-                                " prod. te bezorgen",
-                        "Adres": bestelling['Adres'],
-                        "Distance": distance,
-                        "documentID": bestelling.documentID
-                      }; 
-                      //print(bestelling['AdresPosition']);
-                      isVisible = true;
-                      paddingButton = 100;
-                    });  }*/
                       },
                       child: new Icon(
                         Icons.shopping_cart,
@@ -354,7 +332,8 @@ class _KaartBezorgerState extends State<KaartBezorger>
   }
 
   _toonPopupMarker(context, DocumentSnapshot selectedBestelling) async {
-    String distance = await getDistance(selectedBestelling['AdresPosition']);
+    String distance =
+        await getDistance(selectedBestelling['AdresPosition'], userPosition);
     showModalBottomSheet(
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -423,17 +402,7 @@ class _KaartBezorgerState extends State<KaartBezorger>
         });
   }
 
-  getDistance(adresPosition) async {
-    double distance = await Geolocator().distanceBetween(
-        adresPosition['latitude'],
-        adresPosition['longitude'],
-        userPosition.latitude,
-        userPosition.longitude);
-    return (distance / 1000).toStringAsFixed(1);
-  }
-
   void naarDetailBestelling(bestellingId) {
-
     Navigator.push(
         context,
         SlideTopRoute(

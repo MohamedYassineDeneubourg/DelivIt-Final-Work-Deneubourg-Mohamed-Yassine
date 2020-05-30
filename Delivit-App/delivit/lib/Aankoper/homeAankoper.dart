@@ -5,7 +5,8 @@ import 'package:delivit/Aankoper/kaartAankoper.dart';
 import 'package:delivit/Aankoper/overzichtBestellingenAankoper.dart';
 import 'package:delivit/Aankoper/overzichtVorigeBestellingenAankoper.dart';
 import 'package:delivit/Aankoper/productenLijstAankoper.dart';
-import 'package:delivit/Drawer.dart';
+import 'package:delivit/Functies/chatFunctions.dart';
+import 'package:delivit/UI-elementen/Drawer.dart';
 import 'package:delivit/globals.dart';
 import 'package:delivit/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,7 +22,7 @@ class HomeAankoper extends StatefulWidget {
   State<StatefulWidget> createState() => new _HomeAankoperState();
 }
 
-class _HomeAankoperState extends State<HomeAankoper> {
+class _HomeAankoperState extends State<HomeAankoper> with WidgetsBindingObserver{
   int _cIndex = 0;
 
   double tabHeight = 50;
@@ -56,6 +57,11 @@ class _HomeAankoperState extends State<HomeAankoper> {
       FirebaseAuth.instance.signOut();
       Navigator.pushReplacement(context, SlideTopRoute(page: Main()));
     }
+  }
+
+   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    checkIfOnline(state, connectedUserMail);
   }
 
   @override

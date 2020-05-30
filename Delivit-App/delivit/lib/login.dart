@@ -1,6 +1,7 @@
+import 'package:delivit/Algemeen/keuze.dart';
+import 'package:delivit/UI-elementen/loadingScreen.dart';
+import 'package:delivit/UI-elementen/popups.dart';
 import 'package:delivit/globals.dart';
-import 'package:delivit/keuze.dart';
-import 'package:delivit/loadingScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/Controller/chatFunctions.dart';
+import 'package:delivit/Functies/chatFunctions.dart';
+import 'package:delivit/Functies/mapFunctions.dart';
+import 'package:delivit/UI-elementen/popups.dart';
 import 'package:delivit/globals.dart';
 import 'package:expandable/expandable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,10 +14,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
-import 'package:intl/intl.dart';
 import 'package:toast/toast.dart';
 
-import '../profile.dart';
+import '../Algemeen/profile.dart';
 
 class BestellingDetailAankoper extends StatefulWidget {
   BestellingDetailAankoper({Key key, this.bestellingId}) : super(key: key);
@@ -267,26 +268,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
             ],
           )),
     );
-  }
-
-  getDatum() {
-    String datum = new DateFormat.d()
-            .format(bestelling['BezorgDatumEnTijd'].toDate())
-            .toString() +
-        "/" +
-        DateFormat.M()
-            .format(bestelling['BezorgDatumEnTijd'].toDate())
-            .toString() +
-        "/" +
-        DateFormat.y()
-            .format(bestelling['BezorgDatumEnTijd'].toDate())
-            .toString();
-
-    String tijd = new DateFormat.Hm()
-        .format(bestelling['BezorgDatumEnTijd'].toDate())
-        .toString();
-
-    return datum + " - " + tijd;
   }
 
   accepteerAanbod(bezorgerMap) {

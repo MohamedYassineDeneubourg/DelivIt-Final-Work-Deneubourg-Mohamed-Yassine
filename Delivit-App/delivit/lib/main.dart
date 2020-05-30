@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Algemeen/keuze.dart';
+import 'package:delivit/UI-elementen/loadingScreen.dart';
 import 'package:delivit/globals.dart';
-import 'package:delivit/keuze.dart';
-import 'package:delivit/loadingScreen.dart';
 import 'package:delivit/login.dart';
 import 'package:delivit/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';

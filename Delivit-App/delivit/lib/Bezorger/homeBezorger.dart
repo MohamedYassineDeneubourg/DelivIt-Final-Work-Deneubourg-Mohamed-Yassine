@@ -3,7 +3,8 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
 import 'package:delivit/Bezorger/overzichtAanbiedingenBestellingenBezorger.dart';
 import 'package:delivit/Bezorger/overzichtBesteldeBestellingenBezorger.dart';
-import 'package:delivit/Drawer.dart';
+import 'package:delivit/Functies/chatFunctions.dart';
+import 'package:delivit/UI-elementen/Drawer.dart';
 import 'package:delivit/globals.dart';
 import 'package:delivit/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,7 +20,8 @@ class HomeBezorger extends StatefulWidget {
   State<StatefulWidget> createState() => new _HomeBezorgerState();
 }
 
-class _HomeBezorgerState extends State<HomeBezorger> {
+class _HomeBezorgerState extends State<HomeBezorger>
+    with WidgetsBindingObserver {
   int _cIndex = 0;
   double tabHeight = 50;
   Map gebruikerData;
@@ -55,6 +57,11 @@ class _HomeBezorgerState extends State<HomeBezorger> {
       FirebaseAuth.instance.signOut();
       Navigator.pushReplacement(context, SlideTopRoute(page: Main()));
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    checkIfOnline(state, connectedUserMail);
   }
 
   @override

@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Algemeen/chatPage.dart';
+import 'package:delivit/Algemeen/keuze.dart';
+import 'package:delivit/Algemeen/portefeuille.dart';
 import 'package:delivit/Bezorger/prijsLijstWijziging.dart';
-import 'package:delivit/chatPage.dart';
 import 'package:delivit/globals.dart';
-import 'package:delivit/keuze.dart';
 import 'package:delivit/main.dart';
-import 'package:delivit/portefeuille.dart';
-import 'package:delivit/profile.dart';
+import 'package:delivit/Algemeen/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

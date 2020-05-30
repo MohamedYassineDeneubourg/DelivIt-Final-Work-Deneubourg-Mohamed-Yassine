@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:delivit/Controller/chatFunctions.dart';
+import 'package:delivit/Algemeen/profileUpdate.dart';
+import 'package:delivit/Functies/chatFunctions.dart';
 import 'package:delivit/globals.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/profileUpdate.dart';
 import 'package:expandable/expandable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

@@ -82,7 +82,7 @@ class _OverzichtAanbiedingenBestellingenBezorgerState
                         side: BorderSide(
                             color: bestellingenLijst[index] != null
                                 ? (bestellingStatus == "AANBIEDING GEKREGEN")
-                                    ? Colors.deepOrange
+                                    ? Colors.orange
                                     : GrijsLicht
                                 : GrijsLicht),
                         borderRadius: BorderRadius.circular(8.0),
@@ -98,19 +98,25 @@ class _OverzichtAanbiedingenBestellingenBezorgerState
                                 connectedUserMail: connectedUserMail,
                               )));
                         },
-                        trailing: Icon((bestellingStatus == "AANBIEDING GEKREGEN")
-                                ? Icons.stay_primary_landscape : Icons.delete_forever),
+                        trailing: (bestellingStatus == "AANBIEDING GEKREGEN")
+                            ? getIconBezorger(bestellingStatus)
+                            : Icon(Icons.delete_forever),
                         title: Text("Bestelling: " + datum + " - " + tijd,
                             style: TextStyle(
-                                color: (bestellingStatus == "AANBIEDING GEKREGEN")
-                                ? Colors.black : GrijsDark.withOpacity(0.7),
+                                color:
+                                    (bestellingStatus == "AANBIEDING GEKREGEN")
+                                        ? Colors.black
+                                        : GrijsDark.withOpacity(0.7),
                                 fontWeight: FontWeight.bold)),
                         subtitle: Text(
                             (bestellingStatus == "AANBIEDING GEKREGEN")
                                 ? "AANBIEDING GESTUURD"
                                 : "GEANNULEERD",
-                            style: TextStyle(color: (bestellingStatus == "AANBIEDING GEKREGEN")
-                                ? Colors.black : GrijsMidden,)),
+                            style: TextStyle(
+                              color: (bestellingStatus == "AANBIEDING GEKREGEN")
+                                  ? Colors.black
+                                  : GrijsMidden,
+                            )),
                       ));
                 } else {
                   return Container();

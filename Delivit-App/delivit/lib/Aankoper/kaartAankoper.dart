@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivit/Functies/mapFunctions.dart';
 import 'package:delivit/globals.dart';
-import 'package:delivit/profile.dart';
+import 'package:delivit/Algemeen/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -331,7 +332,7 @@ class _KaartAankoperState extends State<KaartAankoper>
   }
 
   _toonPopupMarker(context, DocumentSnapshot persoon) async {
-    String distance = await getDistance(persoon['Position']);
+    String distance = await getDistance(persoon['Position'],userPosition);
     print(distance);
     showModalBottomSheet(
         isScrollControlled: true,
@@ -389,9 +390,5 @@ class _KaartAankoperState extends State<KaartAankoper>
         });
   }
 
-  getDistance(position) async {
-    double distance = await Geolocator().distanceBetween(position['latitude'],
-        position['longitude'], userPosition.latitude, userPosition.longitude);
-    return (distance / 1000).toStringAsFixed(1);
-  }
+
 }

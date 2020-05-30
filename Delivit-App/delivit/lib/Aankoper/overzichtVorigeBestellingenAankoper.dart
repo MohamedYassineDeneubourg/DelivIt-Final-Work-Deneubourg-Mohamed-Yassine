@@ -6,7 +6,6 @@ import 'package:delivit/globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
@@ -50,73 +49,6 @@ class _OverzichtVorigeBestellingenAankoperState
     }
   }
 
-  getIcon(status) {
-    switch (status) {
-      case ("AANVRAAG"):
-        return Icon(
-          FontAwesomeIcons.question,
-          size: 30,
-          color: Colors.orange,
-        );
-        break;
-
-      case ("AANBIEDING GEKREGEN"):
-        return Icon(
-          Icons.notification_important,
-          size: 30,
-          color: Colors.orange,
-        );
-        break;
-
-      case ("PRODUCTEN VERZAMELEN"):
-        return Icon(
-          Icons.shopping_cart,
-          size: 30,
-          color: Geel,
-        );
-        break;
-
-      case ("ONDERWEG"):
-        return Icon(
-          Icons.directions_bike,
-          size: 30,
-          color: Geel,
-        );
-        break;
-
-      case ("BEZORGD"):
-        return Icon(
-          Icons.check,
-          size: 30,
-          color: Geel,
-        );
-        break;
-
-      case ("GEANNULEERD"):
-        return Icon(
-          Icons.delete,
-          size: 30,
-          color: Colors.redAccent.withOpacity(0.4),
-        );
-        break;
-
-      case ("BESTELLING CONFIRMATIE"):
-        return Icon(
-          Icons.transfer_within_a_station,
-          size: 30,
-          color: Geel,
-        );
-        break;
-
-      default:
-        return Icon(
-          Icons.help_outline,
-          size: 30,
-          color: Geel,
-        );
-        break;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +137,7 @@ class _OverzichtVorigeBestellingenAankoperState
                                             bestellingId:
                                                 bestelling.documentID)));
                               },
-                              trailing: getIcon(bestellingStatus),
+                              trailing: getIconAankoper(bestellingStatus),
                               title: Text("Bestelling: " + datum + " - " + tijd,
                                   style: TextStyle(
                                       color: (bestellingStatus == "BEZORGD" ||

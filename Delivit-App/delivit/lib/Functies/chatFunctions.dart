@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivit/chatMessages.dart';
+import 'package:delivit/Algemeen/chatMessages.dart';
 import 'package:delivit/globals.dart';
 import 'package:flutter/material.dart';
 
@@ -62,5 +62,16 @@ createConversationAndGo(
     });
   } catch (e) {
     print('Error:$e');
+  }
+}
+
+checkIfOnline(state, email) async {
+  if (email != null) {
+    var reference = Firestore.instance.collection("Users").document(email);
+    if (state == AppLifecycleState.resumed) {
+      await reference.updateData({'isOnline': true});
+    } else {
+      await reference.updateData({'isOnline': false});
+    }
   }
 }
