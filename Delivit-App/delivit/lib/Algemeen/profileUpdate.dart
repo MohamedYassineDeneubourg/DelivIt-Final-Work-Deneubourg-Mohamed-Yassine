@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:delivit/UI-elementen/popups.dart';
 import 'package:delivit/globals.dart';
-import 'package:delivit/Algemeen/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivit/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -315,7 +314,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
   }
 
   Future gellerijFoto() async {
-    File imageGallerij = await ImagePicker.pickImage(
+    PickedFile imageGallerij = await ImagePicker().getImage(
         source: ImageSource.gallery,
         imageQuality: 90,
         maxHeight: 1080,
@@ -346,7 +345,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
   }
 
   Future neemFoto() async {
-    var imageCamera = await ImagePicker.pickImage(
+    var imageCamera = await ImagePicker().getImage(
         source: ImageSource.camera,
         imageQuality: 90,
         maxHeight: 1080,

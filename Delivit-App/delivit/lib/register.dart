@@ -228,12 +228,7 @@ class _RegisterState extends State<Register> {
           //print('error: $e');
         }
 
-        //print("IS SMS VALID ? $smsValid");
-        if (smsValid) {
-          // currentUser.updateEmail(_email);
-          //print("Creating user in DATABASE...");
-          //TODO: l'image bug 
-          try {
+        if (smsValid) {          try {
             await Firestore.instance
                 .collection("Users")
                 .document(_email)
@@ -254,8 +249,7 @@ class _RegisterState extends State<Register> {
               "PortefeuilleHistoriek": [],
               "PrijsLijstBezorger": {},
               "Functie": "NogTeKiezen",
-              "ProfileImage":
-                  "https://scontent-bru2-1.xx.fbcdn.net/v/t1.0-9/74785339_3373666536006857_9010755981583319040_o.jpg?_nc_cat=108&_nc_ohc=y-IeuWV16TcAX-y7T4_&_nc_ht=scontent-bru2-1.xx&oh=8498e8a1a5555e1d985d8e732cb2c859&oe=5E9420BD",
+              "ProfileImage": "https://firebasestorage.googleapis.com/v0/b/delivit.appspot.com/o/default.png?alt=media&token=4dc70535-e58f-46b4-87ac-99a20c7d0287",
               'isOnline': true,
               'inConversations': []
             });

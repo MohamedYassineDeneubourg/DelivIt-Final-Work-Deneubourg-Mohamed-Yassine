@@ -36,7 +36,7 @@ class _LoginState extends State<Login> {
         floatingActionButton: (MediaQuery.of(context).viewInsets.bottom != 0)
             ? null
             : Padding(
-                padding: const EdgeInsets.only(bottom: 60.0),
+                padding:  (size.aspectRatio > 0.57) ? EdgeInsets.only(bottom: 10.0) : EdgeInsets.only(bottom: 50.0),
                 child: FloatingActionButton.extended(
                   heroTag: "INSCRIPTION",
                   splashColor: GrijsDark,
@@ -75,13 +75,14 @@ class _LoginState extends State<Login> {
                           children: <Widget>[
                             Image(
                               image: AssetImage("assets/images/logo.png"),
-                              width: size.width * 0.50,
+                              width: size.width *
+                                  ((size.aspectRatio > 0.57) ? 0.25 : 0.50),
                             ),
                             Text("Thuis, wat en wanneer je wilt",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 15,
+                                    fontSize: (size.aspectRatio > 0.57) ? 8 : 15,
                                     shadows: [
                                       Shadow(
                                         blurRadius: 10.0,
@@ -91,8 +92,9 @@ class _LoginState extends State<Login> {
                                     ])),
                             Center(
                               child: Container(
-                                  margin:
-                                      EdgeInsets.only(top: size.height / 10),
+                                  margin: (size.aspectRatio > 0.57)
+                                      ? EdgeInsets.only(top: size.height / 30)
+                                      : EdgeInsets.only(top: size.height / 10),
                                   width: size.width * 0.90,
                                   decoration: new BoxDecoration(
                                       color: Geel.withOpacity(0.8),

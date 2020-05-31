@@ -284,7 +284,7 @@ class _PrijsLijstWijzigingBezorgerState
             duration: const Duration(milliseconds: 250),
           ),
           Expanded(
-            child: Container( 
+            child: Container(
               padding: EdgeInsets.only(right: 15, left: 15),
               child: GridView.builder(
                 itemCount: producten.length,
@@ -299,13 +299,14 @@ class _PrijsLijstWijzigingBezorgerState
                         onPressed: () {
                           toonDetailProduct(producten[product]);
                         },
-                        child: Column(//TODO: overflowed on iphone 8.6
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Padding(
-                                padding: EdgeInsets.only(top: 15),
+                                padding: EdgeInsets.only(
+                                    top: (size.aspectRatio > 0.57) ? 10 : 15),
                                 child: Text(
                                   producten[product]["ProductTitel"],
                                   maxLines: 1,
@@ -315,9 +316,10 @@ class _PrijsLijstWijzigingBezorgerState
                               ),
                             ),
                             Image.network(producten[product]['ProductImage'],
-                                height: 100, fit: BoxFit.cover),
+                                height: (size.aspectRatio > 0.57) ? 90 : 100, fit: BoxFit.cover),
                             Container(
-                              padding: EdgeInsets.only(
+                              padding: (size.aspectRatio > 0.57) ? EdgeInsets.only(
+                                  top: 0, left: 10, right: 10, bottom: 0) : EdgeInsets.only(
                                   top: 5, left: 10, right: 10, bottom: 5),
                               decoration: BoxDecoration(
                                   color: (producten[product]
@@ -468,7 +470,6 @@ class _PrijsLijstWijzigingBezorgerState
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return Container(
-              height: size.height * 0.65, //TODO: check on iphone 11
               decoration: BoxDecoration(
                   color: White,
                   borderRadius: BorderRadius.only(
@@ -498,7 +499,7 @@ class _PrijsLijstWijzigingBezorgerState
                               productMap["ProductTitel"],
                               style: TextStyle(
                                   fontWeight: FontWeight.w900, fontSize: 20),
-                                  maxLines: 1,
+                              maxLines: 1,
                             ),
                           ),
                         ],

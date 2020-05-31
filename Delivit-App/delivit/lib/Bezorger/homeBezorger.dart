@@ -83,7 +83,7 @@ class _HomeBezorgerState extends State<HomeBezorger>
   @override
   Widget build(BuildContext context) {
     //_getData();
-    //Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;
     return new DefaultTabController(
         length: 3,
         child: Scaffold(
@@ -103,16 +103,16 @@ class _HomeBezorgerState extends State<HomeBezorger>
                         padding: const EdgeInsets.only(left: 10.0),
                         child: Tab(
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Icon(
                                 Icons.sync,
                                 size: 14,
                               ),
-                              //TODO: overflowed on iphone 8
                               AutoSizeText(
-                                "TE BEZORGEN",
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                "TE BEZORGEN",overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontWeight: FontWeight.bold,fontSize: (size.aspectRatio > 0.57) ? 10 : 14),
                                 maxLines: 1,
                               ),
                             ],
@@ -127,9 +127,9 @@ class _HomeBezorgerState extends State<HomeBezorger>
                               Icons.assignment,
                               size: 14,
                             ),
-                            Text(
+                            AutoSizeText(
                               "AANBOD",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.bold,fontSize: (size.aspectRatio > 0.57) ? 10 : 14),
                             ),
                           ],
                         ),
@@ -141,9 +141,9 @@ class _HomeBezorgerState extends State<HomeBezorger>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Icon(Icons.check, size: 14),
-                              Text(
+                              AutoSizeText(
                                 "BEZORGD",
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(fontWeight: FontWeight.bold,fontSize: (size.aspectRatio > 0.57) ? 10 : 14),
                               ),
                             ],
                           ),

@@ -368,7 +368,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
               Container(
                 height: size.height * 0.45,
                 child: ListView.builder(
-                  // physics: const NeverScrollableScrollPhysics(), //TODO: scroll toute ta page et bottomoverflow
                   shrinkWrap: true,
                   itemCount: bestellingLijst.length,
                   itemBuilder: (context, index) {
@@ -661,7 +660,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
               ),
             ],
           )),
-      body: getCorrectInterface(),
+      body: SingleChildScrollView (child:getCorrectInterface()),
       floatingActionButton: (bestelling != null)
           ? ((bestelling['BezorgerEmail'] != connectedUserMail) &&
                   (bestelling['BestellingStatus'] != "AANBIEDING GEKREGEN") &&
