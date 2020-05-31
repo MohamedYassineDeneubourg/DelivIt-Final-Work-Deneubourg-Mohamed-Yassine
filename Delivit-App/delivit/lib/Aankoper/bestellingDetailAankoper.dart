@@ -53,6 +53,9 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
   List verzameldeProducten = new List();
   MapController mapController = new MapController();
 
+
+//TODO: overflowed on iphone 8
+
   @override
   void initState() {
     getGlobals();
@@ -1479,7 +1482,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
 
                                 await Firestore.instance
                                     .collection('Users')
-                                    .document(bestelling['AankoperEmail'])
+                                    .document(bestelling['BezorgerEmail']) //TODO verifier si le payement fontionne
                                     .updateData({
                                   "Portefeuille": FieldValue.increment(
                                       bestelling['TotalePrijs']),

@@ -97,6 +97,7 @@ class _RegisterState extends State<Register> {
                 height: 85,
                 child: Column(children: [
                   TextField(
+                    keyboardType: TextInputType.number,
                     maxLength: 6,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 25),
@@ -231,6 +232,7 @@ class _RegisterState extends State<Register> {
         if (smsValid) {
           // currentUser.updateEmail(_email);
           //print("Creating user in DATABASE...");
+          //TODO: l'image bug 
           try {
             await Firestore.instance
                 .collection("Users")

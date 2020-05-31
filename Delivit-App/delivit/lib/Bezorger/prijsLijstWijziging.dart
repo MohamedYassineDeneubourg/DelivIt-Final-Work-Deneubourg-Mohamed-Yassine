@@ -284,7 +284,7 @@ class _PrijsLijstWijzigingBezorgerState
             duration: const Duration(milliseconds: 250),
           ),
           Expanded(
-            child: Container(
+            child: Container( 
               padding: EdgeInsets.only(right: 15, left: 15),
               child: GridView.builder(
                 itemCount: producten.length,
@@ -299,7 +299,7 @@ class _PrijsLijstWijzigingBezorgerState
                         onPressed: () {
                           toonDetailProduct(producten[product]);
                         },
-                        child: Column(
+                        child: Column(//TODO: overflowed on iphone 8.6
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             SingleChildScrollView(
@@ -468,7 +468,7 @@ class _PrijsLijstWijzigingBezorgerState
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return Container(
-              height: size.height * 0.50,
+              height: size.height * 0.65, //TODO: check on iphone 11
               decoration: BoxDecoration(
                   color: White,
                   borderRadius: BorderRadius.only(
@@ -493,10 +493,13 @@ class _PrijsLijstWijzigingBezorgerState
                               width: size.width * 0.2,
                               fit: BoxFit.cover),
                           SizedBox(width: size.width * 0.05),
-                          AutoSizeText(
-                            productMap["ProductTitel"],
-                            style: TextStyle(
-                                fontWeight: FontWeight.w900, fontSize: 20),
+                          Expanded(
+                            child: AutoSizeText(
+                              productMap["ProductTitel"],
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900, fontSize: 20),
+                                  maxLines: 1,
+                            ),
                           ),
                         ],
                       ),

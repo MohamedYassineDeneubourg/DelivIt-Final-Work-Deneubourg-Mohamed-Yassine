@@ -139,59 +139,66 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                       ),
                       onPressed: () async {
                         try {
-                          uploadToStorage(image);
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(12.0))),
-                                title: new Text(
-                                  "IN ORDE !",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.check_circle,
-                                      size: 60,
-                                      color: Geel,
-                                    ),
-                                    Text("Je profiel is aangepast!",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold))
-                                  ],
-                                ),
-                                actions: <Widget>[
-                                  ButtonTheme(
-                                      minWidth: 400.0,
-                                      child: RaisedButton(
-                                        color: GrijsDark,
-                                        child: Text(
-                                          "OK",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context).pop();
-                                          Navigator.push(
-                                              context,
-                                              SlideTopRoute(
-                                                  page: Profile(
-                                                userEmail: connectedUserMail,
-                                              )));
-                                        },
-                                      ))
-                                ],
-                              );
-                            },
-                          );
+                          if(image != null){
+                            uploadToStorage(image).whenComplete((){
+                            Navigator.of(context).pop();
+                          });
+                          } else {
+                            Navigator.of(context).pop();
+                          }
+                          
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (BuildContext context) {
+                          //     return AlertDialog(
+                          //       shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.all(
+                          //               Radius.circular(12.0))),
+                          //       title: new Text(
+                          //         "IN ORDE !",
+                          //         style: TextStyle(fontWeight: FontWeight.bold),
+                          //       ),
+                          //       content: Column(
+                          //         mainAxisSize: MainAxisSize.min,
+                          //         crossAxisAlignment: CrossAxisAlignment.center,
+                          //         mainAxisAlignment: MainAxisAlignment.center,
+                          //         children: <Widget>[
+                          //           Icon(
+                          //             Icons.check_circle,
+                          //             size: 60,
+                          //             color: Geel,
+                          //           ),
+                          //           Text("Je profiel is aangepast!",
+                          //               style: TextStyle(
+                          //                   fontWeight: FontWeight.bold))
+                          //         ],
+                          //       ),
+                          //       actions: <Widget>[
+                          //         ButtonTheme(
+                          //             minWidth: 400.0,
+                          //             child: RaisedButton(
+                          //               color: GrijsDark,
+                          //               child: Text(
+                          //                 "OK",
+                          //                 style: TextStyle(
+                          //                     color: Colors.white,
+                          //                     fontWeight: FontWeight.bold),
+                          //               ),
+                          //               onPressed: () {
+                          //                 Navigator.of(context).pop();
+                          //                 Navigator.of(context).pop();
+                          //                 Navigator.push(
+                          //                     context,
+                          //                     SlideTopRoute(
+                          //                         page: Profile(
+                          //                       userEmail: connectedUserMail,
+                          //                     )));
+                          //               },
+                          //             ))
+                          //       ],
+                          //     );
+                          //   },
+                          // );
                         } catch (e) {
                           print(e);
                         }
@@ -295,6 +302,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                                   //print("bevestiged code!");
 
                                   //  signIn();
+                                  deleteMyaccount();
                                 },
                               )),
                         )

@@ -191,7 +191,7 @@ class _ChatMessagesState extends State<ChatMessages> {
                 {
                   'AuteurName': _myName,
                   'Auteur': userData.email,
-                  'Message': _message,
+                  'Message': _message.trim(),
                   'DateAndTime': DateTime.now()
                 }
               ])
@@ -218,7 +218,7 @@ class _ChatMessagesState extends State<ChatMessages> {
               {
                 'AuteurName': _myName,
                 'Auteur': userData.email,
-                'Message': automaticMessageString,
+                'Message': automaticMessageString.trim(),
                 'DateAndTime': DateTime.now()
               }
             ])

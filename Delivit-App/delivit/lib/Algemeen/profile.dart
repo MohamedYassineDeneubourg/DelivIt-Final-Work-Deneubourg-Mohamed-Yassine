@@ -435,7 +435,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                         color: GrijsDark,
                       ),
                       onPressed: () {
-                        Navigator.pop(context);
+                        // Navigator.pop(context);
                         Navigator.push(
                             context, SlideTopRoute(page: ProfileUpdate()));
                       }),

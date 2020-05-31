@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:delivit/Bezorger/kaartBezorger.dart';
 import 'package:delivit/Bezorger/overzichtAanbiedingenBestellingenBezorger.dart';
@@ -108,9 +109,11 @@ class _HomeBezorgerState extends State<HomeBezorger>
                                 Icons.sync,
                                 size: 14,
                               ),
-                              Text(
+                              //TODO: overflowed on iphone 8
+                              AutoSizeText(
                                 "TE BEZORGEN",
                                 style: TextStyle(fontWeight: FontWeight.bold),
+                                maxLines: 1,
                               ),
                             ],
                           ),

@@ -56,9 +56,7 @@ void startListeningToNotifications() {
       });
     }
   }).then((e) {
-    print('yo?');
     if (connectedUserEmail != null) {
-      print("yoyo?");
       //initPlatformState(connectedUserEmail);
       checkForNewMessages(connectedUserEmail);
       checkForCommandsUpdates(connectedUserEmail);
@@ -68,7 +66,6 @@ void startListeningToNotifications() {
 
 var _gebruikerData;
 Future<void> main() async {
-  print("LEEEEETS GO --------");
   WidgetsFlutterBinding.ensureInitialized();
 
   notificationAppLaunchDetails =
@@ -409,7 +406,11 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
     return Scaffold(
       body: isLoading
           ? loadingScreen
-          : Stack(
+          : GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).requestFocus(new FocusNode());
+                    },
+                    child: Stack(
               children: <Widget>[
                 Image.asset(
                   'assets/images/backgroundLogin.jpg',
@@ -516,7 +517,7 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
                   ),
                 )
               ],
-            ),
+            )),
     );
   }
 }

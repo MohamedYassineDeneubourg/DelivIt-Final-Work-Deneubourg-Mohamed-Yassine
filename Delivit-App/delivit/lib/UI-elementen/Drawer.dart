@@ -157,7 +157,6 @@ class _DrawerNavState extends State<DrawerNav> {
                     color: White,
                   ),
                   onTap: () {
-                    Navigator.pop(context);
                     Navigator.push(context,
                         SlideTopRoute(page: PrijsLijstWijzigingBezorger()));
                   },
