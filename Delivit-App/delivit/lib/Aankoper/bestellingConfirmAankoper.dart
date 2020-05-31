@@ -210,7 +210,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )),
                     Text(
-                      "€ " + leveringPrijs.toString(),
+                      "€ " + leveringPrijs.toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     )
@@ -249,7 +249,7 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                     Text(
                       "€ " +
                           (getTotalePrijs() + leveringPrijs + getServicePrijs())
-                              .toString(),
+                              .toStringAsFixed(2),
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                     )

@@ -1250,7 +1250,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                 "€ " +
                     (bestellingLijst[index]['Aantal'] *
                             bestellingLijst[index]['ProductAveragePrijs'])
-                        .toString(),
+                        .toStringAsFixed(2),
                 style: TextStyle(fontWeight: FontWeight.bold)),
             leading: Image.network(
               bestellingLijst[index]['ProductImage'],

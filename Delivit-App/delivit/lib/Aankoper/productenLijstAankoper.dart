@@ -254,7 +254,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                   ),
                   label: Text(
                     "BESTELLEN (" +
-                        (bestellingProducten.length).toStringAsFixed(2) +
+                        (bestellingProducten.length).toString() +
                         ")",
                     style: TextStyle(color: White, fontWeight: FontWeight.w800),
                   ),
@@ -405,7 +405,7 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                                 child: Text(
                                     "€ " +
                                         producten[product]
-                                            .data["ProductDefaultPrijs"]
+                                            .data["ProductAveragePrijs"]
                                             .toStringAsFixed(2),
                                     style: TextStyle(
                                         color: Colors.black,
