@@ -1,0 +1,22 @@
+{
+  "name": "delivitapp",
+  "version": "1.0.0",
+  "engines": {
+    "node": "12.16.3"
+  },
+  "description": "DelivIt Backend",
+  "main": "index.js",
+  "web": "node server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yassine",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "firebase-admin": "^8.12.1",
+    "stripe": "^7.1.0"
+  }
+}
