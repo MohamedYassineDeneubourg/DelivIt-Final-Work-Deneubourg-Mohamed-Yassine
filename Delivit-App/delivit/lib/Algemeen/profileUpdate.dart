@@ -9,7 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-//import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'dart:io';
 import 'package:path/path.dart' as Path;
@@ -314,7 +314,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
   }
 
   Future gellerijFoto() async {
-    /* PickedFile imageGallerij = await ImagePicker().getImage(
+     PickedFile imageGallerij = await ImagePicker().getImage(
         source: ImageSource.gallery,
         imageQuality: 90,
         maxHeight: 1080,
@@ -341,11 +341,11 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
         image = croppedFile;
         profileImageUrl = croppedFile.path;
       });
-    }*/
+    }
   }
 
   Future neemFoto() async {
-    /* var imageCamera = await ImagePicker().getImage(
+    var imageCamera = await ImagePicker().getImage(
         source: ImageSource.camera,
         imageQuality: 90,
         maxHeight: 1080,
@@ -371,7 +371,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
         image = croppedFile;
         profileImageUrl = croppedFile.path;
       });
-    }*/
+    }
   }
 
   Future uploadToStorage(image) async {
