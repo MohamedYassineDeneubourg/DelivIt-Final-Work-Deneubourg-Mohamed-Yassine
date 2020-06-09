@@ -9,7 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_picker/image_picker.dart';
+//import 'package:image_picker/image_picker.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'dart:io';
 import 'package:path/path.dart' as Path;
@@ -117,93 +117,93 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
             key: _scaffoldKey,
             resizeToAvoidBottomInset: false,
             resizeToAvoidBottomPadding: false,
-            floatingActionButton: (MediaQuery.of(context).viewInsets.bottom !=
-                    0)
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.only(bottom: 25.0),
-                    child: FloatingActionButton.extended(
-                      heroTag: "SEND",
-                      splashColor: GrijsDark,
-                      elevation: 4.0,
-                      backgroundColor: Geel,
-                      icon: const Icon(
-                        FontAwesomeIcons.save,
-                        color: White,
+            floatingActionButton:
+                (MediaQuery.of(context).viewInsets.bottom != 0)
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.only(bottom: 25.0),
+                        child: FloatingActionButton.extended(
+                          heroTag: "SEND",
+                          splashColor: GrijsDark,
+                          elevation: 4.0,
+                          backgroundColor: Geel,
+                          icon: const Icon(
+                            FontAwesomeIcons.save,
+                            color: White,
+                          ),
+                          label: Text(
+                            "UPDATEN",
+                            style: TextStyle(
+                                color: White, fontWeight: FontWeight.w800),
+                          ),
+                          onPressed: () async {
+                            try {
+                              if (image != null) {
+                                uploadToStorage(image).whenComplete(() {
+                                  Navigator.of(context).pop();
+                                });
+                              } else {
+                                Navigator.of(context).pop();
+                              }
+
+                              // showDialog(
+                              //   context: context,
+                              //   builder: (BuildContext context) {
+                              //     return AlertDialog(
+                              //       shape: RoundedRectangleBorder(
+                              //           borderRadius: BorderRadius.all(
+                              //               Radius.circular(12.0))),
+                              //       title: new Text(
+                              //         "IN ORDE !",
+                              //         style: TextStyle(fontWeight: FontWeight.bold),
+                              //       ),
+                              //       content: Column(
+                              //         mainAxisSize: MainAxisSize.min,
+                              //         crossAxisAlignment: CrossAxisAlignment.center,
+                              //         mainAxisAlignment: MainAxisAlignment.center,
+                              //         children: <Widget>[
+                              //           Icon(
+                              //             Icons.check_circle,
+                              //             size: 60,
+                              //             color: Geel,
+                              //           ),
+                              //           Text("Je profiel is aangepast!",
+                              //               style: TextStyle(
+                              //                   fontWeight: FontWeight.bold))
+                              //         ],
+                              //       ),
+                              //       actions: <Widget>[
+                              //         ButtonTheme(
+                              //             minWidth: 400.0,
+                              //             child: RaisedButton(
+                              //               color: GrijsDark,
+                              //               child: Text(
+                              //                 "OK",
+                              //                 style: TextStyle(
+                              //                     color: Colors.white,
+                              //                     fontWeight: FontWeight.bold),
+                              //               ),
+                              //               onPressed: () {
+                              //                 Navigator.of(context).pop();
+                              //                 Navigator.of(context).pop();
+                              //                 Navigator.push(
+                              //                     context,
+                              //                     SlideTopRoute(
+                              //                         page: Profile(
+                              //                       userEmail: connectedUserMail,
+                              //                     )));
+                              //               },
+                              //             ))
+                              //       ],
+                              //     );
+                              //   },
+                              // );
+                            } catch (e) {
+                              print(e);
+                            }
+                          },
+                        ),
                       ),
-                      label: Text(
-                        "UPDATEN",
-                        style: TextStyle(
-                            color: White, fontWeight: FontWeight.w800),
-                      ),
-                      onPressed: () async {
-                        try {
-                          if(image != null){
-                            uploadToStorage(image).whenComplete((){
-                            Navigator.of(context).pop();
-                          });
-                          } else {
-                            Navigator.of(context).pop();
-                          }
-                          
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (BuildContext context) {
-                          //     return AlertDialog(
-                          //       shape: RoundedRectangleBorder(
-                          //           borderRadius: BorderRadius.all(
-                          //               Radius.circular(12.0))),
-                          //       title: new Text(
-                          //         "IN ORDE !",
-                          //         style: TextStyle(fontWeight: FontWeight.bold),
-                          //       ),
-                          //       content: Column(
-                          //         mainAxisSize: MainAxisSize.min,
-                          //         crossAxisAlignment: CrossAxisAlignment.center,
-                          //         mainAxisAlignment: MainAxisAlignment.center,
-                          //         children: <Widget>[
-                          //           Icon(
-                          //             Icons.check_circle,
-                          //             size: 60,
-                          //             color: Geel,
-                          //           ),
-                          //           Text("Je profiel is aangepast!",
-                          //               style: TextStyle(
-                          //                   fontWeight: FontWeight.bold))
-                          //         ],
-                          //       ),
-                          //       actions: <Widget>[
-                          //         ButtonTheme(
-                          //             minWidth: 400.0,
-                          //             child: RaisedButton(
-                          //               color: GrijsDark,
-                          //               child: Text(
-                          //                 "OK",
-                          //                 style: TextStyle(
-                          //                     color: Colors.white,
-                          //                     fontWeight: FontWeight.bold),
-                          //               ),
-                          //               onPressed: () {
-                          //                 Navigator.of(context).pop();
-                          //                 Navigator.of(context).pop();
-                          //                 Navigator.push(
-                          //                     context,
-                          //                     SlideTopRoute(
-                          //                         page: Profile(
-                          //                       userEmail: connectedUserMail,
-                          //                     )));
-                          //               },
-                          //             ))
-                          //       ],
-                          //     );
-                          //   },
-                          // );
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                    ),
-                  ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerFloat,
             body: Stack(children: <Widget>[
@@ -314,7 +314,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
   }
 
   Future gellerijFoto() async {
-    PickedFile imageGallerij = await ImagePicker().getImage(
+    /* PickedFile imageGallerij = await ImagePicker().getImage(
         source: ImageSource.gallery,
         imageQuality: 90,
         maxHeight: 1080,
@@ -341,11 +341,11 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
         image = croppedFile;
         profileImageUrl = croppedFile.path;
       });
-    }
+    }*/
   }
 
   Future neemFoto() async {
-    var imageCamera = await ImagePicker().getImage(
+    /* var imageCamera = await ImagePicker().getImage(
         source: ImageSource.camera,
         imageQuality: 90,
         maxHeight: 1080,
@@ -371,7 +371,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
         image = croppedFile;
         profileImageUrl = croppedFile.path;
       });
-    }
+    }*/
   }
 
   Future uploadToStorage(image) async {

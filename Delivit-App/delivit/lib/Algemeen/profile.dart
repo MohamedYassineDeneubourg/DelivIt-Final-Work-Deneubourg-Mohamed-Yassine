@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -38,10 +39,26 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   String connectedUserEmail;
   Size size;
   bool isBezorger = false;
+  List<IconData> badgeList = <IconData>[
+    Icons.ac_unit,
+    Icons.accessibility,
+    Icons.account_balance,
+    Icons.adb,
+    Icons.airline_seat_individual_suite,
+    Icons.airport_shuttle,
+  ];
+
+  List badgeColors = [];
+
   void getCurrentUser() async {
+    badgeList.forEach((element) {
+      badgeColors.add(
+        Colors.primaries[Random().nextInt(Colors.primaries.length)],
+      );
+    });
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
-      print(userEmail);
+      badgeList.shuffle();
       connectedUserEmail = user.email;
     });
   }
@@ -391,6 +408,31 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
         ));
   }
 
+  Widget badgesComponent() {
+    return Container(
+        margin: EdgeInsets.only(top: 0, bottom: 20),
+        height: MediaQuery.of(context).size.height * 0.15,
+        child: SnapList(
+          sizeProvider: (index, data) => Size(
+              MediaQuery.of(context).size.width * 0.2,
+              MediaQuery.of(context).size.height * 0.1),
+          separatorProvider: (index, data) => Size(10.0, 0.0),
+          builder: (context, index, data) {
+            return Container(
+                padding: EdgeInsets.all(6),
+                decoration: new BoxDecoration(
+                    color: GrijsMidden.withOpacity(0.15),
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                child: Icon(
+                  badgeList[index],
+                  color: badgeColors[index],
+                  size: 34,
+                ));
+          },
+          count: badgeList.length,
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
@@ -500,6 +542,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                           width: 50,
                           color: Geel,
                         ),
+                        badgesComponent(),
                       ],
                     ),
                   ),
