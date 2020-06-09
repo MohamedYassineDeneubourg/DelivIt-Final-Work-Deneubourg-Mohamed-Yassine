@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DelivIt - Producten toevoegen</title>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-auth.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.15.0/firebase-analytics.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+    <script>
+        'use strict';
+        $(document).ready(function() {
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyCSwIJ1UuV5KQ9YTWa96f-WgNLW5yYv060",
+        authDomain: "delivit.firebaseapp.com",
+        databaseURL: "https://delivit.firebaseio.com",
+        projectId: "delivit",
+        storageBucket: "delivit.appspot.com",
+        messagingSenderId: "671351544477",
+        appId: "1:671351544477:web:5353fe7e83014c62851274",
+        measurementId: "G-RCX4HTYE0K"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.auth().signInWithEmailAndPassword("m.yassine@hotmail.be", "azerty").catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // ...
+});
+
+let db = firebase.firestore();
+    $('#send').on('click', function (e) {
+        e.preventDefault();
+        let ProductTitel = $("#ProductTitel").val();
+        let ProductBeschrijving = $("#ProductBeschrijving").val();
+        let ProductImage = $("#ProductImage").val();
+        let ProductDefaultPrijs = $("#ProductDefaultPrijs").val();
+        let Categorie = $("#Categorie").val();
+
+        if(ProductTitel != "" && ProductBeschrijving != "" && ProductImage != "" && ProductDefaultPrijs != ""){
+
+        db.collection("Products").add({
+                ProductTitel: ProductTitel,
+                ProductBeschrijving: ProductBeschrijving,
+                ProductImage: ProductImage,
+                ProductDefaultPrijs: parseFloat(ProductDefaultPrijs),
+                ProductAveragePrijs: parseFloat(ProductDefaultPrijs),
+                Categorie: Categorie
+            })
+            .then(function () {
+                M.toast({html: 'Document OK'});
+            })
+            .catch(function (error) {
+                alert("Error writing document: ", error);
+                console.log(error);
+            });
+        }else {
+            alert("error");
+        }
+    }); });
+</script>
+</head>
+
+<body>
+    <form style="margin: 10%;">
+        <label for="ProductTitel">Product titel:</label><br>
+        <input class="form-control" type="text" id="ProductTitel" name="ProductTitel"><br>
+        <label for="ProductBeschrijving">Product Beschrijving:</label><br>
+        <input class="form-control" type="text" id="ProductBeschrijving" name="ProductBeschrijving"><br>
+        <label for="ProductImage">ProductImage Link:</label><br>
+        <input class="form-control" type="text" id="ProductImage" name="ProductImage"> <br>
+        <label for="ProductDefaultPrijs">ProductDefaultPrijs & Average:</label><br>
+        <input class="form-control" type="text" id="ProductDefaultPrijs" name="ProductDefaultPrijs"><br>
+        <label for="Categorie">Categorie</label><br>
+        <select class="form-control" id="Categorie" name="Categorie">
+            <option value="Dieren">Dieren</option>
+            <option value="Hygiëne">Hygiëne</option>
+            <option value="Baby">Baby</option>
+            <option value="Dranken">Dranken</option>
+            <option value="Fruit&Groenten">Fruit&Groenten</option>
+            <option value="Zoet">Zoet</option>
+            <option value="Charcuterie">Charcuterie</option>
+            
+        </select><br><br>
+        <button class="btn btn-primary" id="send">Voeg deze product</button>
+    </form>
+</body>
+
+
+
+</html>

@@ -206,10 +206,6 @@ class _PrijsLijstWijzigingBezorgerState
                     FontAwesomeIcons.glassWhiskey,
                   ),
                   categorieButton(
-                    'Alcohol',
-                    FontAwesomeIcons.glassCheers,
-                  ),
-                  categorieButton(
                     'Zoet',
                     FontAwesomeIcons.cookieBite,
                   ),
@@ -221,6 +217,18 @@ class _PrijsLijstWijzigingBezorgerState
                     'Charcuterie',
                     FontAwesomeIcons.shapes,
                   ),
+                  categorieButton(
+                    'Hygiëne',
+                    FontAwesomeIcons.soap,
+                  ),
+                  categorieButton(
+                    'Baby',
+                    FontAwesomeIcons.baby,
+                  ),
+                  categorieButton(
+                    'Dieren',
+                    FontAwesomeIcons.cat,
+                  )
                 ],
               ),
             )
@@ -316,11 +324,14 @@ class _PrijsLijstWijzigingBezorgerState
                               ),
                             ),
                             Image.network(producten[product]['ProductImage'],
-                                height: (size.aspectRatio > 0.57) ? 90 : 100, fit: BoxFit.cover),
+                                height: (size.aspectRatio > 0.57) ? 90 : 100,
+                                fit: BoxFit.cover),
                             Container(
-                              padding: (size.aspectRatio > 0.57) ? EdgeInsets.only(
-                                  top: 0, left: 10, right: 10, bottom: 0) : EdgeInsets.only(
-                                  top: 5, left: 10, right: 10, bottom: 5),
+                              padding: (size.aspectRatio > 0.57)
+                                  ? EdgeInsets.only(
+                                      top: 0, left: 10, right: 10, bottom: 0)
+                                  : EdgeInsets.only(
+                                      top: 5, left: 10, right: 10, bottom: 5),
                               decoration: BoxDecoration(
                                   color: (producten[product]
                                               ['GewijzigdPrijs'] ==

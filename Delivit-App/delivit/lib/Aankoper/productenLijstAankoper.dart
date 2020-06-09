@@ -215,10 +215,6 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                     FontAwesomeIcons.glassWhiskey,
                   ),
                   categorieButton(
-                    'Alcohol',
-                    FontAwesomeIcons.glassCheers,
-                  ),
-                  categorieButton(
                     'Zoet',
                     FontAwesomeIcons.cookieBite,
                   ),
@@ -230,6 +226,18 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
                     'Charcuterie',
                     FontAwesomeIcons.shapes,
                   ),
+                  categorieButton(
+                    'Hygiëne',
+                    FontAwesomeIcons.soap,
+                  ),
+                  categorieButton(
+                    'Baby',
+                    FontAwesomeIcons.baby,
+                  ),
+                  categorieButton(
+                    'Dieren',
+                    FontAwesomeIcons.cat,
+                  )
                 ],
               ),
             )

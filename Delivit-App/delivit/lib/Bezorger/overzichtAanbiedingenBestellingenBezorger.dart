@@ -89,14 +89,67 @@ class _OverzichtAanbiedingenBestellingenBezorgerState
                       ),
                       child: ListTile(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              SlideTopRoute(
-                                  page: BestellingDetailBezorger(
-                                bestellingId:
-                                    bestellingenLijst[index].documentID,
-                                connectedUserMail: connectedUserMail,
-                              )));
+                          (bestellingStatus == "AANBIEDING GEKREGEN")
+                              ? Navigator.push(
+                                  context,
+                                  SlideTopRoute(
+                                      page: BestellingDetailBezorger(
+                                    bestellingId:
+                                        bestellingenLijst[index].documentID,
+                                    connectedUserMail: connectedUserMail,
+                                  )))
+                              : showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                        actions: <Widget>[
+                                          ButtonTheme(
+                                              minWidth: 400.0,
+                                              child: RaisedButton(
+                                                color: Geel,
+                                                child: Text(
+                                                  "OK",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  //  signIn();
+                                                },
+                                              ))
+                                        ],
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(12.0))),
+                                        content: Container(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.error,
+                                                size: 50,
+                                              ),
+                                              SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.02),
+                                              Text(
+                                                "Deze bestelling werd door een andere bezorger genomen...",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black,
+                                                    fontSize: 16),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                        ));
+                                  },
+                                );
                         },
                         trailing: (bestellingStatus == "AANBIEDING GEKREGEN")
                             ? getIconBezorger(bestellingStatus)
