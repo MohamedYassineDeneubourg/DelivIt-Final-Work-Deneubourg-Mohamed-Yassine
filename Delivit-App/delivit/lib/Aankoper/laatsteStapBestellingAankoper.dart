@@ -35,7 +35,6 @@ class _LaatsteStapBestellingAankoperState
       setState(() {
         connectedUserMail = e.email;
       });
-      print(e.email);
       var reference =
           Firestore.instance.collection("Users").document(e.email).get();
 
@@ -415,7 +414,6 @@ class _LaatsteStapBestellingAankoperState
       String volledigAdres =
           _straat + " " + _nummer + ", " + _postcode + " Belgium";
 
-      print(volledigAdres);
       try {
         double leveringprijsOk = 3.5;
         await Firestore.instance

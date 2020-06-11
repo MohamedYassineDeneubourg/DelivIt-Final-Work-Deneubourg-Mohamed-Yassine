@@ -22,7 +22,8 @@ class HomeAankoper extends StatefulWidget {
   State<StatefulWidget> createState() => new _HomeAankoperState();
 }
 
-class _HomeAankoperState extends State<HomeAankoper> with WidgetsBindingObserver{
+class _HomeAankoperState extends State<HomeAankoper>
+    with WidgetsBindingObserver {
   int _cIndex = 0;
 
   double tabHeight = 50;
@@ -46,7 +47,6 @@ class _HomeAankoperState extends State<HomeAankoper> with WidgetsBindingObserver
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
     if (user != null) {
       if (this.mounted) {
         setState(() {
@@ -59,14 +59,13 @@ class _HomeAankoperState extends State<HomeAankoper> with WidgetsBindingObserver
     }
   }
 
-   @override
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     checkIfOnline(state, connectedUserMail);
   }
 
   @override
   void dispose() {
-    print('LA ON DISPOSE LE aankoper HOME');
     super.dispose();
   }
 
@@ -77,6 +76,7 @@ class _HomeAankoperState extends State<HomeAankoper> with WidgetsBindingObserver
     }
     getCurrentUser();
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override

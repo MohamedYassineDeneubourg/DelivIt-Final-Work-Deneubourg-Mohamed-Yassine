@@ -48,7 +48,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
   Map bestelling;
   double totalePrijs = 0.0;
   Map bezorgerInfo;
-  var tijdVoorBezorging;
+  var tijdVoorBezorging = 0;
   Timer _timerBezorging;
   List verzameldeProducten = new List();
   MapController mapController = new MapController();
@@ -339,15 +339,6 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                       if (totalePrijsAankoper > (mijnPortefeuille)) {
                         nietGenoegSaldoWidget(context);
                       } else {
-                        print("YOOOO---");
-                        print(bestelling['BezorgDatumEnTijd'].toDate());
-                        print(bezorgerMap);
-                        print(bezorgerMap['EmailBezorger']);
-                        print(bestellingId);
-                        print("---");
-                        print(bestelling['BezorgDatumEnTijd'].toDate().add(
-                            Duration(
-                                minutes: bezorgerMap['AanbodBezorgingTijd'])));
                         Firestore.instance
                             .collection('Commands')
                             .document(bestellingId)
@@ -640,7 +631,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                   ? Text('Heeft het geleverd.')
                   : (status == "BESTELLING CONFIRMATIE")
                       ? Text('Wacht op je bevestiging..')
-                      : Text('Is nu aan het aankomen!'),
+                      : Text('Is nu aan het komen!'),
           trailing: Container(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -989,7 +980,7 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                             bestelling['BestellingStatus'] !=
                                                 "BEZORGD")
                                         ? Text(
-                                            "Nog ±" +
+                                            "± " +
                                                 tijdVoorBezorging.toString() +
                                                 " min...",
                                             style: TextStyle(
@@ -1037,7 +1028,12 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                         ? getBestellingOverzicht()
                         : Container(
                             constraints: BoxConstraints(
-                              maxHeight: size.height * 0.22,
+                              maxHeight: size.height *
+                                  ((bestelling['BestellingStatus'] ==
+                                          "BESTELLING CONFIRMATIE") || (bestelling['BestellingStatus'] ==
+                                          "AANVRAAG")
+                                      ? 0.35
+                                      : 0.22),
                             ),
                             child: new ListView.builder(
                               shrinkWrap: true,
@@ -1088,7 +1084,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                                           child: Image.network(
                                             bestellingLijst[index]
                                                 ['ProductImage'],
-                                            height: 40,
+                                            height: 50,
+                                            width: 50,
                                           )),
                                       title: Text(
                                           bestellingLijst[index]['Aantal']
@@ -1254,7 +1251,8 @@ class _BestellingDetailAankoperState extends State<BestellingDetailAankoper>
                 style: TextStyle(fontWeight: FontWeight.bold)),
             leading: Image.network(
               bestellingLijst[index]['ProductImage'],
-              height: 20,
+              height: 30,
+              width: 30,
             ),
             title: Text(
                 bestellingLijst[index]['Aantal'].toString() +

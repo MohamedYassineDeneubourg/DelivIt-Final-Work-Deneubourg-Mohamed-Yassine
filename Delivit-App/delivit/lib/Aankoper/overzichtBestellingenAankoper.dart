@@ -37,7 +37,8 @@ class _OverzichtBestellingenAankoperState
             "AANVRAAG",
             "AANBIEDING GEKREGEN",
             "PRODUCTEN VERZAMELEN",
-            "BESTELLING CONFIRMATIE"
+            "ONDERWEG",
+            "BESTELLING CONFIRMATIE",
           ])
           .snapshots()
           .listen((e) {
@@ -134,7 +135,9 @@ class _OverzichtBestellingenAankoperState
                               side: BorderSide(
                                   color: bestelling != null
                                       ? (bestellingStatus ==
-                                              "AANBIEDING GEKREGEN")
+                                                  "AANBIEDING GEKREGEN") ||
+                                              (bestellingStatus ==
+                                                  "BESTELLING CONFIRMATIE")
                                           ? Colors.orange
                                           : GrijsLicht
                                       : GrijsLicht),

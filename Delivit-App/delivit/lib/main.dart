@@ -41,7 +41,6 @@ class ReceivedNotification {
   final String title;
 }
 
-
 void startListeningToNotifications() {
   String connectedUserEmail;
   FirebaseAuth.instance.currentUser().then((data) {
@@ -314,13 +313,10 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
     //VERWIJDER DE 0 ALS ER EEN IS IN HET BEGIN :
     if (number != "") {
       if (number[0] == "0" && number.length > 9) {
-        print(number.substring(1));
-        print(number[0]);
         number = number.substring(1);
-        print(number);
       }
     }
-    print(number);
+
     if (this.mounted) {
       setState(() {
         phoneNumber = number;
@@ -351,7 +347,6 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
       setState(() {
         isLoading = false;
       });
-      print(phoneNo);
       if (loadingContext != null) {
         Navigator.of(loadingContext).pop();
         loadingContext = null;
@@ -366,11 +361,8 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
 
       return null;
     }
-    ////print('Nummer Bestaat !');
     List<DocumentSnapshot> documents = query.documents;
     documents.forEach((object) {
-      //print("Nummer bestaat wel");
-      //print(object.data['Email']);
       String emailVoorLogin = object.data['Email'];
       setState(() {
         isLoading = false;
@@ -407,117 +399,122 @@ class _DelivitHomePageState extends State<DelivitHomePage> {
       body: isLoading
           ? loadingScreen
           : GestureDetector(
-                    onTap: () {
-                      FocusScope.of(context).requestFocus(new FocusNode());
-                    },
-                    child: Stack(
-              children: <Widget>[
-                Image.asset(
-                  'assets/images/backgroundLogin.jpg',
-                  width: size.width,
-                  height: size.height * 0.85,
-                  fit: BoxFit.cover,
-                ),
-                Center(
+              onTap: () {
+                FocusScope.of(context).requestFocus(new FocusNode());
+              },
+              child: SingleChildScrollView(
+                child: Center(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Image(
-                        image: AssetImage("assets/images/logo.png"),
-                        width: size.width * 0.80,
+                      AnimatedContainer(
+                        margin: EdgeInsets.only(bottom: size.height*0.01),
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                          image: AssetImage(
+                            'assets/images/backgroundLogin.jpg',
+                          ),
+                          fit: BoxFit.cover,
+                        )),
+                        height: size.height * ((MediaQuery.of(context).viewInsets.bottom == 0) ? 0.85 : 0.5),
+                        padding: EdgeInsets.all(size.width * 0.1),
+                        duration: Duration(milliseconds: 500),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Image(
+                              image: AssetImage("assets/images/logo.png"),
+                            ),
+                            Text("Thuis, wat en wanneer je wilt",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 10.0,
+                                        color: Colors.black,
+                                        offset: Offset(3.0, 3.0),
+                                      ),
+                                    ])),
+                          ],
+                        ),
                       ),
-                      Text("Thuis, wat en wanneer je wilt",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              shadows: [
-                                Shadow(
-                                  blurRadius: 10.0,
-                                  color: Colors.black,
-                                  offset: Offset(3.0, 3.0),
-                                ),
-                              ])),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              top: size.height * 0.03, right: 20, left: 30,),
+                          child: Container(
+                              decoration: new BoxDecoration(
+                                  border: Border.all(color: GrijsLicht),
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 1.0,
+                                      color: GrijsMidden,
+                                      offset: Offset(0.3, 0.3),
+                                    ),
+                                  ],
+                                  borderRadius: new BorderRadius.all(
+                                      Radius.circular(10.0))),
+                              child: Padding(
+                                  padding: EdgeInsets.only(right: 10, left: 10),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: !mounted
+                                            ? null
+                                            : InternationalPhoneInput(
+                                                hintText: "Bv. 486 65 53 74",
+                                                errorText: "Foute gsm-nummer..",
+                                                onPhoneNumberChange:
+                                                    onPhoneNumberChange,
+                                                initialPhoneNumber: phoneNumber,
+                                                initialSelection: "BE"),
+                                      ),
+                                      IconButton(
+                                        enableFeedback: true,
+                                        icon: Icon(
+                                          FontAwesomeIcons.arrowAltCircleRight,
+                                          color: buttonColor,
+                                        ),
+                                        onPressed: () {
+                                          if (phoneIsoCode == "BE") {
+                                            if (phoneNo.length > 8) {
+                                              showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  loadingContext = context;
+                                                  return Container(
+                                                    width: 200,
+                                                    height: 200,
+                                                    alignment: Alignment.center,
+                                                    child: SpinKitDoubleBounce(
+                                                      color: Geel,
+                                                      size: 50,
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                              Future.delayed(
+                                                  const Duration(
+                                                      milliseconds: 500), () {
+                                                numerExists(phoneNo);
+                                              });
+                                            }
+                                          }
+                                        },
+                                      )
+                                    ],
+                                  ))),
+                        ),
+                      )
                     ],
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        bottom: size.height * 0.06, right: 20, left: 30),
-                    child: Container(
-                        decoration: new BoxDecoration(
-                            border: Border.all(color: GrijsLicht),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 1.0,
-                                color: GrijsMidden,
-                                offset: Offset(0.3, 0.3),
-                              ),
-                            ],
-                            borderRadius:
-                                new BorderRadius.all(Radius.circular(10.0))),
-                        child: Padding(
-                            padding: EdgeInsets.only(right: 10, left: 10),
-                            child: Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: !mounted
-                                      ? null
-                                      : InternationalPhoneInput(
-                                          hintText: "Bv. 486 65 53 74",
-                                          errorText: "Foute gsm-nummer..",
-                                          onPhoneNumberChange:
-                                              onPhoneNumberChange,
-                                          initialPhoneNumber: phoneNumber,
-                                          initialSelection: "BE"),
-                                ),
-                                IconButton(
-                                  enableFeedback: true,
-                                  icon: Icon(
-                                    FontAwesomeIcons.arrowAltCircleRight,
-                                    color: buttonColor,
-                                  ),
-                                  onPressed: () {
-                                    print(phoneNo);
-                                    if (phoneIsoCode == "BE") {
-                                      if (phoneNo.length > 8) {
-                                        print(phoneNo);
-
-                                        showDialog(
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            loadingContext = context;
-                                            return Container(
-                                              width: 200,
-                                              height: 200,
-                                              alignment: Alignment.center,
-                                              child: SpinKitDoubleBounce(
-                                                color: Geel,
-                                                size: 50,
-                                              ),
-                                            );
-                                          },
-                                        );
-                                        Future.delayed(
-                                            const Duration(milliseconds: 500),
-                                            () {
-                                          numerExists(phoneNo);
-                                        });
-                                      }
-                                    }
-                                  },
-                                )
-                              ],
-                            ))),
-                  ),
-                )
-              ],
-            )),
+              )),
     );
   }
 }

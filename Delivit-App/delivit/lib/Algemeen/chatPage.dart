@@ -11,7 +11,7 @@ class ChatPage extends StatefulWidget {
   State<StatefulWidget> createState() => new _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage>  {
   String connectedUserEmail;
   List<Widget> cardList = [];
   List userList;
@@ -54,16 +54,13 @@ class _ChatPageState extends State<ChatPage> {
                         AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.hasData) {
                         List listChats = snapshot.data.documents;
-                        print("lenght:" + listChats.length.toString());
                         listChats.sort((a, b) => b.data['LastMessageTime']
                             .compareTo(a.data['LastMessageTime']));
-                        print(snapshot);
                         return Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: ListView.builder(
                               itemCount: listChats.length,
                               itemBuilder: (_, index) {
-                                print(index);
                                 var conv = listChats[index].data;
                                 String partner;
                                 String lastMessage =
@@ -82,7 +79,6 @@ class _ChatPageState extends State<ChatPage> {
                                     builder: (BuildContext context,
                                         AsyncSnapshot<DocumentSnapshot>
                                             userData) {
-                                      print(userData);
                                       if (userData.hasData) {
                                         var user = userData.data;
                                         return Card(

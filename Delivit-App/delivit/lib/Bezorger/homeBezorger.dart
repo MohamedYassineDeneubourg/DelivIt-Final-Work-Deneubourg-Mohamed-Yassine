@@ -46,7 +46,6 @@ class _HomeBezorgerState extends State<HomeBezorger>
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
     if (user != null) {
       print("User is connected!");
       if (this.mounted) {
@@ -67,7 +66,6 @@ class _HomeBezorgerState extends State<HomeBezorger>
 
   @override
   void dispose() {
-    print('LA ON DISPOSE LE BEZORGER HOME');
     super.dispose();
   }
 
@@ -78,6 +76,7 @@ class _HomeBezorgerState extends State<HomeBezorger>
     }
     getCurrentUser();
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -111,8 +110,12 @@ class _HomeBezorgerState extends State<HomeBezorger>
                                 size: 14,
                               ),
                               AutoSizeText(
-                                "TE BEZORGEN",overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontWeight: FontWeight.bold,fontSize: (size.aspectRatio > 0.57) ? 10 : 14),
+                                "TE BEZORGEN",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        (size.aspectRatio > 0.57) ? 10 : 14),
                                 maxLines: 1,
                               ),
                             ],
@@ -129,7 +132,10 @@ class _HomeBezorgerState extends State<HomeBezorger>
                             ),
                             AutoSizeText(
                               "AANBOD",
-                              style: TextStyle(fontWeight: FontWeight.bold,fontSize: (size.aspectRatio > 0.57) ? 10 : 14),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:
+                                      (size.aspectRatio > 0.57) ? 10 : 14),
                             ),
                           ],
                         ),
@@ -143,7 +149,10 @@ class _HomeBezorgerState extends State<HomeBezorger>
                               Icon(Icons.check, size: 14),
                               AutoSizeText(
                                 "BEZORGD",
-                                style: TextStyle(fontWeight: FontWeight.bold,fontSize: (size.aspectRatio > 0.57) ? 10 : 14),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        (size.aspectRatio > 0.57) ? 10 : 14),
                               ),
                             ],
                           ),

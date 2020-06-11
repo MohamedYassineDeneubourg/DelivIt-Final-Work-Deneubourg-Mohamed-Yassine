@@ -25,7 +25,6 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
     if (user != null) {
       setState(() {
         connectedUserMail = user.email;
@@ -48,17 +47,11 @@ class _ProductenLijstAankoperState extends State<ProductenLijstAankoper> {
           .getDocuments();
     }
 
-    print(selectedCategory);
     List<DocumentSnapshot> documents = reference.documents;
 
     setState(() {
       producten = documents;
-      documents.forEach((object) {
-        // print(object.data);
-      });
     });
-    //print(producten);
-    print("GetData is done..");
   }
 
   getShoppingBag() {

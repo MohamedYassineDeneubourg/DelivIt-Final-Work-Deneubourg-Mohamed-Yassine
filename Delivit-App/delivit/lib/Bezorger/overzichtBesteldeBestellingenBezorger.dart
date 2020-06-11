@@ -25,7 +25,6 @@ class _OverzichtBesteldeBestellingenBezorgerState
   void getCurrentUser() async {
     print("bestelde");
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
     if (user != null) {
       _getFirebaseSubscription = Firestore.instance
           .collection('Commands')

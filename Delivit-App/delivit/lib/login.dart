@@ -36,7 +36,9 @@ class _LoginState extends State<Login> {
         floatingActionButton: (MediaQuery.of(context).viewInsets.bottom != 0)
             ? null
             : Padding(
-                padding:  (size.aspectRatio > 0.57) ? EdgeInsets.only(bottom: 10.0) : EdgeInsets.only(bottom: 50.0),
+                padding: (size.aspectRatio > 0.57)
+                    ? EdgeInsets.only(bottom: 10.0)
+                    : EdgeInsets.only(bottom: 50.0),
                 child: FloatingActionButton.extended(
                   heroTag: "INSCRIPTION",
                   splashColor: GrijsDark,
@@ -60,15 +62,27 @@ class _LoginState extends State<Login> {
             ? loadingScreen
             : SingleChildScrollView(
                 child: Stack(children: <Widget>[
-                  Image.asset(
-                    'assets/images/backgroundLoginTwo.png',
-                    width: size.width,
-                    height: size.height,
-                    fit: BoxFit.cover,
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 500),
+                    height: (MediaQuery.of(context).viewInsets.bottom == 0)
+                        ? size.height
+                        : size.height / 1.5,
+                    child: Image.asset(
+                      'assets/images/backgroundLoginTwo.png',
+                      width: size.width,
+                      height: (MediaQuery.of(context).viewInsets.bottom == 0)
+                          ? size.height
+                          : size.height,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   Center(
                     child: Padding(
-                        padding: EdgeInsets.only(top: size.height / 6),
+                        padding: EdgeInsets.only(
+                            top: size.height /
+                                ((MediaQuery.of(context).viewInsets.bottom == 0)
+                                    ? 6
+                                    : 20)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -82,7 +96,8 @@ class _LoginState extends State<Login> {
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: (size.aspectRatio > 0.57) ? 8 : 15,
+                                    fontSize:
+                                        (size.aspectRatio > 0.57) ? 8 : 15,
                                     shadows: [
                                       Shadow(
                                         blurRadius: 10.0,
@@ -345,8 +360,6 @@ class _LoginState extends State<Login> {
       setState(() {
         this.wachtwoordOk = false;
       });
-      //print("SinIn:");
-      //print(wachtwoordOk);
     } catch (signUpError) {
       FocusScope.of(context).requestFocus(new FocusNode());
       if (signUpError is PlatformException) {
@@ -355,19 +368,14 @@ class _LoginState extends State<Login> {
       setState(() {
         wachtwoordOk = true;
       });
-      //print("SinIn:");
-      //print(wachtwoordOk);
     }
     if (loadingContext != null) {
       Navigator.of(loadingContext).pop();
     }
-    //print("pressedè");
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      //print("USER LOGGED IN !");
       Navigator.pop(context);
-      //print("popHier!");
       Navigator.pushAndRemoveUntil(
           context,
           SlideTopRoute(

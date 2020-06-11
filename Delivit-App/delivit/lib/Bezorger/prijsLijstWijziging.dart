@@ -44,7 +44,7 @@ class _PrijsLijstWijzigingBezorgerState
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
+
     if (user != null) {
       setState(() {
         connectedUserMail = user.email;
@@ -76,7 +76,6 @@ class _PrijsLijstWijzigingBezorgerState
   }
 
   getDatabySearch(zoekWoord) async {
-    print(zoekWoord);
     var reference = await Firestore.instance
         .collection("Products")
         .orderBy("ProductTitel")
@@ -85,7 +84,6 @@ class _PrijsLijstWijzigingBezorgerState
     List<DocumentSnapshot> documents = reference.documents;
 
     setState(() {
-      print(documents.length);
       if (documents.length == 0) {
         producten = [];
       } else {
@@ -272,7 +270,6 @@ class _PrijsLijstWijzigingBezorgerState
                             value.isEmpty ? "moet ingevuld zijn" : null,
                         onChanged: (value) {
                           getDatabySearch(value);
-                          print(value);
                         },
                       ),
                     ),

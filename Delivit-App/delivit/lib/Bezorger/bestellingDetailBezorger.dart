@@ -126,8 +126,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
     });
   }
 
-
-
   maakAanbod() {
     bool isLoading = false;
     showDialog(
@@ -358,7 +356,6 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
   }
 
   getStatusWidget(status) {
-    print(status);
     switch (status) {
       case ("PRODUCTEN VERZAMELEN"):
         return Container(
@@ -500,7 +497,8 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
           vorigBestellingStatus = status;
           getAankoperInfo();
         }
-        return getMapEnInfo(status);
+        return Container(
+            height: size.height * 0.8, child: getMapEnInfo(status));
 
         break;
       case ("BEZORGD"):
@@ -660,7 +658,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
               ),
             ],
           )),
-      body: SingleChildScrollView (child:getCorrectInterface()),
+      body: SingleChildScrollView(child: getCorrectInterface()),
       floatingActionButton: (bestelling != null)
           ? ((bestelling['BezorgerEmail'] != connectedUserMail) &&
                   (bestelling['BestellingStatus'] != "AANBIEDING GEKREGEN") &&
@@ -690,7 +688,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
             child: Column(children: <Widget>[
               ListTile(
                   title: Text(
-                    (aankoperInfo['Naam'] + aankoperInfo['Voornaam'])
+                    (aankoperInfo['Naam'] + " " + aankoperInfo['Voornaam'])
                         .toUpperCase(),
                     textAlign: TextAlign.left,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
@@ -884,7 +882,9 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                 padding: EdgeInsets.all(20),
                                 child: Column(
                                   children: <Widget>[
-                                    Text(getDatumEnTijdToString(bestelling['BezorgDatumEnTijd']),
+                                    Text(
+                                        getDatumEnTijdToString(
+                                            bestelling['BezorgDatumEnTijd']),
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w900,
@@ -964,7 +964,9 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
-                                          Text(getDatumEnTijdToString(bestelling['BezorgDatumEnTijd']),
+                                          Text(
+                                              getDatumEnTijdToString(bestelling[
+                                                  'BezorgDatumEnTijd']),
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.w900,
@@ -1043,7 +1045,9 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                   ),
                                 ),
                                 Text(
-                                  "Je aanbod werd gestuurd, aan "+bestelling['AankoperEmail']+" eventjes wachten op de bevestiging..",
+                                  "Je aanbod werd gestuurd, aan " +
+                                      bestelling['AankoperEmail'] +
+                                      " eventjes wachten op de bevestiging..",
                                   style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black,
@@ -1089,7 +1093,8 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 leading: Image.network(
                   bestellingLijst[index]['ProductImage'],
-                  height: 40,
+                  height: 50,
+                  width: 50,
                 ),
                 title: Text(
                     bestellingLijst[index]['Aantal'].toString() +

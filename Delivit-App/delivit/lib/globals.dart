@@ -26,7 +26,6 @@ getGlobals() {
       .listen((e) {});
 
   getFirebaseGlobalSubscription.onData((e) {
-    print("------------------------- YOOOOO");
     DateTime beginNachtijd = e.data['BeginNachtTijd'].toDate();
     DateTime eindeNachtTijd = e.data['EindeNachtTijd'].toDate();
     int actueeltijd = DateTime.now().hour;

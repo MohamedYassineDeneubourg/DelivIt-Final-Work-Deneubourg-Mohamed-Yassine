@@ -32,7 +32,6 @@ class _DrawerNavState extends State<DrawerNav> {
   Map gebruikerData;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
     if (user != null) {
       if (this.mounted) {
         setState(() {
@@ -259,9 +258,9 @@ class _DrawerNavState extends State<DrawerNav> {
               style: TextStyle(fontWeight: FontWeight.w600, color: GrijsDark),
             ),
             onTap: () {
-              print('Launch mail..');
+         
               launch(
-                  "mailto:contact@delivit.be?subject=HELP:%20Application&body=Hallo%20 DelivIt,");
+                  "mailto:contact@delivit.be?subject=HELP:%20Applicatie&body=Hallo%20 DelivIt,");
               Navigator.pop(context);
             },
           ),

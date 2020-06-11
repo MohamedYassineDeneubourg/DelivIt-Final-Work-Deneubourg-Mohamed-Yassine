@@ -4,6 +4,7 @@ import 'package:delivit/globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:toast/toast.dart';
@@ -228,7 +229,8 @@ class _RegisterState extends State<Register> {
           //print('error: $e');
         }
 
-        if (smsValid) {          try {
+        if (smsValid) {
+          try {
             await Firestore.instance
                 .collection("Users")
                 .document(_email)
@@ -249,7 +251,8 @@ class _RegisterState extends State<Register> {
               "PortefeuilleHistoriek": [],
               "PrijsLijstBezorger": {},
               "Functie": "NogTeKiezen",
-              "ProfileImage": "https://firebasestorage.googleapis.com/v0/b/delivit.appspot.com/o/default.png?alt=media&token=4dc70535-e58f-46b4-87ac-99a20c7d0287",
+              "ProfileImage":
+                  "https://firebasestorage.googleapis.com/v0/b/delivit.appspot.com/o/default.png?alt=media&token=4dc70535-e58f-46b4-87ac-99a20c7d0287",
               'isOnline': true,
               'inConversations': []
             });
@@ -318,7 +321,10 @@ class _RegisterState extends State<Register> {
             icon: Icon(Icons.open_in_new),
             iconSize: 20,
             onPressed: () {
-              launch("linkToPdf");
+              FlutterWebBrowser.openWebPage(
+                  url:
+                      "https://www.termsandconditionsgenerator.com/live.php?token=Bty9DNsBVOaU05VDuWQMF58PTIamd7Z6",
+                  androidToolbarColor: Geel);
             }),
         dense: false,
         controlAffinity: ListTileControlAffinity.leading,

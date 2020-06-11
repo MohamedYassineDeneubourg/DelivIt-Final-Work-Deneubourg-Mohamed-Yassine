@@ -66,6 +66,7 @@ createConversationAndGo(
 }
 
 checkIfOnline(state, email) async {
+  print('chck');
   if (email != null) {
     var reference = Firestore.instance.collection("Users").document(email);
     if (state == AppLifecycleState.resumed) {

@@ -100,7 +100,6 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
 
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).viewInsets.bottom);
     Size size = MediaQuery.of(context).size;
     return KeyboardAvoider(
         child: Scaffold(

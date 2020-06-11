@@ -49,7 +49,6 @@ class _BestellingConfirmAankoperState extends State<BestellingConfirmAankoper> {
                   .get();
 
               reference.then((data) {
-                print(data);
 
                 Map productMap = {
                   "ProductID": product,

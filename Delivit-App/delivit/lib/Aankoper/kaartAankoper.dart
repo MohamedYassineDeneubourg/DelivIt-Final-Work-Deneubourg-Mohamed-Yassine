@@ -148,7 +148,8 @@ class _KaartAankoperState extends State<KaartAankoper>
         .collection('Users')
         .snapshots()
         .listen((querySnapshot) {
-      print("NEW ON MAP");
+          print("chaaange!!");
+          opMapUsers = [];
       for (int i = 0; i < querySnapshot.documents.length; i++) {
         DocumentSnapshot gebruiker = querySnapshot.documents[i];
         Map positionMap = gebruiker['Position'];
@@ -162,12 +163,14 @@ class _KaartAankoperState extends State<KaartAankoper>
               builder: (ctx) => new Container(
                   child: Column(
                 children: <Widget>[
-                  Text(gebruiker['Naam'],style: TextStyle(fontWeight: FontWeight.bold,color:GrijsDark),),
+                  Text(
+                    gebruiker['Voornaam'],
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: GrijsDark),
+                  ),
                   new RawMaterialButton(
                     onPressed: () {
-                      print("click");
                       _toonPopupMarker(context, gebruiker);
-                      print('Follow user?');
                       if (this.mounted) {
                         setState(() {
                           followUser = false;
@@ -189,6 +192,9 @@ class _KaartAankoperState extends State<KaartAankoper>
           );
         }
       }
+      setState(() {
+        opMapUsers = opMapUsers;
+      });
     });
     try {
       if (geolocationStatus == GeolocationStatus.granted) {
@@ -347,7 +353,8 @@ class _KaartAankoperState extends State<KaartAankoper>
             ),
             Padding(
                 padding: const EdgeInsets.only(top: 100.0),
-                child: RaisedButton.icon(
+                child: FlatButton.icon(
+
                     onPressed: () {
                       AppSettings.openLocationSettings();
                     },

@@ -71,7 +71,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    //print(user);
     if (user != null) {
       setState(() {
         connectedUserMail = user.email;
@@ -140,7 +139,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
           }
           //Hier print ik de timer:
           //  print(DateTime.now().difference(startTimerForUpdate).inSeconds);
-
 //Wanneer 10seconden gepasseerd zijn, ga ik updaten
           if (DateTime.now().difference(startTimerForUpdate).inSeconds > 10) {
             Firestore.instance
@@ -152,6 +150,8 @@ class _KaartBezorgerState extends State<KaartBezorger>
                 'longitude': position.longitude,
               }
             });
+
+            startTimerForUpdate = DateTime.now(); //TIMER TERUG OP 0 ZETTEN
           }
         }
       });
@@ -343,7 +343,7 @@ class _KaartBezorgerState extends State<KaartBezorger>
             ),
             Padding(
                 padding: const EdgeInsets.only(top: 100.0),
-                child: RaisedButton.icon(
+                child: FlatButton.icon(
                     onPressed: () {
                       AppSettings.openLocationSettings();
                     },

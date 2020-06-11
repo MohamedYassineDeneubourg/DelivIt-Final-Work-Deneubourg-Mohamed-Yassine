@@ -23,7 +23,6 @@ class _OverzichtVorigeBestellingenAankoperState
   StreamSubscription<QuerySnapshot> _getFirebaseSubscription;
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    print(user);
     if (user != null) {
       setState(() {
         connectedUserMail = user.email;
