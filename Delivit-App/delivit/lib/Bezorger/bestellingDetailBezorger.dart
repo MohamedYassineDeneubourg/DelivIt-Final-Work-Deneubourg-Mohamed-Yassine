@@ -1043,7 +1043,7 @@ class _BestellingDetailBezorgerState extends State<BestellingDetailBezorger>
                                   ),
                                 ),
                                 Text(
-                                  "Je aanbod werd gestuurd, eventjes wachten op de bevestiging..",
+                                  "Je aanbod werd gestuurd, aan "+bestelling['AankoperEmail']+" eventjes wachten op de bevestiging..",
                                   style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black,

@@ -21,6 +21,7 @@ class _PortefeuilleState extends State<Portefeuille> {
   double geldToevoegen = 5.00;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _getFirebaseSubscription;
+  ScrollController _scrollController = new ScrollController();
 
   String serverUrl = "https://delivitapp.herokuapp.com/payment";
 
@@ -36,6 +37,12 @@ class _PortefeuilleState extends State<Portefeuille> {
   void initState() {
     getCurrentUser();
     super.initState();
+  }
+
+  _scrollDown(BuildContext context) {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(MediaQuery.of(context).size.height);
+    }
   }
 
   void getCurrentUser() async {
@@ -180,6 +187,8 @@ class _PortefeuilleState extends State<Portefeuille> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollDown(context));
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -235,6 +244,7 @@ class _PortefeuilleState extends State<Portefeuille> {
                             height: size.height * 0.40,
                             margin: EdgeInsets.only(top: 10),
                             child: new ListView.builder(
+                              controller: _scrollController,
                               reverse: true,
                               itemCount: portefeuilleHistoriek.length,
                               itemBuilder: (context, index) {
@@ -461,6 +471,7 @@ class _PortefeuilleState extends State<Portefeuille> {
             "&amount=" +
             (geldToevoegen * 100).toString(),
         androidToolbarColor: Geel);
+    Navigator.pop(context);
 
     /* launch(
       serverUrl +
