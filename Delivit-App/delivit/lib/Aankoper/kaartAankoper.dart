@@ -16,6 +16,7 @@ import 'package:location_permissions/location_permissions.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:lottie/lottie.dart' as Lottie;
 import 'package:toast/toast.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 
 class KaartAankoper extends StatefulWidget {
   KaartAankoper({Key key, this.title}) : super(key: key);
@@ -35,6 +36,8 @@ class _KaartAankoperState extends State<KaartAankoper>
   bool followUser = false;
   StreamSubscription _getPositionSubscription;
   StreamSubscription _getFirebaseSubscription;
+
+  MarkerClusterPlugin markerClusterPlugin;
 
   void getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -159,7 +162,7 @@ class _KaartAankoperState extends State<KaartAankoper>
               builder: (ctx) => new Container(
                   child: Column(
                 children: <Widget>[
-                  Text(gebruiker['Naam']),
+                  Text(gebruiker['Naam'],style: TextStyle(fontWeight: FontWeight.bold,color:GrijsDark),),
                   new RawMaterialButton(
                     onPressed: () {
                       print("click");
@@ -172,9 +175,9 @@ class _KaartAankoperState extends State<KaartAankoper>
                       }
                     },
                     child: new Icon(
-                      Icons.motorcycle,
+                      Icons.directions_bike,
                       color: Geel,
-                      size: 30.0,
+                      size: 25.0,
                     ),
                     shape: new CircleBorder(),
                     elevation: 2.0,
@@ -231,6 +234,12 @@ class _KaartAankoperState extends State<KaartAankoper>
           gravity: Toast.TOP,
           backgroundColor: Colors.red);
     }
+
+    if (this.mounted) {
+      setState(() {
+        markerClusterPlugin = MarkerClusterPlugin();
+      });
+    }
   }
 
   @override
@@ -261,6 +270,7 @@ class _KaartAankoperState extends State<KaartAankoper>
                 followUser = false;
               },
               center: new LatLng(userPosition.latitude, userPosition.longitude),
+              plugins: [markerClusterPlugin],
               zoom: 15.0,
             ),
             layers: [
@@ -298,9 +308,31 @@ class _KaartAankoperState extends State<KaartAankoper>
                   )
                 ],
               ),
-              new MarkerLayerOptions(
-                markers: opMapUsers,
-              ),
+              (markerClusterPlugin != null && opMapUsers.isNotEmpty)
+                  ? MarkerClusterLayerOptions(
+                      markers: opMapUsers,
+                      polygonOptions: PolygonOptions(
+                          borderColor: Geel,
+                          color: White,
+                          borderStrokeWidth: 10),
+                      maxClusterRadius: 120,
+                      size: Size(35, 35),
+                      builder: (context, markers) {
+                        return FloatingActionButton(
+                          heroTag: "markers",
+                          child: Text(
+                            markers.length.toString(),
+                            style: TextStyle(
+                                color: GrijsDark, fontWeight: FontWeight.bold),
+                          ),
+                          backgroundColor: Geel,
+                          onPressed: null,
+                        );
+                      },
+                    )
+                  : MarkerLayerOptions(
+                      markers: opMapUsers,
+                    ),
             ],
           ));
     } else {
@@ -332,7 +364,7 @@ class _KaartAankoperState extends State<KaartAankoper>
   }
 
   _toonPopupMarker(context, DocumentSnapshot persoon) async {
-    String distance = await getDistance(persoon['Position'],userPosition);
+    String distance = await getDistance(persoon['Position'], userPosition);
     print(distance);
     showModalBottomSheet(
         isScrollControlled: true,
@@ -389,6 +421,4 @@ class _KaartAankoperState extends State<KaartAankoper>
           );
         });
   }
-
-
 }

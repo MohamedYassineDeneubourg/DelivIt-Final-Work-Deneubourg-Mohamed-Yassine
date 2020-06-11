@@ -8,6 +8,7 @@ import 'package:delivit/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -41,6 +42,7 @@ class _KaartBezorgerState extends State<KaartBezorger>
   };
 
   MapController mapController = new MapController();
+  MarkerClusterPlugin markerClusterPlugin;
 
   bool followUser = false;
 
@@ -210,6 +212,11 @@ class _KaartBezorgerState extends State<KaartBezorger>
         }
       }
     });
+    if (this.mounted) {
+      setState(() {
+        markerClusterPlugin = MarkerClusterPlugin();
+      });
+    }
   }
 
   @override
@@ -257,6 +264,7 @@ class _KaartBezorgerState extends State<KaartBezorger>
               }
             },
             center: new LatLng(userPosition.latitude, userPosition.longitude),
+            plugins: [markerClusterPlugin],
             zoom: 15.0,
           ),
           layers: [
@@ -268,9 +276,6 @@ class _KaartBezorgerState extends State<KaartBezorger>
                     '<sk.eyJ1IjoieWFzc2luZTEzMTMiLCJhIjoiY2szaGR4bTBtMGFwYTNjbXV6bTNhZ3hzMyJ9.1e9x7ostbK09U-kbvaxXxg>',
                 'id': 'mapbox.streets',
               },
-            ),
-            new MarkerLayerOptions(
-              markers: opMapBestellingen,
             ),
             new MarkerLayerOptions(
               markers: [
@@ -300,6 +305,29 @@ class _KaartBezorgerState extends State<KaartBezorger>
                 )
               ],
             ),
+            (markerClusterPlugin != null && opMapBestellingen.isNotEmpty)
+                ? MarkerClusterLayerOptions(
+                    markers: opMapBestellingen,
+                    polygonOptions: PolygonOptions(
+                        borderColor: Geel, color: White, borderStrokeWidth: 10),
+                    maxClusterRadius: 120,
+                    size: Size(35, 35),
+                    builder: (context, markers) {
+                      return FloatingActionButton(
+                        heroTag: "markers",
+                        child: Text(
+                          markers.length.toString(),
+                          style: TextStyle(
+                              color: GrijsDark, fontWeight: FontWeight.bold),
+                        ),
+                        backgroundColor: Geel,
+                        onPressed: null,
+                      );
+                    },
+                  )
+                : MarkerLayerOptions(
+                    markers: opMapBestellingen,
+                  ),
           ],
         ),
       );
